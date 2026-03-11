@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, Grid, ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, Search, Grid, ChevronRight, BookOpen } from "lucide-react";
 import { Button } from "./ui/button";
 
 import { categoryConfig, coursesData } from "@/data/categoryCourses";
@@ -47,11 +47,58 @@ const courseCategories = (() => {
 
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileCoursesOpen, setIsMobileCoursesOpen] = useState(false);
+  const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState(
     courseCategories[0]?.category || "SAP Courses",
   );
   const [isCourseMenuOpen, setIsCourseMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const location = useLocation();
+
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle search logic
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim().length >= 2) {
+      const filtered = coursesData.filter((course) =>
+        course.title.toLowerCase().includes(query.toLowerCase()) ||
+        course.description?.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 6);
+      setSearchResults(filtered);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const handleSelectCourse = (id: string) => {
+    navigate(`/courses/${id}`);
+    setSearchQuery("");
+    setSearchResults([]);
+    setIsSearchFocused(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchResults.length > 0) {
+      handleSelectCourse(searchResults[0].id);
+    } else if (e.key === 'Escape') {
+      setIsSearchFocused(false);
+    }
+  };
 
   const role = localStorage.getItem("role");
   const isAuthPage = [
@@ -115,8 +162,8 @@ export const Navbar = () => {
 
           {/* Nav Controls - Middle Section */}
           <div className="flex flex-1 flex-col sm:flex-row items-center gap-3 xl:gap-4 w-full lg:w-auto justify-center lg:justify-start lg:pl-2 xl:pl-8 mt-2 lg:mt-0">
-            {/* Hover Course Menu Button & Dropdown */}
-            <div className="relative group/menu w-full sm:w-auto flex justify-center">
+            {/* Hover Course Menu Button & Dropdown - Hidden on Mobile/Tablet */}
+            <div className="relative group/menu hidden lg:flex justify-center">
               <Button
                 asChild
                 className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium px-2 xl:px-6 gap-2 shrink-0 cursor-default"
@@ -210,15 +257,75 @@ export const Navbar = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="flex w-full max-w-xs xl:max-w-xl relative">
-              <input
-                type="text"
-                placeholder="Search Your Course Here!"
-                className="w-full h-10 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:border-primary"
-              />
-              <button className="bg-secondary hover:bg-secondary/90 text-white w-12 flex items-center justify-center rounded-r-md">
-                <Search className="w-5 h-5" />
-              </button>
+            <div className="flex w-full xl:max-w-xl relative" ref={searchRef}>
+              <div className="flex w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search Your Course Here!"
+                  className="w-full h-10 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:border-[#000080] focus:ring-1 focus:ring-[#000080]/20 transition-all"
+                />
+                <button
+                  onClick={() => searchResults.length > 0 && handleSelectCourse(searchResults[0].id)}
+                  className="bg-[#000080] hover:bg-[#000080]/90 text-white w-12 flex items-center justify-center rounded-r-md transition-colors"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Search Results Dropdown */}
+              {isSearchFocused && (searchQuery.length >= 2) && (
+                <div className="absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-white rounded-lg shadow-2xl border border-gray-100 z-[100] overflow-hidden animate-fade-in">
+                  {searchResults.length > 0 ? (
+                    <>
+                      <div className="p-2 max-h-[350px] overflow-y-auto">
+                        <div className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                          Top Results
+                        </div>
+                        {searchResults.map((course) => (
+                          <button
+                            key={course.id}
+                            onClick={() => handleSelectCourse(course.id)}
+                            className="w-full flex items-center gap-3 p-3 hover:bg-blue-50/50 rounded-md transition-all text-left group"
+                          >
+                            <div className="w-10 h-10 rounded bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-[#000080] transition-colors">
+                              <BookOpen className="w-5 h-5 text-[#000080] group-hover:text-white transition-colors" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 group-hover:text-[#000080] transition-colors truncate">
+                                {course.title}
+                              </h4>
+                              <p className="text-xs text-gray-500 truncate">
+                                {course.categoryId.split('-').map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}
+                              </p>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#000080] transition-transform group-hover:translate-x-1" />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="bg-gray-50 p-3 text-center border-t border-gray-100">
+                        <Link
+                          to="/all-courses"
+                          onClick={() => setIsSearchFocused(false)}
+                          className="text-sm font-bold text-[#000080] hover:underline underline-offset-4"
+                        >
+                          View All Courses
+                        </Link>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-8 text-center">
+                      <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Search className="w-6 h-6 text-gray-300" />
+                      </div>
+                      <p className="text-sm text-gray-500">No courses found matching "{searchQuery}"</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -295,6 +402,115 @@ export const Navbar = () => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden py-4 border-t bg-white mt-4 space-y-3 px-4 pb-6">
+            {/* Courses Accordion for Mobile */}
+            <div className="space-y-1">
+              <button
+                onClick={() => setIsMobileCoursesOpen(!isMobileCoursesOpen)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-[#000080] text-white rounded-md font-medium transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <Grid className="w-4 h-4" />
+                  Our Courses
+                </div>
+                <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isMobileCoursesOpen ? 'rotate-90' : ''}`} />
+              </button>
+
+              {isMobileCoursesOpen && (
+                <div className="mt-2 space-y-1 bg-gray-50 rounded-md p-2 overflow-hidden animate-fade-in">
+                  {[
+                    {
+                      name: "SAP",
+                      link: "/sap-courses",
+                      items: [
+                        { title: "SAP ABAP on HANA", link: "/courses/sap-abap-on-hana-course-online" },
+                        { title: "SAP ABAP on HANA (CDS & OData)", link: "/courses/sap-abap-rap" },
+                        { title: "SAP Fiori & UI5", link: "/courses/sap-ui5-fiori-training" },
+                        { title: "SAP SD", link: "/courses/sap-sd-course-training" },
+                        { title: "SAP MM", link: "/courses/sap-mm-course" },
+                        { title: "SAP FICO", link: "/courses/sap-fico-course-training" },
+                        { title: "SAP PP", link: "/courses/sap-pp-course" },
+                        { title: "SAP BTP For Working Professionals", link: "/courses/sap-btp-working-professionals" },
+                        { title: "SAP BTP For Freshers", link: "/courses/sap-btp-freshers" },
+                        { title: "SAP CPI Training", link: "/courses/sap-cpi-training" },
+                        { title: "SAP QM", link: "/courses/sap-qm-course" },
+                        { title: "SAP BASIS S/4HANA", link: "/courses/sap-basis-s4hana-training" },
+                      ]
+                    },
+                    {
+                      name: "Python",
+                      link: "/courses/python",
+                      items: courseCategories.find((c) => c.category === "Python")?.items || []
+                    },
+                    {
+                      name: "AI",
+                      link: "/courses/ai",
+                      items: courseCategories.find((c) => c.category === "AI")?.items || []
+                    },
+                    {
+                      name: "AIML",
+                      link: "/courses/aiml",
+                      items: courseCategories.find((c) => c.category === "AIML")?.items || []
+                    },
+                    {
+                      name: "Data Analytics",
+                      link: "/courses/power-bi",
+                      items: courseCategories.find((c) => c.category === "Data Analytics")?.items || []
+                    },
+                    {
+                      name: "Digital Marketing",
+                      link: "/courses/digital-marketing",
+                      items: courseCategories.find((c) => c.category === "Digital Marketing")?.items || []
+                    }
+                  ].map((category) => (
+                    <div key={category.name} className="border-b border-gray-100 last:border-0">
+                      <button
+                        onClick={() => setExpandedMobileCategory(expandedMobileCategory === category.name ? null : category.name)}
+                        className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-700 hover:text-[#000080]"
+                      >
+                        {category.name}
+                        {category.items.length > 0 && (
+                          <ChevronRight className={`w-3 h-3 transition-transform ${expandedMobileCategory === category.name ? 'rotate-90' : ''}`} />
+                        )}
+                      </button>
+                      {expandedMobileCategory === category.name && category.items.length > 0 && (
+                        <div className="pl-4 pb-2 space-y-1 animate-slide-up">
+                          {category.items.map((item, idx) => (
+                            <Link
+                              key={idx}
+                              to={item.link}
+                              onClick={() => {
+                                setIsMobileMenuOpen(false);
+                                setIsMobileCoursesOpen(false);
+                              }}
+                              className="block py-1 text-sm text-gray-600 hover:text-[#000080]"
+                            >
+                              {item.title}
+                            </Link>
+                          ))}
+                          <Link
+                            to={category.link}
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              setIsMobileCoursesOpen(false);
+                            }}
+                            className="block py-1 text-sm font-bold text-[#000080] hover:underline"
+                          >
+                            View All {category.name}
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Button asChild className="w-full bg-[#000080] text-white">
+              <Link to="/all-courses" onClick={() => setIsMobileMenuOpen(false)}>
+                Explore All Courses
+              </Link>
+            </Button>
+
             <Button asChild className="w-full bg-[#000080] text-white">
               <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>
                 About Us
