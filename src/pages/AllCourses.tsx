@@ -76,54 +76,52 @@ const AllCourses = () => {
 
             <div className="w-full px-4 sm:px-6 lg:px-12 py-12">
                 <div className="flex justify-center mb-10">
-                    <div className="relative w-full max-w-xl">
+                    <div className="relative w-full max-w-2xl">
                         <Input
                             type="text"
                             placeholder="Search your course..."
-                            className="w-full pl-6 pr-12 py-6 rounded-full border border-gray-300 shadow-sm text-lg focus:ring-2 focus:ring-[#000080]"
+                            className="w-full pl-6 pr-12 py-7 rounded-full border border-gray-200 shadow-sm text-lg focus:ring-2 focus:ring-[#000080] placeholder:text-gray-400"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
-                        <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <Search className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
                     </div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Sidebar - Categories (Only visible when no subcategory is selected) */}
-                    {!selectedSubCategoryId && (
-                        <div className="w-full lg:w-1/4 shrink-0">
-                            <h2 className="text-xl font-normal text-gray-700 mb-6 text-center lg:text-left">Categories</h2>
-                            <div className="flex flex-col space-y-3">
-                                {categoriesList.map((category) => (
-                                    <button
-                                        key={category}
-                                        onClick={() => {
-                                            setSelectedCategory(category);
-                                            setSearchParams({ category });
-                                        }}
-                                        className={`py-3 px-4 rounded border text-center lg:text-left transition-all duration-200 ${selectedCategory === category
-                                            ? "bg-[#000080] text-white border-[#000080]"
-                                            : "bg-white text-[#000080] border-[#000080] hover:bg-blue-50"
-                                            }`}
-                                    >
-                                        {category}
-                                    </button>
-                                ))}
-                            </div>
+                <div className="flex flex-col lg:flex-row gap-12">
+                    {/* Sidebar - Categories */}
+                    <div className="w-full lg:w-64 shrink-0">
+                        <h2 className="text-xl font-medium text-gray-800 mb-6">Categories</h2>
+                        <div className="flex flex-col space-y-3">
+                            {categoriesList.map((category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => {
+                                        setSelectedCategory(category);
+                                        setSearchParams({ category });
+                                        setSelectedSubCategoryId(null);
+                                    }}
+                                    className={`py-3.5 px-6 rounded-md border text-left transition-all duration-200 font-medium ${selectedCategory === category
+                                        ? "bg-[#000080] text-white border-[#000080] shadow-md"
+                                        : "bg-white text-[#000080] border-[#000080] hover:bg-gray-50"
+                                        }`}
+                                >
+                                    {category}
+                                </button>
+                            ))}
                         </div>
-                    )}
+                    </div>
 
                     {/* Content Area */}
-                    <div className={`w-full ${selectedSubCategoryId ? '' : 'lg:w-3/4'}`}>
-                        <div className={`grid grid-cols-1 ${selectedSubCategoryId ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'} gap-8`}>
+                    <div className="flex-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {(() => {
                                 if (selectedSubCategoryId) {
-                                    // Show Courses in the selected SubCategory
                                     if (filteredCourses.length === 0) {
                                         return (
-                                            <div className="col-span-full text-center py-10 text-gray-500">
+                                            <div className="col-span-full text-center py-20 text-gray-500 bg-gray-50 rounded-2xl">
                                                 <p className="text-xl">No courses found in this category.</p>
-                                                <Button onClick={handleBackToCategories} variant="link" className="mt-2 text-[#000080]">
+                                                <Button onClick={handleBackToCategories} variant="link" className="mt-2 text-[#000080] text-lg">
                                                     Back to categories
                                                 </Button>
                                             </div>
@@ -137,32 +135,36 @@ const AllCourses = () => {
                                         return (
                                             <div
                                                 key={course.id}
-                                                className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col h-full"
+                                                className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col h-full group"
                                             >
-                                                <div className="w-full h-48 bg-gray-50 flex items-center justify-center border-b border-gray-100 overflow-hidden shrink-0">
-                                                    <img src={hasValidImage ? course.image : tempImage} alt={course.title} className="w-full h-full object-cover" />
+                                                <div className="w-full h-56 bg-gray-50 overflow-hidden shrink-0">
+                                                    <img
+                                                        src={hasValidImage ? course.image : tempImage}
+                                                        alt={course.title}
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    />
                                                 </div>
 
-                                                <div className="p-6 flex flex-col flex-grow">
+                                                <div className="p-7 flex flex-col flex-grow">
                                                     <div className="flex items-center gap-1 mb-4">
                                                         <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                                                         <span className="font-bold text-gray-900 ml-1">{course.rating || 5}</span>
                                                     </div>
 
-                                                    <div className="mb-2">
-                                                        <h3 className="text-xl font-bold text-gray-900 leading-tight">
+                                                    <div className="mb-3">
+                                                        <h3 className="text-2xl font-bold text-gray-900 leading-tight">
                                                             {course.title}
                                                         </h3>
                                                     </div>
 
                                                     <div className="flex-grow">
-                                                        <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                                                        <p className="text-gray-500 text-sm leading-relaxed mb-8">
                                                             {course.description || `Comprehensive training on ${course.title} including real-world projects and certification.`}
                                                         </p>
                                                     </div>
 
                                                     <div className="mt-auto flex justify-end">
-                                                        <Button asChild className="bg-[#10B981] hover:bg-[#059669] text-white flex items-center gap-2 rounded-md px-6">
+                                                        <Button asChild className="bg-[#10B981] hover:bg-[#059669] text-white flex items-center gap-2 rounded-md px-6 py-2 h-10 text-sm font-medium transition-colors">
                                                             <Link to={`/courses/${course.id}`}>
                                                                 View Course <ArrowRight className="w-4 h-4 ml-1" />
                                                             </Link>
@@ -174,9 +176,8 @@ const AllCourses = () => {
                                     });
                                 }
 
-                                // Default Category/SubCategory Selection View
+                                // Default Category Selection View
                                 let displayList: any[] = [];
-
                                 if (selectedCategory === "All Courses") {
                                     displayList = filteredCourses.map(course => ({ type: 'course', id: course.id, ...course }));
                                 } else {
@@ -195,9 +196,9 @@ const AllCourses = () => {
 
                                 if (displayList.length === 0) {
                                     return (
-                                        <div className="col-span-full text-center py-10 text-gray-500">
+                                        <div className="col-span-full text-center py-20 text-gray-500 bg-gray-50 rounded-2xl">
                                             <p className="text-xl">No courses found matching your criteria.</p>
-                                            <Button asChild variant="link" className="mt-2 text-[#000080]">
+                                            <Button asChild variant="link" className="mt-2 text-[#000080] text-lg">
                                                 <Link to="/contact">Contact us for custom requirements</Link>
                                             </Button>
                                         </div>
@@ -216,15 +217,19 @@ const AllCourses = () => {
                                     return (
                                         <div
                                             key={item.id}
-                                            className={`bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 flex flex-col h-full`}
+                                            className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col h-full group"
                                         >
                                             {!isSubCat && (
-                                                <div className="w-full h-48 bg-gray-50 flex items-center justify-center border-b border-gray-100 overflow-hidden shrink-0">
-                                                    <img src={hasValidImage ? item.image : tempImage} alt={item.title} className="w-full h-full object-cover" />
+                                                <div className="w-full h-56 bg-gray-50 overflow-hidden shrink-0">
+                                                    <img
+                                                        src={hasValidImage ? item.image : tempImage}
+                                                        alt={item.title}
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    />
                                                 </div>
                                             )}
 
-                                            <div className="p-6 flex flex-col flex-grow">
+                                            <div className="p-7 flex flex-col flex-grow">
                                                 {!isSubCat && (
                                                     <div className="flex items-center gap-1 mb-4">
                                                         <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
@@ -232,30 +237,30 @@ const AllCourses = () => {
                                                     </div>
                                                 )}
 
-                                                <div className="mb-2">
-                                                    <h3 className={`font-bold text-gray-900 leading-tight ${!isSubCat ? 'text-xl' : 'text-lg'}`}>
+                                                <div className="mb-3">
+                                                    <h3 className={`font-bold text-gray-900 leading-tight ${!isSubCat ? 'text-2xl' : 'text-xl'}`}>
                                                         {item.title}
                                                     </h3>
                                                 </div>
 
-                                                {isSubCat && <div className="w-full h-px bg-gray-200 mt-2 mb-4"></div>}
+                                                {isSubCat && <div className="w-full h-px bg-gray-100 mt-2 mb-4"></div>}
 
                                                 <div className="flex-grow">
-                                                    <p className={`text-gray-600 text-sm leading-relaxed ${!isSubCat ? 'mb-6' : ''}`}>
+                                                    <p className={`text-gray-500 text-sm leading-relaxed ${!isSubCat ? 'mb-8' : ''}`}>
                                                         {desc}
                                                     </p>
                                                 </div>
 
-                                                <div className={`mt-auto flex items-center ${isSubCat ? 'justify-between pt-4 border-t border-gray-100 mt-6' : 'justify-end'}`}>
+                                                <div className={`mt-auto flex items-center ${isSubCat ? 'justify-between pt-6 border-t border-gray-100 mt-6' : 'justify-end'}`}>
                                                     {isSubCat ? (
                                                         <button
                                                             onClick={() => handleSubCategorySelect(item.id)}
-                                                            className={`text-[#000080] text-sm hover:underline font-semibold`}
+                                                            className="text-[#000080] text-base hover:text-blue-700 font-bold flex items-center gap-2"
                                                         >
-                                                            Explore Category
+                                                            Explore Category <ArrowRight className="w-4 h-4" />
                                                         </button>
                                                     ) : (
-                                                        <Button asChild className="bg-[#10B981] hover:bg-[#059669] text-white flex items-center gap-2 rounded-md px-6">
+                                                        <Button asChild className="bg-[#10B981] hover:bg-[#059669] text-white flex items-center gap-2 rounded-md px-6 py-2 h-10 text-sm font-medium transition-colors">
                                                             <Link to={`/courses/${item.id}`}>
                                                                 View Course <ArrowRight className="w-4 h-4 ml-1" />
                                                             </Link>

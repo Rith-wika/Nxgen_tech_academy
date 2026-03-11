@@ -189,26 +189,96 @@ const SAPCourseDetail = () => {
                         ) : (
                             <div className="space-y-10 animate-in fade-in duration-500">
                                 {/* Descriptive/Marketing Content Moved to Details Tab */}
-                                <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
-                                    <h2 className="text-2xl font-bold text-[#000080] mb-4 flex items-center gap-2">
-                                        <BookOpen className="w-6 h-6 text-blue-600" /> Course Overview & Details
-                                    </h2>
-                                    <h3 className="text-xl font-bold text-[#000080] mb-4">
-                                        What is {basicCourse.title} ?
-                                    </h3>
-                                    <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
-                                        {content.whatIs}
-                                    </p>
-                                </section>
+                                {(() => {
+                                    const paragraphs = (content.whatIs || "").split(/\n\s*\n/);
+                                    const intro = paragraphs.slice(0, 3);
+                                    let remaining = paragraphs.slice(3);
 
-                                <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
-                                    <h3 className="text-2xl font-bold text-[#000080] mb-4 flex items-center gap-2">
-                                        <Star className="w-6 h-6 text-yellow-500" /> Why {basicCourse.title} ?
-                                    </h3>
-                                    <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
-                                        {content.whyCourse}
-                                    </p>
-                                </section>
+                                    // Extract the internal "What is" question if it exists at the start of the remaining text
+                                    let subHeading = null;
+                                    if (remaining.length > 0) {
+                                        const trimmed = remaining[0].trim();
+                                        if (trimmed.startsWith("What is")) {
+                                            const lines = remaining[0].split('\n');
+                                            // Take the first line as a heading if it's a "What is" question
+                                            if (lines[0].trim().startsWith("What is")) {
+                                                subHeading = lines[0].trim();
+                                                if (lines.length > 1) {
+                                                    remaining[0] = lines.slice(1).join('\n');
+                                                } else {
+                                                    remaining = remaining.slice(1);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    return (
+                                        <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
+                                            {/* Main Section Heading */}
+                                            <h2 className="text-2xl font-bold text-[#000080] mb-6 flex items-center gap-2">
+                                                <BookOpen className="w-6 h-6 text-blue-600" /> Course Overview & Information
+                                            </h2>
+
+                                            {/* Title Heading */}
+                                            <h3 className="text-xl font-bold text-[#000080] mb-6">
+                                                What is {basicCourse.title}?
+                                            </h3>
+
+                                            {/* First 3 paragraphs */}
+                                            {intro.map((p, i) => (
+                                                <p key={i} className="text-gray-600 leading-relaxed text-lg whitespace-pre-line mb-6">
+                                                    {p}
+                                                </p>
+                                            ))}
+
+                                            {/* Dynamic sub-heading from text */}
+                                            {subHeading && (
+                                                <h3 className="text-xl font-bold text-[#000080] mt-10 mb-6">
+                                                    {subHeading}
+                                                </h3>
+                                            )}
+
+                                            {/* Remaining paragraphs */}
+                                            {remaining.map((p, i) => (
+                                                <div key={i} className="text-gray-600 leading-relaxed text-lg whitespace-pre-line mb-6 last:mb-0">
+                                                    {p.split('\n').map((line, li) => {
+                                                        const trimmed = line.trim();
+                                                        const isHeading = (trimmed.endsWith(':') || trimmed.endsWith('?')) && !trimmed.startsWith('•');
+                                                        if (isHeading) {
+                                                            return <p key={li} className="font-bold text-gray-800 mt-4 mb-2">{line}</p>;
+                                                        }
+                                                        return <span key={li}>{line}{'\n'}</span>;
+                                                    })}
+                                                </div>
+                                            ))}
+                                        </section>
+                                    );
+                                })()}
+
+                                {content.whyCourse && (() => {
+                                    const paragraphs = content.whyCourse.split(/\n\s*\n/);
+
+                                    return (
+                                        <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+                                            <h3 className="text-2xl font-bold text-[#000080] mb-6 flex items-center gap-3">
+                                                <Star className="w-6 h-6 text-yellow-500" /> Why {basicCourse.title}?
+                                            </h3>
+
+                                            {paragraphs.map((p, i) => (
+                                                <div key={i} className="text-gray-600 leading-relaxed text-lg whitespace-pre-line mb-6 last:mb-0">
+                                                    {p.split('\n').map((line, li) => {
+                                                        const trimmed = line.trim();
+                                                        const isHeading = (trimmed.endsWith(':') || trimmed.endsWith('?')) && !trimmed.startsWith('•');
+                                                        if (isHeading) {
+                                                            return <p key={li} className="font-bold text-gray-800 mt-4 mb-2">{line}</p>;
+                                                        }
+                                                        return <span key={li}>{line}{'\n'}</span>;
+                                                    })}
+                                                </div>
+                                            ))}
+                                        </section>
+                                    );
+                                })()}
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
                                     <h3 className="text-2xl font-bold text-[#000080] mb-6 flex items-center gap-2">
@@ -261,9 +331,16 @@ const SAPCourseDetail = () => {
                                     <h3 className="text-2xl font-bold text-[#000080] mb-4 flex items-center gap-2">
                                         <Clock className="w-6 h-6 text-blue-600" /> {basicCourse.title} Course Fees and Duration
                                     </h3>
-                                    <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
-                                        {content.feesAndDuration}
-                                    </p>
+                                    <div className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
+                                        {content.feesAndDuration.split('\n').map((line, i) => {
+                                            const trimmed = line.trim();
+                                            const isHeading = (trimmed.endsWith(':') || trimmed.endsWith('?')) && !trimmed.startsWith('•');
+                                            if (isHeading) {
+                                                return <p key={i} className="font-bold text-gray-800 mt-4 mb-2">{line}</p>;
+                                            }
+                                            return <span key={i}>{line}{'\n'}</span>;
+                                        })}
+                                    </div>
                                     <div className="mt-6 flex gap-4">
                                         <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-semibold inline-flex items-center gap-2">
                                             <Clock className="w-4 h-4" /> Duration: {duration}
