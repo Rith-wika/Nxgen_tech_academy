@@ -116,9 +116,7 @@ const AICourse = () => {
                         )}
 
                         {/* Course Pricing Section */}
-                        {/* <div className="mt-12">
-                            <CoursePricing courseTitle={config.title} />
-                        </div> */}
+
                     </div>
 
                     {/* RIGHT COLUMN - SIDEBAR (1/3 width) */}
