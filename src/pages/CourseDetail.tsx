@@ -559,9 +559,9 @@ const CourseDetail = () => {
 
                             {/* Contact Help */}
                             <div className="text-center p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                                <p className="text-sm text-gray-500 mb-2">Need guidance on {basicCourse.title}?</p>
-                                <a href="tel:+919960935600" className="text-[#000080] font-bold hover:underline text-lg">
-                                    Call Us: +91 9960 935 600
+                                <p className="text-sm text-black font-bold mb-2">Need guidance on {basicCourse.title}?</p>
+                                <a href="tel:+91 9701314138" className="text-[#000080] font-bold hover:underline text-lg">
+                                    Call Us: +91 9701314138
                                 </a>
                             </div>
                         </div>
