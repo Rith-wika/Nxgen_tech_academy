@@ -137,7 +137,7 @@ const AllCourses = () => {
                                                 key={course.id}
                                                 className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col h-full group"
                                             >
-                                                <div className="w-full h-56 bg-gray-50 overflow-hidden shrink-0">
+                                                <div className="w-full aspect-video bg-gray-50 overflow-hidden shrink-0">
                                                     <img
                                                         src={hasValidImage ? course.image : tempImage}
                                                         alt={course.title}
@@ -220,7 +220,7 @@ const AllCourses = () => {
                                             className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col h-full group"
                                         >
                                             {!isSubCat && (
-                                                <div className="w-full h-56 bg-gray-50 overflow-hidden shrink-0">
+                                                <div className="w-full aspect-video bg-gray-50 overflow-hidden shrink-0">
                                                     <img
                                                         src={hasValidImage ? item.image : tempImage}
                                                         alt={item.title}

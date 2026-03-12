@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Youtube, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const TopBar = () => {
@@ -15,6 +15,7 @@ export const TopBar = () => {
                         <a href="https://www.youtube.com/@NxGenTechAcademy" target="_blank" className="w-8 h-8 flex items-center justify-center border border-white/30 rounded hover:bg-white/10 transition-colors"><Youtube className="w-4 h-4" /></a>
                         <a href="https://www.instagram.com/nxgentechacademy/" target="_blank" className="w-8 h-8 flex items-center justify-center border border-white/30 rounded hover:bg-white/10 transition-colors"><Instagram className="w-4 h-4" /></a>
                         <a href="https://www.linkedin.com/in/nxgen-tech-academy/" target="_blank" className="w-8 h-8 flex items-center justify-center border border-white/30 rounded hover:bg-white/10 transition-colors"><Linkedin className="w-4 h-4" /></a>
+                        <a href="https://x.com/tech_nxgen" target="_blank" className="w-8 h-8 flex items-center justify-center border border-white/30 rounded hover:bg-white/10 transition-colors"><Twitter className="w-4 h-4" /></a>
                     </div>
 
                     {/* Marquee Text */}
