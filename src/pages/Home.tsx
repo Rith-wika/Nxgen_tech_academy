@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Smartphone, Clock, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, CheckCircle, Smartphone, Clock, Star, ChevronLeft, ChevronRight, Calendar, Database, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from 'react-helmet-async';
 import { CourseCarousel } from "@/components/CourseCarousel";
@@ -73,6 +73,52 @@ const Home = () => {
         <meta property="og:type" content="website" />
         <meta property="og:image" content={`${siteUrl}/og-image.jpg`} />
       </Helmet>
+
+      {/* Upcoming Event Banner */}
+      <section className="bg-primary text-white py-3 border-b-2 border-secondary/50 relative overflow-hidden z-20 shadow-md">
+        <div className="w-full px-4 md:px-10 lg:px-20 mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+
+          <div className="flex flex-col md:flex-row items-center gap-3 md:gap-5 text-center md:text-left flex-1 w-full">
+            <div className="inline-flex items-center gap-1.5 bg-secondary text-white font-bold px-3 py-1 rounded text-xs uppercase tracking-wide whitespace-nowrap shadow-sm">
+              <Sparkles className="w-3.5 h-3.5" />
+              Free Demo
+            </div>
+
+            <h2 className="text-sm md:text-base lg:text-lg font-bold flex items-center whitespace-nowrap">
+              SAP BTP Masterclass
+            </h2>
+
+            <p className="text-white/80 text-xs md:text-sm hidden lg:block truncate max-w-sm xl:max-w-xl">
+              Explore SAP Cloud Development & Integration.
+            </p>
+
+            <div className="flex items-center justify-center gap-4 text-xs font-medium ml-auto mr-0 md:mr-4 bg-black/10 px-3 md:px-4 py-1.5 rounded-md border border-white/10 whitespace-nowrap">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-secondary" />
+                <span>14th Mar 2026</span>
+              </div>
+              <div className="flex items-center gap-1.5 hidden sm:flex">
+                <Clock className="w-3.5 h-3.5 text-secondary" />
+                <span>10:00 AM IST</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full md:w-auto shrink-0 flex items-center justify-center">
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSdXT8Mx2S5-wBwOrevQ_09OYcvV0oYFFHznNrYg_5RQQ9OBrw/viewform?usp=publish-editor"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto block group"
+            >
+              <Button size="sm" className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-white font-bold text-sm px-6 rounded shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2 h-9">
+                BOOK A DEMO <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </a>
+          </div>
+
+        </div>
+      </section>
 
       {/* Hero Section with Carousel */}
       <section className="relative bg-white text-gray-800 py-2 lg:py-4 overflow-hidden">
