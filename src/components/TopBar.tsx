@@ -21,7 +21,8 @@ export const TopBar = () => {
                     {/* Marquee Text */}
                     <div
                         className="flex-1 px-4 overflow-hidden w-full lg:w-auto text-sm font-medium whitespace-nowrap"
-                        dangerouslySetInnerHTML={{ __html: '<marquee scrollamount="5">Join Our 100% Job Guarantee Courses (Open to All Graduates/ Diploma Holders/ Career Gaps/ Non-IT Backgrounds/ Pass-Outs from Any Year).</marquee>' }}
+                        // dangerouslySetInnerHTML={{ __html: '<marquee scrollamount="5">Join Our 100% Job Guarantee Courses (Open to All Graduates/ Diploma Holders/ Career Gaps/ Non-IT Backgrounds/ Pass-Outs from Any Year).</marquee>' }}
+                        dangerouslySetInnerHTML={{ __html: '<marquee scrollamount="5">🚀 Book a FREE Demo this Saturday on SAP BTP – Learn Cloud Development, Integration, and Real-Time Projects. Limited Seats Available. Register Now!</marquee>' }}
                     />
 
                     {/* Login Buttons */}
@@ -36,7 +37,7 @@ export const TopBar = () => {
                 </div>
 
                 {/* Bottom Row: Contact Info */}
-                <div className="flex flex-col md:flex-row justify-start items-center gap-2 xl:gap-4 py-2 md:py-3 text-sm md:text-base font-medium">
+                {/* <div className="flex flex-col md:flex-row justify-start items-center gap-2 xl:gap-4 py-2 md:py-3 text-sm md:text-base font-medium">
                     <div className="flex items-center gap-2 border border-white/30 px-3 py-1 rounded bg-white/5 whitespace-nowrap">
                         <span>Corporate: +91 9701314138</span>
                     </div>
@@ -45,7 +46,7 @@ export const TopBar = () => {
                         <span className="hidden md:inline">|</span>
                         <span>Online - +91 9701314138</span>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

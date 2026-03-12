@@ -30,9 +30,11 @@ const Home = () => {
 
   // Array of hero images
   const heroImages = [
-    '/hero-image.jpg',
-    '/hero-bg-2.jpeg',
-    '/hero-bg-1.jpeg'
+    { src: '/hero-bg-4.png', link: 'https://docs.google.com/forms/d/e/1FAIpQLSdXT8Mx2S5-wBwOrevQ_09OYcvV0oYFFHznNrYg_5RQQ9OBrw/viewform?usp=publish-editor' },
+    { src: '/hero-bg-3.png' },
+    { src: '/hero-bg-1.jpeg' },
+    { src: '/hero-bg-2.jpeg' },
+    { src: '/hero-image.jpg' }
   ];
 
   // Auto-advance carousel every 5 seconds
@@ -129,15 +131,28 @@ const Home = () => {
             {/* Carousel Container */}
             <div className="relative w-full max-w-[600px] h-[300px] sm:h-[400px] lg:h-[600px] mx-auto lg:mx-0">
               {/* Images */}
-              {heroImages.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`Hero slide ${index + 1}`}
-                  className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                    }`}
-                />
-              ))}
+              {heroImages.map((image, index) => {
+                const imgElement = (
+                  <img
+                    src={image.src}
+                    alt={`Hero slide ${index + 1}`}
+                    className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                      } ${image.link ? 'cursor-pointer' : ''}`}
+                  />
+                );
+
+                return (
+                  <div key={index}>
+                    {image.link ? (
+                      <a href={image.link} target="_blank" rel="noopener noreferrer">
+                        {imgElement}
+                      </a>
+                    ) : (
+                      imgElement
+                    )}
+                  </div>
+                );
+              })}
 
               {/* Navigation Arrows */}
               <button

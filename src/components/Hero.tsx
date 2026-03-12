@@ -10,9 +10,10 @@ export const Hero = () => {
 
   // Array of hero images
   const heroImages = [
-    '/hero-bg.png',
-    '/hero-bg-1.jpeg', // Replace with your second image path
-    '/hero-bg-2.jpeg'  // Replace with your third image path
+    { src: '/hero-bg-4.png', link: 'https://docs.google.com/forms/d/e/1FAIpQLSdXT8Mx2S5-wBwOrevQ_09OYcvV0oYFFHznNrYg_5RQQ9OBrw/viewform?usp=publish-editor' },
+    { src: '/hero-bg-3.png' },
+    { src: '/hero-bg-1.jpeg' },
+    { src: '/hero-bg-2.jpeg' }
   ];
 
   // Auto-advance carousel every 5 seconds
@@ -40,16 +41,29 @@ export const Hero = () => {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Carousel Images */}
         <div className="absolute inset-0 -z-10">
-          {heroImages.map((image, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 bg-cover bg-center bg-fixed transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
-                }`}
-              style={{
-                backgroundImage: `url('${image}')`,
-              }}
-            />
-          ))}
+          {heroImages.map((image, index) => {
+            const content = (
+              <div
+                className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+                  }`}
+                style={{
+                  backgroundImage: `url('${image.src}')`,
+                }}
+              />
+            );
+
+            return (
+              <div key={index}>
+                {image.link ? (
+                  <a href={image.link} target="_blank" rel="noopener noreferrer">
+                    {content}
+                  </a>
+                ) : (
+                  content
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Gradient Overlay */}
