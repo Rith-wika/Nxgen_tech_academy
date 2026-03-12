@@ -219,11 +219,6 @@ const SAPCourseDetail = () => {
                                                 <BookOpen className="w-6 h-6 text-blue-600" /> Course Overview & Information
                                             </h2>
 
-                                            {/* Title Heading */}
-                                            <h3 className="text-xl font-bold text-[#000080] mb-6">
-                                                What is {basicCourse.title}?
-                                            </h3>
-
                                             {/* First 3 paragraphs */}
                                             {intro.map((p, i) => (
                                                 <p key={i} className="text-gray-600 leading-relaxed text-lg whitespace-pre-line mb-6">
@@ -231,12 +226,17 @@ const SAPCourseDetail = () => {
                                                 </p>
                                             ))}
 
+                                            {/* Title Heading */}
+                                            <h3 className="text-xl font-bold text-[#000080] mb-6">
+                                                What is {basicCourse.title}?
+                                            </h3>
+
                                             {/* Dynamic sub-heading from text */}
-                                            {subHeading && (
+                                            {/* {subHeading && (
                                                 <h3 className="text-xl font-bold text-[#000080] mt-10 mb-6">
                                                     {subHeading}
                                                 </h3>
-                                            )}
+                                            )} */}
 
                                             {/* Remaining paragraphs */}
                                             {remaining.map((p, i) => (

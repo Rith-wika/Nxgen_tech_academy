@@ -381,13 +381,15 @@ const CourseDetail = () => {
                                         <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
                                             {/* Main Section Heading */}
                                             <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center gap-3">
-                                                <BookOpen className="w-8 h-8 text-[#000080]" /> Course Overview & Information
+                                                < BookOpen className="w-8 h-8 text-[#000080]" /> Course Overview & Information
                                             </h2>
 
-                                            {/* Moving the Title Heading back to top as requested ("not after 3rd para graph") */}
-                                            <h3 className="text-2xl font-bold text-[#000080] mb-6">
-                                                What is {basicCourse.title}?
-                                            </h3>
+                                            {/* For FICO, move the title heading right after main section heading */}
+                                            {id === "sap-fico-course-training" && (
+                                                <h3 className="text-2xl font-bold text-[#000080] mb-6">
+                                                    What is {basicCourse.title}?
+                                                </h3>
+                                            )}
 
                                             {/* First 3 paragraphs */}
                                             {intro.map((p, i) => (
@@ -396,12 +398,19 @@ const CourseDetail = () => {
                                                 </p>
                                             ))}
 
+                                            {/* For other courses, title heading remains here (after 3rd paragraph) */}
+                                            {id !== "sap-fico-course-training" && (
+                                                <h3 className="text-2xl font-bold text-[#000080] mb-6">
+                                                    What is {basicCourse.title}?
+                                                </h3>
+                                            )}
+
                                             {/* New heading position: Replace the old position with the specific question from the text */}
-                                            {subHeading && (
+                                            {/* {subHeading && (
                                                 <h3 className="text-2xl font-bold text-[#000080] mt-10 mb-6">
                                                     {subHeading}
                                                 </h3>
-                                            )}
+                                            )} */}
 
                                             {/* Remaining paragraphs */}
                                             {remaining.map((p, i) => (
