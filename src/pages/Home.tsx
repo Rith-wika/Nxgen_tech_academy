@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Smartphone, Clock, Star, ChevronLeft, ChevronRight, Calendar, Database, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle, Smartphone, Clock, Star, ChevronLeft, ChevronRight, Calendar, Database, Sparkles, Presentation } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from 'react-helmet-async';
 import { CourseCarousel } from "@/components/CourseCarousel";
@@ -93,6 +93,10 @@ const Home = () => {
             </p>
 
             <div className="flex items-center justify-center gap-4 text-xs font-medium ml-auto mr-0 md:mr-4 bg-black/10 px-3 md:px-4 py-1.5 rounded-md border border-white/10 whitespace-nowrap">
+            <div className="flex items-center gap-1.5 hidden sm:flex">
+                <Presentation className="w-3.5 h-3.5 text-secondary" />
+                <span>Upcoming Event</span>
+              </div>
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-secondary" />
                 <span>14th Mar 2026</span>

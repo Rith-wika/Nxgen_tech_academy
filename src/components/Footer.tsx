@@ -137,6 +137,7 @@ export const Footer = () => {
           <p>&copy; NxGen Tech Academy. All Right Reserved.</p>
           <div className="flex gap-6">
             <Link to="/" className="hover:text-white">Home</Link>
+            <Link to="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
             <Link to="#" className="hover:text-white">Cookies</Link>
             <Link to="#" className="hover:text-white">Help</Link>
           </div>

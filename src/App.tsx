@@ -33,6 +33,7 @@ import CourseViewer from "./pages/Dashboard/CourseViewer";
 import AdminLogin from "./pages/Admin/AdminLogin";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import BlogDetail from "./pages/BlogDetail";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { useLocation, useParams } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -86,6 +87,7 @@ const AppContent = () => {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="dashboard/course/:id" element={<CourseViewer />} />
           <Route path="admin/*" element={<AdminDashboard />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
