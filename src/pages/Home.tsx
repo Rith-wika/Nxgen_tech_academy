@@ -369,7 +369,7 @@ const Home = () => {
               {[
                 { id: "v1", youtubeId: "AZEZc7j5jDg", title: "" },
                 { id: "v2", youtubeId: "Y019HAHgJvc", title: "" },
-                { id: "v3", youtubeId: "coCLAzYcX7Y", title: "" },
+                { id: "v3", youtubeId: "f8JehiagC40", title: "" },
                 { id: "v4", youtubeId: "-pkVqNifeOA", title: "" },
               ].map((video) => (
                 <div key={video.id} className="bg-white rounded-2xl overflow-hidden shadow-xl group hover:shadow-2xl transition-all duration-500 border border-gray-100">
