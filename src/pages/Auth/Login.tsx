@@ -5,44 +5,68 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
-const StudentLogin = () => {
+const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [role, setRole] = useState("student");
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (localStorage.getItem("username")) {
-            navigate("/dashboard");
+        const storedRole = localStorage.getItem("role");
+        if (storedRole) {
+            redirectBasedOnRole(storedRole);
         }
     }, [navigate]);
+
+    const redirectBasedOnRole = (role: string) => {
+        switch (role) {
+            case "admin":
+                navigate("/admin/dashboard");
+                break;
+            case "instructor":
+                navigate("/instructor/dashboard");
+                break;
+            case "student":
+                navigate("/student/dashboard");
+                break;
+            case "blog_admin":
+                navigate("/blog-admin/dashboard");
+                break;
+            default:
+                navigate("/");
+        }
+    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            const response = await axiosInstance.post("/api/auth/student-login/", {
+            // Updated to match the expected payload in the request
+            const response = await axiosInstance.post("/api/auth/login/", {
                 username_or_email: username,
                 password,
-                role: "student",
+                role: role,
             });
 
-            console.log("Student Login Response:", response.data);
-            // Store token securely (e.g., localStorage or secure cookie)
+            console.log("Login Response:", response.data);
+
+            // Store tokens and user info
             localStorage.setItem("access_token", response.data.access);
             localStorage.setItem("refresh_token", response.data.refresh);
             localStorage.setItem("user_id", response.data.user_id);
             localStorage.setItem("username", response.data.username);
-            localStorage.setItem("role", response.data.role);
+            localStorage.setItem("role", response.data.role || role);
 
             toast.success("Login successful! Welcome back.");
-            navigate("/dashboard"); // Redirect to dashboard
+            redirectBasedOnRole(response.data.role || role);
         } catch (error: any) {
             console.error("Login Error:", error);
-            toast.error(error.response?.data?.message || "Login failed. Check your credentials.");
+            toast.error(error.response?.data?.error || error.response?.data?.message || "Login failed. Check your credentials.");
         } finally {
             setIsLoading(false);
         }
@@ -51,11 +75,11 @@ const StudentLogin = () => {
     return (
         <div className="min-h-[80vh] bg-gray-50 flex items-center justify-center py-12">
             <div className="container mx-auto px-4 flex justify-center">
-                <Card className="w-full max-w-md shadow-lg">
+                <Card className="w-full max-w-md shadow-lg border-t-4 border-t-[#000080]">
                     <CardHeader className="space-y-1">
-                        <CardTitle className="text-2xl font-bold text-center text-[#000080]">Student Portal</CardTitle>
-                        <CardDescription className="text-center">
-                            Login to your student account
+                        <CardTitle className="text-3xl font-bold text-center text-[#000080]">Sign In</CardTitle>
+                        <CardDescription className="text-center font-medium">
+                            Access your NxGen Academy Dashboard
                         </CardDescription>
                     </CardHeader>
                     <form onSubmit={handleLogin}>
@@ -68,10 +92,14 @@ const StudentLogin = () => {
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     required
+                                    className="border-gray-300 focus:border-[#000080] focus:ring-[#000080]"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="password">Password</Label>
+                                    <Link to="#" className="text-xs text-[#000080] hover:underline">Forgot password?</Link>
+                                </div>
                                 <Input
                                     id="password"
                                     type="password"
@@ -79,23 +107,32 @@ const StudentLogin = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
+                                    className="border-gray-300 focus:border-[#000080] focus:ring-[#000080]"
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="role">Login As</Label>
+                                <Select onValueChange={(value) => setRole(value)} defaultValue={role}>
+                                    <SelectTrigger className="border-gray-300 focus:border-[#000080]">
+                                        <SelectValue placeholder="Select your role" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="student">Student</SelectItem>
+                                        <SelectItem value="instructor">Instructor</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                        <SelectItem value="blog_admin">Blog Content</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </CardContent>
                         <CardFooter className="flex flex-col space-y-4">
-                            <Button type="submit" className="w-full bg-[#000080] hover:bg-[#000080]/90" disabled={isLoading}>
-                                {isLoading ? "Logging in..." : "Login as Student"}
+                            <Button type="submit" className="w-full bg-[#000080] hover:bg-[#000060] text-lg py-6" disabled={isLoading}>
+                                {isLoading ? "Logging in..." : "Login"}
                             </Button>
                             <div className="text-sm text-center text-gray-500">
                                 Don't have an account?{" "}
                                 <Link to="/register" className="text-[#000080] font-semibold hover:underline">
                                     Register here
-                                </Link>
-                            </div>
-                            <div className="text-xs text-center">
-                                Are you an instructor?{" "}
-                                <Link to="/instructor-login" className="text-blue-600 hover:underline">
-                                    Instructor Login
                                 </Link>
                             </div>
                         </CardFooter>
@@ -106,4 +143,4 @@ const StudentLogin = () => {
     );
 };
 
-export default StudentLogin;
+export default Login;

@@ -116,6 +116,7 @@ const About = () => {
               <p className="text-gray-600 text-lg leading-relaxed font-medium">
                 Today, we blend advanced training tools with a student-first approach, maintaining trust and credibility as the best IT training institution in Hyderabad.
               </p>
+
             </motion.div>
             <motion.div variants={fadeInUp} className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">

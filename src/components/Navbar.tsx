@@ -105,6 +105,7 @@ export const Navbar = () => {
     "/student-login",
     "/instructor-login",
     "/register",
+    "/login",
   ].includes(location.pathname);
   const isSpecialAccount = role === "student" || role === "instructor";
 
@@ -562,32 +563,18 @@ export const Navbar = () => {
                     Register Now
                   </Link>
                 </Button>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="text-[#000080] border border-[#000080]"
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full border-[#000080] text-[#000080] hover:bg-[#000080] hover:text-white"
+                >
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <Link
-                      to="/student-login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Student
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="text-[#000080] border border-[#000080]"
-                  >
-                    <Link
-                      to="/instructor-login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Instructor
-                    </Link>
-                  </Button>
-                </div>
+                    Login
+                  </Link>
+                </Button>
               </>
             )}
           </div>

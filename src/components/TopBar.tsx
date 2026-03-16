@@ -25,13 +25,10 @@ export const TopBar = () => {
                         dangerouslySetInnerHTML={{ __html: '<marquee scrollamount="5">🚀 Book a FREE Demo this Saturday on SAP BTP – Learn Cloud Development, Integration, and Real-Time Projects. Limited Seats Available. Register Now!</marquee>' }}
                     />
 
-                    {/* Login Buttons */}
+                    {/* Login Button */}
                     <div className="flex items-center gap-2 xl:gap-3 shrink-0 flex-wrap justify-center">
-                        <Link to="/student-login" className="px-4 py-1.5 border border-white rounded text-sm hover:bg-white hover:text-[#000080] transition-colors whitespace-nowrap">
-                            Student Login
-                        </Link>
-                        <Link to="/instructor-login" className="px-4 py-1.5 border border-white rounded text-sm hover:bg-white hover:text-[#000080] transition-colors whitespace-nowrap">
-                            Instructor Login
+                        <Link to="/login" className="px-6 py-1.5 border border-white rounded font-medium text-sm hover:bg-white hover:text-[#000080] transition-colors whitespace-nowrap">
+                            Login
                         </Link>
                     </div>
                 </div>

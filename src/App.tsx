@@ -26,31 +26,37 @@ import AllCourses from "./pages/AllCourses";
 import Blogs from "./pages/Blogs";
 import SAPCategory from "./pages/SAPCategory";
 import Register from "./pages/Auth/Register";
-import StudentLogin from "./pages/Auth/StudentLogin";
-import InstructorLogin from "./pages/Auth/InstructorLogin";
-import Dashboard from "./pages/Dashboard/Dashboard";
+import Login from "./pages/Auth/Login";
+import MainDashboard from "./pages/Admin/MainDashboard";
+import StudentsPage from "./pages/Admin/StudentsPage";
+import InstructorsPage from "./pages/Admin/InstructorsPage";
+import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
+import StudentDashboard from "./pages/Student/StudentDashboard";
+import BlogDashboard from "./pages/BlogAdmin/BlogDashboard";
 import CourseViewer from "./pages/Dashboard/CourseViewer";
-import AdminLogin from "./pages/Admin/AdminLogin";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
 import BlogDetail from "./pages/BlogDetail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { useLocation, useParams } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
-
-
 const AppContent = () => {
   const location = useLocation();
-  const authPages = ["/register", "/student-login", "/instructor-login"];
+  const authPages = ["/register", "/login", "/student-login", "/instructor-login", "/admin-login"];
   const isAuthPage = authPages.includes(location.pathname);
 
   const role = localStorage.getItem("role");
-  const isStudentOrInstructorLoggedIn = !!role && (role === "student" || role === "instructor");
-  const isAdminDashboard = location.pathname.startsWith("/admin") && location.pathname !== "/admin-login";
+  const isDashboardPage = location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/instructor") ||
+    location.pathname.startsWith("/student") ||
+    location.pathname.startsWith("/blog-admin");
 
-  // Hide TopBar, Navbar, and Footer for auth pages OR when logged in on a dashboard/admin panel
-  const hideComponents = isAuthPage || isStudentOrInstructorLoggedIn || isAdminDashboard;
+  const token = localStorage.getItem("access_token");
+  const isUserLoggedIn = !!token;
+
+  // Hide TopBar, Navbar, and Footer for auth pages OR when logged in on any dashboard
+  const hideComponents = isAuthPage || (isUserLoggedIn && isDashboardPage);
 
   return (
     <>
@@ -81,12 +87,53 @@ const AppContent = () => {
           <Route path="blogs" element={<Blogs />} />
           <Route path="blogs/:slug" element={<BlogDetail />} />
           <Route path="register" element={<Register />} />
-          <Route path="student-login" element={<StudentLogin />} />
-          <Route path="instructor-login" element={<InstructorLogin />} />
-          <Route path="admin-login" element={<AdminLogin />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="dashboard/course/:id" element={<CourseViewer />} />
-          <Route path="admin/*" element={<AdminDashboard />} />
+          <Route path="login" element={<Login />} />
+
+          {/* Legacy Login Routes (Redirecting to new login) */}
+          <Route path="student-login" element={<Login />} />
+          <Route path="instructor-login" element={<Login />} />
+          <Route path="admin-login" element={<Login />} />
+
+          {/* Protected Dashboard Routes */}
+          <Route path="admin/*" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Routes>
+                <Route path="/" element={<MainDashboard />} />
+                <Route path="dashboard" element={<MainDashboard />} />
+                <Route path="students" element={<StudentsPage />} />
+                <Route path="instructors" element={<InstructorsPage />} />
+              </Routes>
+            </ProtectedRoute>
+          } />
+
+          <Route path="instructor/*" element={
+            <ProtectedRoute allowedRoles={["instructor"]}>
+              <Routes>
+                <Route path="/" element={<InstructorDashboard />} />
+                <Route path="dashboard" element={<InstructorDashboard />} />
+                <Route path="courses" element={<InstructorDashboard />} />
+                <Route path="upload-lesson" element={<InstructorDashboard />} />
+              </Routes>
+            </ProtectedRoute>
+          } />
+
+          <Route path="student/*" element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <Routes>
+                <Route path="/" element={<StudentDashboard />} />
+                <Route path="dashboard" element={<StudentDashboard />} />
+                <Route path="courses" element={<StudentDashboard />} />
+                <Route path="course/:id" element={<CourseViewer />} />
+              </Routes>
+            </ProtectedRoute>
+          } />
+
+          <Route path="blog-admin/*" element={
+            <ProtectedRoute allowedRoles={["blog_admin"]}>
+              <BlogDashboard />
+            </ProtectedRoute>
+          } />
+
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
