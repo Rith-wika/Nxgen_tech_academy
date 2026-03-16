@@ -150,11 +150,11 @@ const About = () => {
                 <img src={sriaLogo} alt="Sriainfotech Logo" className="w-32 md:w-48 h-auto object-contain" />
               </div>
               <div className="text-center md:text-left pt-2">
-                <h3 className="text-3xl font-bold text-[#000080] mb-4 tracking-tight">NXGenTech Academy</h3>
+                <h3 className="text-3xl font-bold text-[#000080] mb-4 tracking-tight">NxGenTech Academy</h3>
                 <div className="inline-flex items-center gap-3 px-5 py-3 bg-green-50 rounded-xl border border-green-100">
                   <span className="w-2.5 h-2.5 bg-[#22c55e] rounded-full animate-pulse shrink-0"></span>
                   <p className="font-semibold text-gray-800 text-base md:text-lg">
-                    A Skill Development Brand Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" >Sriainfotech Pvt. Ltd.</a>
+                    A Skill Development Brand Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" >Sria Infotech Pvt. Ltd.</a>
                   </p>
                 </div>
               </div>
@@ -162,10 +162,10 @@ const About = () => {
 
             <div className="space-y-6 text-gray-700">
               <p className="text-lg leading-relaxed">
-                <strong className="text-gray-900 font-bold">NXGenTech Academy</strong> is a career-oriented IT training institute dedicated to building industry-ready professionals through structured, practical, and performance-driven education.
+                <strong className="text-gray-900 font-bold">NxGenTech Academy</strong> is a career-oriented IT training institute dedicated to building industry-ready professionals through structured, practical, and performance-driven education.
               </p>
               <p className="text-lg leading-relaxed">
-                Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" ><strong className="text-gray-900 font-medium">Sriainfotech Pvt. Ltd.</strong></a>, NXGenTech Academy was established with a clear vision — to bridge the gap between academic learning and real-world industry requirements. The academy functions as a specialized skill development platform designed to prepare students, graduates, and working professionals for modern technology careers.
+                Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" ><strong className="text-gray-900 font-medium">Sria Infotech Pvt. Ltd.</strong></a>, NxGenTech Academy was established with a clear vision — to bridge the gap between academic learning and real-world industry requirements. The academy functions as a specialized skill development platform designed to prepare students, graduates, and working professionals for modern technology careers.
               </p>
             </div>
           </motion.div>
