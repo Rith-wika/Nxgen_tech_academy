@@ -2,6 +2,14 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import EnrollmentForm from "@/components/EnrollmentForm";
+import {
     ArrowLeft, Star, Clock, Users, BookOpen,
     CheckCircle, Briefcase, Award, PlayCircle, Code, ChevronDown, IndianRupee, Monitor,
     Layers, Terminal, Brain, PieChart, Globe, ChevronLeft, ChevronRight
@@ -33,7 +41,8 @@ const CourseDetail = () => {
     const basicCourse = coursesData.find(c => c.id === id);
 
     // Attempt to get specialized SAP content
-    const sapContent = basicCourse ? getSapCourseContent(id || "", basicCourse.title) : null;
+    const isSapCourse = basicCourse?.categoryId?.toLowerCase().includes("sap") || id?.toLowerCase().includes("sap");
+    const sapContent = isSapCourse ? getSapCourseContent(id || "", basicCourse.title || "") : null;
 
     // Attempt to get detailed course data (for non-SAP or detailed SAP)
     const detailedCourse = id ? detailedCourses[id] : null;
@@ -80,25 +89,25 @@ const CourseDetail = () => {
 
     // Merge/Normalize content
     const content = {
-        metaTitle: sapContent?.metaTitle,
-        metaDescription: sapContent?.metaDescription,
+        metaTitle: sapContent?.metaTitle || detailedCourse?.metaTitle,
+        metaDescription: sapContent?.metaDescription || detailedCourse?.metaDescription,
         whatIs: sapContent?.whatIs || detailedCourse?.overview || basicCourse.description,
-        whyCourse: sapContent?.whyCourse || (detailedCourse?.audience ? `This course is ideal for ${detailedCourse.audience.join(", ")}.` : ""),
+        whyCourse: sapContent?.whyCourse || detailedCourse?.whyCourse || (detailedCourse?.audience ? `This course is ideal for ${detailedCourse.audience.join(", ")}.` : ""),
         keyBenefits: sapContent?.keyBenefits || detailedCourse?.outcomes || [],
-        whyChooseNxGen: sapContent?.whyChooseNxGen || [
+        whyChooseNxGen: sapContent?.whyChooseNxGen || detailedCourse?.whyChooseNxGen || [
             "Live interactive training sessions",
             "Real-time projects and case studies",
             "Expert trainer guidance",
             "Placement assistance",
             "Affordable course fees"
         ],
-        careerOpportunities: sapContent?.careerOpportunities || [
+        careerOpportunities: sapContent?.careerOpportunities || detailedCourse?.careerOpportunities || [
             `${basicCourse.title} Professional`,
             "Industry Consultant",
             "Solution Architect",
             "Functional Expert"
         ],
-        feesAndDuration: sapContent?.feesAndDuration || `Our ${basicCourse.title} course is designed to be highly affordable while delivering world-class education. For specific fee structures and starting dates, please reach out to our admissions team.`,
+        feesAndDuration: sapContent?.feesAndDuration || detailedCourse?.feesAndDuration || `Our ${basicCourse.title} course is designed to be highly affordable while delivering world-class education. For specific fee structures and starting dates, please reach out to our admissions team.`,
         keyTopics: (sapContent?.keyTopics && sapContent.keyTopics.length > 0)
             ? sapContent.keyTopics
             : (detailedCourse?.tools && detailedCourse.tools.length > 0)
@@ -118,7 +127,8 @@ const CourseDetail = () => {
             { module: "Core Configuration", topics: ["Master Data Setup", "Standard Business Processes"] },
             { module: "Advanced Features", topics: ["Integration Scenarios", "Advanced Customizing"] },
             { module: "Real-time Projects", topics: ["Industry Best Practices", "Live Case Studies"] },
-        ]
+        ],
+        faqs: detailedCourse?.faqs || []
     };
 
     const duration = basicCourse.duration || detailedCourse?.duration || "40+ hours";
@@ -384,8 +394,8 @@ const CourseDetail = () => {
                                                 < BookOpen className="w-8 h-8 text-[#000080]" /> Course Overview & Information
                                             </h2>
 
-                                            {/* For FICO, move the title heading right after main section heading */}
-                                            {id === "sap-fico-course-training" && (
+                                            {/* For FICO and Python, move the title heading right after main section heading */}
+                                            {(id === "sap-fico-course-training" || id === "python-course-training-hyderabad") && (
                                                 <h3 className="text-2xl font-bold text-[#000080] mb-6">
                                                     What is {basicCourse.title}?
                                                 </h3>
@@ -399,7 +409,7 @@ const CourseDetail = () => {
                                             ))}
 
                                             {/* For other courses, title heading remains here (after 3rd paragraph) */}
-                                            {id !== "sap-fico-course-training" && (
+                                            {!(id === "sap-fico-course-training" || id === "python-course-training-hyderabad") && (
                                                 <h3 className="text-2xl font-bold text-[#000080] mb-6">
                                                     What is {basicCourse.title}?
                                                 </h3>
@@ -517,12 +527,50 @@ const CourseDetail = () => {
                                             return <span key={i}>{line}{'\n'}</span>;
                                         })}
                                     </div>
-                                    <div className="mt-6 flex gap-4">
+                                    <div className="mt-6 flex flex-wrap items-center gap-4">
                                         <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-semibold inline-flex items-center gap-2">
                                             <Clock className="w-4 h-4" /> Duration: {duration}
                                         </div>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button className="bg-[#000080] hover:bg-[#000080]/90 text-white font-bold px-8 h-10 rounded-lg transition-transform hover:-translate-y-1 hover:shadow-lg shadow-md duration-300">
+                                                    Enroll Now
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-[425px] md:max-w-[550px] bg-white p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+                                                <DialogHeader className="bg-[#000080] p-6 text-white text-center pb-8 border-b-0 space-y-2">
+                                                    <DialogTitle className="text-2xl font-bold flex justify-center text-white m-0">
+                                                        Enroll in {basicCourse.title}
+                                                    </DialogTitle>
+                                                    <p className="text-blue-100 text-sm m-0">Fill in your details to secure your spot</p>
+                                                </DialogHeader>
+                                                <div className="p-6 pt-2 bg-gray-50/50">
+                                                    <EnrollmentForm defaultCourse={basicCourse.title} />
+                                                </div>
+                                            </DialogContent>
+                                        </Dialog>
                                     </div>
                                 </section>
+
+                                {content.faqs && content.faqs.length > 0 && (
+                                    <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-[600ms]">
+                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center gap-3">
+                                            <Award className="w-8 h-8 text-blue-600" /> Frequently Asked Questions
+                                        </h3>
+                                        <div className="space-y-6">
+                                            {content.faqs.map((faq, idx) => (
+                                                <div key={idx} className="space-y-2">
+                                                    <p className="font-bold text-gray-900 text-lg flex gap-2">
+                                                        <span className="text-blue-600">{idx + 1}.</span> {faq.question}
+                                                    </p>
+                                                    <p className="text-gray-600 text-base leading-relaxed pl-6">
+                                                        {faq.answer}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+                                )}
                             </div>
                         )}
                     </div>

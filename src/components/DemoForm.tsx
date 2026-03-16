@@ -31,11 +31,16 @@ const COURSES = [
 ];
 
 const DemoForm = ({ defaultCourse, onSuccess }: DemoFormProps) => {
+    const courseOptions = [...COURSES];
+    if (defaultCourse && !courseOptions.includes(defaultCourse)) {
+        courseOptions.unshift(defaultCourse);
+    }
+
     const [formData, setFormData] = useState({
         full_name: "",
         email: "",
         phone: "",
-        course: defaultCourse || "",
+        course: defaultCourse || courseOptions[0],
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -130,7 +135,7 @@ const DemoForm = ({ defaultCourse, onSuccess }: DemoFormProps) => {
                             <SelectValue placeholder="Select a course" />
                         </SelectTrigger>
                         <SelectContent>
-                            {COURSES.map((course) => (
+                            {courseOptions.map((course) => (
                                 <SelectItem key={course} value={course}>
                                     {course}
                                 </SelectItem>

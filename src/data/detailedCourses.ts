@@ -24,6 +24,13 @@ export interface DetailedCourse {
     };
     audience: string[];
     image: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    whyCourse?: string;
+    whyChooseNxGen?: string[];
+    careerOpportunities?: string[];
+    feesAndDuration?: string;
+    faqs?: { question: string; answer: string }[];
 }
 
 export const detailedCourses: Record<string, DetailedCourse> = {
@@ -858,83 +865,68 @@ export const detailedCourses: Record<string, DetailedCourse> = {
         },
         audience: ["Students", "Working Professionals", "Entrepreneurs", "Small Business Owners"]
     },
-    "python-core": {
-        id: "python-core",
-        title: "Core Python Programming",
-        tagline: "Build a strong foundation in Python programming and logic building.",
+    "python-course-training-hyderabad": {
+        id: "python-course-training-hyderabad",
+        title: "Python Programming",
+        tagline: "Learn Python programming with practical projects at NxGen Tech Academy in Hyderabad.",
         level: "Beginner",
-        duration: "4 Weeks",
-        lessons: 20,
-        projects: 2,
-        image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200",
-        overview: "This course is designed to provide a strong foundation in Python programming. You will learn everything from installation to Object Readiness Programming, enabling you to write logical programs and handle files.",
-        outcomes: [
-            "Strong foundation in Python programming",
-            "Ability to write logical programs",
-            "OOP concepts understanding",
-            "Error handling & debugging",
-            "File operations handling",
-            "Ready for interviews & basic project development"
-        ],
-        curriculum: [
-            { module: "Module 1: Introduction to Python", topics: ["What is Python?", "Features of Python", "Installation & Setup", "Python IDEs (VS Code, PyCharm)", "Writing First Program", "Keywords & Identifiers"] },
-            { module: "Module 2: Variables & Data Types", topics: ["Variables & Naming Rules", "Data Types (int, float, string, bool)", "Type Casting", "Taking User Input", "Operators (Arithmetic, Logical, Comparison)"] },
-            { module: "Module 3: Control Statements", topics: ["if, elif, else", "Nested Conditions", "For Loop", "While Loop", "Break & Continue", "Pass Statement"] },
-            { module: "Module 4: Strings & Collections", topics: ["String Methods", "String Formatting", "Lists & List Methods", "Tuples", "Sets", "Dictionaries & Dictionary Methods"] },
-            { module: "Module 5: Functions", topics: ["Defining Functions", "Parameters & Arguments", "Return Statement", "Default Arguments", "Lambda Functions", "Recursion"] },
-            { module: "Module 6: OOP (Object Readiness Programming)", topics: ["Class & Object", "Constructor (init)", "Instance & Class Variables", "Inheritance", "Polymorphism", "Encapsulation", "Abstraction"] },
-            { module: "Module 7: Exception Handling", topics: ["Types of Errors", "Try & Except", "Finally Block", "Raising Exceptions", "Custom Exceptions"] },
-            { module: "Module 8: File Handling", topics: ["Reading Files", "Writing Files", "Append Mode", "Working with CSV Files"] }
-        ],
-        tools: [
-            { name: "Python", icon: Code },
-            { name: "VS Code", icon: Code },
-            { name: "PyCharm", icon: Code }
-        ],
-        project: {
-            title: "Student Management System",
-            description: "Build a console-based application to manage student records using file handling and OOP concepts."
-        },
-        audience: ["Students", "Beginners", "Non-IT Professionals"]
-    },
-    "python-advanced": {
-        id: "python-advanced",
-        title: "Advanced Python",
-        tagline: "Master advanced concepts, APIs, and database connectivity.",
-        level: "Advanced",
-        duration: "4 Weeks",
-        lessons: 20,
+        duration: "3 to 4 Months",
+        lessons: 40,
         projects: 3,
         image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200",
-        overview: "Take your Python skills to the next level. Learn about decorators, generators, multithreading, database connectivity, and web development with Django/FastAPI.",
+        metaTitle: "Python Course Training in Hyderabad | NxGen Tech Academy",
+        metaDescription: "Learn Python programming with practical projects at NxGen Tech Academy in Hyderabad. Industry trainers, real-time projects, and career support. Enroll today.",
+        overview: "Python Course training is one of the most popular choices for students who want a career in software development. Python is simple to learn and powerful in real applications. Many companies use Python for building websites, automation tools, data analysis, and artificial intelligence systems.\n\nAt NxGen Tech Academy, the Python course focuses on practical learning and industry skills. Students learn programming fundamentals and develop real applications. The training helps beginners understand coding easily. At the same time, it prepares learners for professional development environments.\n\nPython continues to grow in demand across IT companies. Therefore, learning Python programming can open many career opportunities.\n\nWhat is Python Programming?\nPython is a high-level programming language created by Guido van Rossum in 1991. It is known for its clear syntax and readable structure. Developers can write programs with fewer lines of code.\n\nPython supports multiple programming approaches. Therefore, developers can build different types of applications easily.\n\nMajor Programming Styles Supported in Python:\n• Object Oriented Programming (OOP)\n• Procedural Programming\n• Functional Programming\n\nPython includes thousands of open-source libraries. These libraries help developers build applications faster.\n\nToday Python is used in many industries. For example, it powers web platforms, AI systems, automation scripts, and data analytics tools.",
+        whyCourse: "Python has become one of the most demanded programming languages in the IT industry. Many organisations choose Python because development becomes faster and easier.\n\nPython also allows beginners to learn programming without difficulty. The syntax looks close to normal English statements.\n\nMany global companies use Python in their technology stack.\n\nExamples include:\nGoogle\nNetflix\nInstagram\nSpotify\nDropbox\n\nAs a result, Python developers are highly valued in the job market.",
         outcomes: [
-            "Write production-level Python code",
-            "Build REST APIs",
-            "Work with databases",
-            "Create backend applications",
-            "Understand multithreading concepts",
-            "Ready for job as Python Developer"
+            "Easy to Learn – Python syntax is simple and beginner friendly.",
+            "High Industry Demand – Python developers are required in many companies.",
+            "Multiple Career Paths – Python works in AI, web development, automation, and data science.",
+            "Large Developer Community – Millions of developers support Python worldwide.",
+            "Faster Development – Python allows quick development of applications.",
+            "Powerful Libraries – Libraries simplify complex tasks in development."
         ],
+        whyChooseNxGen: [
+            "Industry experienced trainers",
+            "Practical coding sessions",
+            "Real-time project development",
+            "Interview preparation sessions",
+            "Updated industry-level syllabus",
+            "Personal mentorship and guidance"
+        ],
+        careerOpportunities: [
+            "Python Developer",
+            "Backend Developer",
+            "Data Analyst",
+            "Data Scientist",
+            "Machine Learning Engineer",
+            "Automation Engineer",
+            "Web Application Developer"
+        ],
+        feesAndDuration: "Course Duration: 3 to 4 Months\nTraining Mode: Classroom Training / Online Training\nCourse Fee: Contact NxGen Tech Academy for updated fee details",
         curriculum: [
-            { module: "Module 1: Advanced Functions", topics: ["Decorators", "Generators", "Iterators", "*args and **kwargs", "Closures"] },
-            { module: "Module 2: Advanced OOP", topics: ["Method Overloading", "Method Overriding", "Magic Methods", "Multiple Inheritance", "MRO (Method Resolution Order)"] },
-            { module: "Module 3: Modules & Packages", topics: ["Creating Modules", "Creating Packages", "name == \"main\"", "Virtual Environment", "pip & Package Installation"] },
-            { module: "Module 4: Regular Expressions", topics: ["Pattern Matching", "re module", "Email & Mobile Validation"] },
-            { module: "Module 5: Multithreading & Multiprocessing", topics: ["Thread Class", "Creating Threads", "Synchronization", "GIL Concept", "Multiprocessing Basics"] },
-            { module: "Module 6: Database Connectivity", topics: ["MySQL with Python", "SQLite with Python", "CRUD Operations", "Connecting using mysql-connector"] },
-            { module: "Module 7: API & Web Development Introduction", topics: ["REST API Basics", "JSON Handling", "Intro to Django", "Intro to FastAPI", "Creating Simple APIs"] },
-            { module: "Module 8: Real-Time Project", topics: ["Student Management System", "Employee Management System", "REST API Project", "Deployment Basics"] }
+            { module: "Module 1: What is Python Programming?", topics: ["Introduction to Python", "Features of Python", "Major Programming Styles Supported (OOP, Procedural, Functional)"] },
+            { module: "Module 2: Python Fundamentals", topics: ["Variables & Data Types", "Control Statements", "Strings & Collections", "Functions"] },
+            { module: "Module 3: Advanced Python & OOP", topics: ["Object-Oriented Programming (OOP) Concepts", "Exception Handling", "File Handling", "Open-source libraries"] },
+            { module: "Module 4: Real-time Project Development", topics: ["Practical coding sessions", "Real-time projects", "Interview preparation sessions"] }
         ],
         tools: [
             { name: "Python", icon: Code },
+            { name: "VS Code", icon: Terminal },
             { name: "MySQL", icon: Database },
-            { name: "Django", icon: Globe },
-            { name: "FastAPI", icon: Code }
+            { name: "Django / Flask", icon: Globe }
         ],
         project: {
-            title: "Employee Management System with API",
-            description: "Develop a backend system for managing employees with database connectivity and expose it via a REST API."
+            title: "Real-time Industry Projects",
+            description: "Practical coding assignments, mini projects, and final project development."
         },
-        audience: ["Python Developers", "Backend Engineers", "Software Engineers"]
+        audience: ["Students", "Graduates", "Working Professionals", "Beginners"],
+        faqs: [
+            { question: "Who can join the Python course?", answer: "Anyone interested in programming can join the Python course. Students, graduates, and working professionals can learn Python easily." },
+            { question: "Is Python difficult to learn for beginners?", answer: "No. Python is considered one of the easiest programming languages. Its syntax is simple and readable." },
+            { question: "What are the prerequisites for learning Python?", answer: "Basic computer knowledge is enough to start learning Python programming." },
+            { question: "What jobs can I get after Python training?", answer: "Students can apply for roles such as Python developer, data analyst, automation engineer, and backend developer." },
+            { question: "Does the Python course include practical projects?", answer: "Yes. The training includes assignments, coding practice, and real-time projects." }
+        ]
     }
 };

@@ -243,9 +243,19 @@ export const coursesData: CourseData[] = [
         price: "₹35,000"
     },
 
-    // Python - CORE & ADVANCED
-    { id: "python-core", title: "Core Python Programming", description: "Master Python fundamentals, data structures, and algorithms.", categoryId: "python", image: "https://via.placeholder.com/150", rating: 5, price: "₹15,000" },
-    { id: "python-advanced", title: "Advanced Python", description: "Deep dive into decorators, generators, and advanced libraries.", categoryId: "python", image: "https://via.placeholder.com/150", rating: 5, price: "₹20,000" },
+    // Python - Programming
+    { 
+        id: "python-course-training-hyderabad", 
+        title: "Python Programming", 
+        description: "Python Course training focuses on practical learning and industry skills from scratch.", 
+        categoryId: "python", 
+        image: "/PYTHON.jpg", 
+        rating: 5, 
+        price: "Contact Us",
+        duration: "3 to 4 Months",
+        enrolled: "1250+",
+        mode: "Classroom / Online"
+    },
 
     // AI - UPDATED CONTENT
     { id: "ai-fundamentals", title: "Fundamentals of Artificial Intelligence", description: "Build a strong conceptual foundation in Artificial Intelligence.", categoryId: "ai", image: "https://via.placeholder.com/150", rating: 5, price: "₹20,000" },

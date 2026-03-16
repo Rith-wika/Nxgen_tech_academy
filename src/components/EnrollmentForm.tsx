@@ -32,11 +32,16 @@ const COURSES = [
 ];
 
 const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: EnrollmentFormProps) => {
+    const courseOptions = [...COURSES];
+    if (defaultCourse && !courseOptions.includes(defaultCourse)) {
+        courseOptions.unshift(defaultCourse);
+    }
+
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
         phone: "",
-        courseName: defaultCourse || "",
+        courseName: defaultCourse || courseOptions[0],
         courseType: defaultCourseType || "Training",
         highestQualification: "",
         specialization: "",
@@ -152,7 +157,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
                             <SelectValue placeholder="Select a course" />
                         </SelectTrigger>
                         <SelectContent>
-                            {COURSES.map((course) => (
+                            {courseOptions.map((course) => (
                                 <SelectItem key={course} value={course}>
                                     {course}
                                 </SelectItem>

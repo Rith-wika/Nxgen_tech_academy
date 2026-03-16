@@ -83,17 +83,14 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground antialiased;
-    overflow-x: clip;
   }
 
   #root {
     @apply min-h-screen flex flex-col w-full;
-    overflow-x: clip;
   }
 
   html {
     scroll-behavior: smooth;
-    overflow-x: clip;
   }
 }
 
