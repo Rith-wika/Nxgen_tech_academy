@@ -29,6 +29,8 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         category: "",
         tags: "",
         status: "draft",
+        scheduled_date: "",
+        scheduled_time: "",
         image_url: "",
         video_url: "",
     });
@@ -84,14 +86,14 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             });
 
             // If tags is a comma-separated list of IDs, we send them individually for many-to-many fields
-            if (formData.tags) {
-                const tagList = formData.tags.split(',').map(tag => tag.trim());
-                // Depending on your backend, you may need to map strings back to IDs if your DRF serializers expect Primary Keys. 
-                // Currently, appending as a list so DRF can read `request.data.getlist('tags')`.
-                tagList.forEach(tag => {
-                    submitData.append('tags', tag);
-                });
-            }
+            // if (formData.tags) {
+            //     const tagList = formData.tags.split(',').map(tag => tag.trim());
+            //     // Depending on your backend, you may need to map strings back to IDs if your DRF serializers expect Primary Keys. 
+            //     // Currently, appending as a list so DRF can read `request.data.getlist('tags')`.
+            //     tagList.forEach(tag => {
+            //         submitData.append('tags', tag);
+            //     });
+            // }
 
             if (imageFile) {
                 submitData.append('image_url', imageFile);
@@ -180,12 +182,11 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                         {/* UPDATE CAUTION: These values MUST be the integer IDs from your backend Category model. 
                             E.g. <option value="1">SAP</option> 
                             I've set them as dummy IDs 1 to 6 below, you must match them with your DB.  */}
-                        <option value="1">SAP</option>
-                        <option value="2">Data Analytics</option>
-                        <option value="3">Python</option>
-                        <option value="4">AI</option>
-                        <option value="5">Career Guides</option>
-                        <option value="6">General Technology</option>
+                        <option value="SAP">SAP</option>
+                        <option value="Data Analytics">Data Analytics</option>
+                        <option value="Python">Python</option>
+                        <option value="AIML">AIML</option>
+                        <option value="Digital Marketing">Digital Marketing</option>
                     </select>
                 </div>
                 <div className="space-y-3">
@@ -198,9 +199,40 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                         className="w-full h-12 border border-slate-200 bg-slate-50 rounded-lg px-4 focus:outline-none focus:ring-2 focus:ring-[#000080]"
                     >
                         <option value="draft">Draft (Save for later)</option>
+
                         <option value="published">Published (Live instantly)</option>
+                        <option value="schedule">Schedule</option>
                     </select>
                 </div>
+
+                {formData.status === "schedule" && (
+                    <>
+                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <Label htmlFor="scheduled_date" className="text-sm font-semibold text-slate-700">Schedule Date <span className="text-red-500">*</span></Label>
+                            <Input
+                                id="scheduled_date"
+                                name="scheduled_date"
+                                type="date"
+                                value={formData.scheduled_date}
+                                onChange={handleInputChange}
+                                required
+                                className="h-12 bg-slate-50 border-slate-200 focus:ring-[#000080]"
+                            />
+                        </div>
+                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <Label htmlFor="scheduled_time" className="text-sm font-semibold text-slate-700">Schedule Time <span className="text-red-500">*</span></Label>
+                            <Input
+                                id="scheduled_time"
+                                name="scheduled_time"
+                                type="time"
+                                value={formData.scheduled_time}
+                                onChange={handleInputChange}
+                                required
+                                className="h-12 bg-slate-50 border-slate-200 focus:ring-[#000080]"
+                            />
+                        </div>
+                    </>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-200 pt-8 mt-8">

@@ -8,11 +8,13 @@ export interface BlogPost {
     excerpt: string;
     category: string;
     tags: string;
-    status: string; // 'Published' | 'Draft'
+    status: string; // 'Published' | 'Draft' or 'Schedule'
     image_url?: string;
     video_url?: string;
     created_at?: string;
     author_name?: string;
+    scheduled_date?: string;
+    scheduled_time?: string;
 }
 
 const getHeaders = (isMultipart = false) => {
@@ -72,7 +74,7 @@ export const blogService = {
     updateBlog: async (id: string | number, data: any) => {
         try {
             const isMultipart = data instanceof FormData;
-            const res = await axiosInstance.put(`/api/blogs/admin/blogs/${id}/`, data, getHeaders(isMultipart));
+            const res = await axiosInstance.put(`/api/blogs/admin/blogs/${id}/edit/`, data, getHeaders(isMultipart));
             return res.data;
         } catch (error) {
             console.error("Error updating blog", error);
