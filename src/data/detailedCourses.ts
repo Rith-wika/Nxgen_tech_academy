@@ -905,10 +905,10 @@ export const detailedCourses: Record<string, DetailedCourse> = {
         ],
         feesAndDuration: "Course Duration: 3 to 4 Months\nTraining Mode: Classroom Training / Online Training\nCourse Fee: Contact NxGen Tech Academy for updated fee details",
         curriculum: [
-            { module: "Module 1: What is Python Programming?", topics: ["Introduction to Python", "Features of Python", "Major Programming Styles Supported (OOP, Procedural, Functional)"] },
-            { module: "Module 2: Python Fundamentals", topics: ["Variables & Data Types", "Control Statements", "Strings & Collections", "Functions"] },
-            { module: "Module 3: Advanced Python & OOP", topics: ["Object-Oriented Programming (OOP) Concepts", "Exception Handling", "File Handling", "Open-source libraries"] },
-            { module: "Module 4: Real-time Project Development", topics: ["Practical coding sessions", "Real-time projects", "Interview preparation sessions"] }
+            { module: "What is Python Programming?", topics: ["Introduction to Python", "Features of Python", "Major Programming Styles Supported (OOP, Procedural, Functional)"] },
+            { module: "Python Fundamentals", topics: ["Variables & Data Types", "Control Statements", "Strings & Collections", "Functions"] },
+            { module: "Advanced Python & OOP", topics: ["Object-Oriented Programming (OOP) Concepts", "Exception Handling", "File Handling", "Open-source libraries"] },
+            { module: "Real-time Project Development", topics: ["Practical coding sessions", "Real-time projects", "Interview preparation sessions"] }
         ],
         tools: [
             { name: "Python", icon: Code },

@@ -20,7 +20,7 @@ export const TopBar = () => {
 
                     {/* Marquee Text */}
                     <div
-                        className="flex-1 px-4 overflow-hidden w-full lg:w-auto text-sm font-medium whitespace-nowrap"
+                        className="flex-1 px-4 overflow-hidden lg:w-auto text-sm font-medium min-w-0"
                         // dangerouslySetInnerHTML={{ __html: '<marquee scrollamount="5">Join Our 100% Job Guarantee Courses (Open to All Graduates/ Diploma Holders/ Career Gaps/ Non-IT Backgrounds/ Pass-Outs from Any Year).</marquee>' }}
                         dangerouslySetInnerHTML={{ __html: '<marquee scrollamount="5">🚀 Book a FREE Demo this Saturday on SAP BTP – Learn Cloud Development, Integration, and Real-Time Projects. Limited Seats Available. Register Now!</marquee>' }}
                     />

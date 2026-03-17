@@ -94,7 +94,7 @@ const CategoryListing = ({ categorySlug }: { categorySlug: string }) => {
             </PageHero>
 
             {/* Main Content Layout */}
-            <div className="w-full px-4 sm:px-6 lg:px-12 py-12">
+            <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 overflow-x-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
                     {/* LEFT COLUMN - CONTENT (2/3 width) */}

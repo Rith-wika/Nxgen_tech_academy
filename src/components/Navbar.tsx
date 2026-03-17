@@ -151,7 +151,7 @@ export const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-sm border-b pb-4 pt-4">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-2 xl:gap-4">
+        <div className="flex flex-col lg:flex-row lg:flex-wrap items-center justify-between gap-2 xl:gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center shrink-0">
             <img
@@ -162,7 +162,7 @@ export const Navbar = () => {
           </Link>
 
           {/* Nav Controls - Middle Section */}
-          <div className="flex flex-1 flex-col sm:flex-row items-center gap-3 xl:gap-4 w-full lg:w-auto justify-center lg:justify-start lg:pl-2 xl:pl-8 mt-2 lg:mt-0">
+          <div className="flex flex-1 flex-col sm:flex-row items-center gap-3 xl:gap-4 w-full lg:w-auto justify-center lg:justify-start lg:pl-2 xl:pl-8 mt-2 lg:mt-0 min-w-0">
             {/* Hover Course Menu Button & Dropdown - Hidden on Mobile/Tablet */}
             <div className="relative group/menu hidden lg:flex justify-center">
               <Button
@@ -258,7 +258,7 @@ export const Navbar = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="flex w-full xl:max-w-xl relative" ref={searchRef}>
+            <div className="flex flex-1 w-full xl:max-w-xl relative min-w-0" ref={searchRef}>
               <div className="flex w-full">
                 <input
                   type="text"

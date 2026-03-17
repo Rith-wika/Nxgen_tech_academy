@@ -209,7 +209,7 @@ const CourseDetail = () => {
                 </div>
             </PageHero>
 
-            <div id="content-area" className="w-full px-4 sm:px-6 lg:px-12 py-12">
+            <div id="content-area" className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 overflow-x-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
                     {/* LEFT COLUMN: Main Content */}
@@ -233,7 +233,7 @@ const CourseDetail = () => {
                         {activeTab === "curriculum" ? (
                             <div className="space-y-10 animate-in slide-in-from-bottom duration-500">
                                 {/* Technical/Index Content: Stats, Key Topics, and Curriculum Accordion */}
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap items-center gap-6 text-gray-600">
+                                <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap items-center gap-3 md:gap-6 text-gray-600">
                                     <div className="flex items-center gap-2">
                                         <div className="flex text-yellow-500">
                                             <Star className="w-5 h-5 fill-current" />
