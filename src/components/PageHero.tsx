@@ -24,16 +24,18 @@ export const PageHero = ({
 
       <div
         ref={heroRef}
-        className={`container mx-auto px-4 relative z-10 transition-all duration-700 ${isHeroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        className={`container mx-auto px-4 relative z-10 transition-all duration-700 text-center flex flex-col items-center ${isHeroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
       >
         <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
           {title}
         </h1>
-        <p className="text-xl text-blue-100 max-w-2xl mb-6">
+        <p className="text-xl text-blue-100 max-w-2xl mb-6 mx-auto">
           {description}
         </p>
-        {children}
+        <div className="flex flex-wrap justify-center gap-4">
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -13,11 +13,19 @@ import { CoursePricing } from "@/components/CoursePricing";
 import DemoSidebarCard from "@/components/DemoSidebarCard";
 import { PageHero } from "@/components/PageHero";
 import { Helmet } from "react-helmet-async";
+import { motion } from "framer-motion";
+import { useStickyParallax } from "@/hooks/useStickyParallax";
+import { useRef } from "react";
 
 const SAPCourseDetail = () => {
     const { id } = useParams();
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"details" | "curriculum">("curriculum");
+    
+    // Sticky Parallax Refs
+    const gridContainerRef = useRef<HTMLDivElement>(null);
+    const sidebarContentRef = useRef<HTMLDivElement>(null);
+    const stickyY = useStickyParallax(gridContainerRef, sidebarContentRef);
     const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.2);
 
     const basicCourse = coursesData.find(c => c.id === id);
@@ -89,7 +97,7 @@ const SAPCourseDetail = () => {
             </PageHero>
 
             <div id="content-area" className="w-full px-4 sm:px-6 lg:px-12 py-12">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div ref={gridContainerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
                     {/* LEFT COLUMN: Main Content */}
                     <div className="lg:col-span-2 space-y-10">
@@ -352,9 +360,12 @@ const SAPCourseDetail = () => {
                     </div>
 
                     {/* RIGHT COLUMN: Sidebar (Sticky Demo Form) */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-24 space-y-6 self-start pb-8">
-
+                    <div className="lg:col-span-1 relative">
+                        <motion.div 
+                            ref={sidebarContentRef}
+                            style={{ y: stickyY }}
+                            className="space-y-6 pb-8"
+                        >
                             {/* Sticky Demo Booking Form */}
                             <div className="shadow-lg rounded-2xl overflow-hidden border border-gray-100 bg-white">
                                 <DemoSidebarCard courseTitle={basicCourse.title} />
@@ -388,7 +399,7 @@ const SAPCourseDetail = () => {
                                     Call Us: +91 9960 935 600
                                 </a>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </div>

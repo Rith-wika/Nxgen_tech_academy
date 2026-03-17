@@ -24,6 +24,9 @@ import { CoursePricing } from "@/components/CoursePricing";
 import DemoSidebarCard from "@/components/DemoSidebarCard";
 import { PageHero } from "@/components/PageHero";
 import { Helmet } from "react-helmet-async";
+import { motion } from "framer-motion";
+import { useStickyParallax } from "@/hooks/useStickyParallax";
+import { useRef } from "react";
 
 const CourseDetail = () => {
     const { id } = useParams();
@@ -31,6 +34,11 @@ const CourseDetail = () => {
     const [activeTab, setActiveTab] = useState<"details" | "curriculum">("details");
     const [expandedModule, setExpandedModule] = useState<number | null>(null);
     const [activeSubTab, setActiveSubTab] = useState<"training" | "readiness">("training");
+    
+    // Sticky Parallax Refs
+    const gridContainerRef = useRef<HTMLDivElement>(null);
+    const sidebarContentRef = useRef<HTMLDivElement>(null);
+    const stickyY = useStickyParallax(gridContainerRef, sidebarContentRef);
 
     const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.2);
 
@@ -210,7 +218,7 @@ const CourseDetail = () => {
             </PageHero>
 
             <div id="content-area" className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 overflow-x-hidden">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div ref={gridContainerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
                     {/* LEFT COLUMN: Main Content */}
                     <div className="lg:col-span-2 space-y-10">
@@ -289,7 +297,7 @@ const CourseDetail = () => {
 
                                 {content.keyTopics.length > 0 && activeSubTab === "training" && (
                                     <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
-                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center gap-3">
+                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
                                             <BookOpen className="w-8 h-8 text-[#000080]" /> Key Topics Covered
                                         </h3>
                                         <div className="grid sm:grid-cols-2 gap-4">
@@ -306,7 +314,7 @@ const CourseDetail = () => {
                                 )}
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                                    <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center gap-3">
+                                    <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-center gap-3">
                                         <BookOpen className="w-8 h-8 text-[#000080]" />
                                         {activeSubTab === "training" ? `${basicCourse.title} Comprehensive Modules` : "Industry Readiness Program"}
                                     </h2>
@@ -353,7 +361,7 @@ const CourseDetail = () => {
 
                                     {/* <CoursePricing courseTitle={basicCourse.title} /> */}
                                     <div className="mt-12 p-8 bg-blue-50 rounded-2xl border border-blue-100 text-center">
-                                        <h3 className="text-xl font-bold text-[#000080] mb-4">Want the full detailed syllabus?</h3>
+                                        <h3 className="text-xl font-bold text-[#000080] mb-4 text-center">Want the full detailed syllabus?</h3>
                                         <p className="text-gray-600 mb-6">Download the complete PDF brochure for {basicCourse.title} with all technical modules and project details.</p>
                                         <Button className="bg-[#000080] hover:bg-[#000080]/90 text-white px-8 h-12 rounded-lg">
                                             Download Brochure
@@ -390,7 +398,7 @@ const CourseDetail = () => {
                                     return (
                                         <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
                                             {/* Main Section Heading */}
-                                            <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center gap-3">
+                                            <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-center gap-3">
                                                 < BookOpen className="w-8 h-8 text-[#000080]" /> Course Overview & Information
                                             </h2>
 
@@ -444,7 +452,7 @@ const CourseDetail = () => {
 
                                     return (
                                         <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-                                            <h3 className="text-3xl font-bold text-[#000080] mb-6 flex items-center gap-3">
+                                            <h3 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-center gap-3">
                                                 <Star className="w-8 h-8 text-yellow-500" /> Why {basicCourse.title}?
                                             </h3>
 
@@ -466,7 +474,7 @@ const CourseDetail = () => {
 
                                 {content.keyBenefits.length > 0 && (
                                     <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center gap-3">
+                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
                                             <Award className="w-8 h-8 text-purple-600" /> Key Benefits
                                         </h3>
                                         <div className="grid sm:grid-cols-2 gap-4">
@@ -483,7 +491,7 @@ const CourseDetail = () => {
                                 )}
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-                                    <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center gap-3">
+                                    <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
                                         <CheckCircle className="w-8 h-8 text-[#10B981]" /> Why Choose NxGen Tech Academy?
                                     </h3>
                                     <div className="grid sm:grid-cols-2 gap-4">
@@ -499,7 +507,7 @@ const CourseDetail = () => {
                                 </section>
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400">
-                                    <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center gap-3">
+                                    <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
                                         <Briefcase className="w-8 h-8 text-orange-500" /> Career Opportunities
                                     </h3>
                                     <ul className="space-y-4 pl-2">
@@ -514,7 +522,7 @@ const CourseDetail = () => {
 
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500">
-                                    <h3 className="text-3xl font-bold text-[#000080] mb-6 flex items-center gap-3">
+                                    <h3 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-center gap-3">
                                         <Clock className="w-8 h-8 text-[#000080]" /> Fees and Duration
                                     </h3>
                                     <div className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
@@ -544,7 +552,7 @@ const CourseDetail = () => {
                                                     </DialogTitle>
                                                     <p className="text-blue-100 text-sm m-0">Fill in your details to secure your spot</p>
                                                 </DialogHeader>
-                                                <div className="p-6 pt-2 bg-gray-50/50">
+                                                <div className="bg-gray-50/50">
                                                     <EnrollmentForm defaultCourse={basicCourse.title} />
                                                 </div>
                                             </DialogContent>
@@ -554,7 +562,7 @@ const CourseDetail = () => {
 
                                 {content.faqs && content.faqs.length > 0 && (
                                     <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-[600ms]">
-                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center gap-3">
+                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
                                             <Award className="w-8 h-8 text-blue-600" /> Frequently Asked Questions
                                         </h3>
                                         <div className="space-y-6">
@@ -576,9 +584,12 @@ const CourseDetail = () => {
                     </div>
 
                     {/* RIGHT COLUMN: Sidebar (Sticky Demo Form) */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-24 space-y-6 self-start pb-8">
-
+                    <div className="lg:col-span-1 relative">
+                        <motion.div 
+                            ref={sidebarContentRef}
+                            style={{ y: stickyY }}
+                            className="space-y-6 pb-8"
+                        >
                             {/* Sticky Demo Booking Form */}
                             <div className="shadow-lg rounded-2xl overflow-hidden border border-gray-100 bg-white">
                                 <DemoSidebarCard courseTitle={basicCourse.title} />
@@ -612,7 +623,7 @@ const CourseDetail = () => {
                                     Call Us: +91 9701314138
                                 </a>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </div>

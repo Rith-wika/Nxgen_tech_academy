@@ -12,10 +12,18 @@ import { categoryConfig, coursesData } from "@/data/categoryCourses";
 import { CoursePricing } from "@/components/CoursePricing";
 import DemoSidebarCard from "@/components/DemoSidebarCard";
 import { Helmet } from 'react-helmet-async';
+import { motion } from "framer-motion";
+import { useStickyParallax } from "@/hooks/useStickyParallax";
+import { useRef } from "react";
 
 const CategoryListing = ({ categorySlug }: { categorySlug: string }) => {
     const config = categoryConfig[categorySlug];
     const [searchQuery, setSearchQuery] = useState("");
+
+    // Sticky Parallax Refs
+    const gridContainerRef = useRef<HTMLDivElement>(null);
+    const sidebarContentRef = useRef<HTMLDivElement>(null);
+    const stickyY = useStickyParallax(gridContainerRef, sidebarContentRef);
 
     if (!config) {
         return (
@@ -94,8 +102,8 @@ const CategoryListing = ({ categorySlug }: { categorySlug: string }) => {
             </PageHero>
 
             {/* Main Content Layout */}
-            <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 overflow-x-hidden">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div id="content-area" className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-12 overflow-x-hidden">
+                <div ref={gridContainerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
                     {/* LEFT COLUMN - CONTENT (2/3 width) */}
                     <div className="lg:col-span-2 space-y-12">
@@ -245,9 +253,12 @@ const CategoryListing = ({ categorySlug }: { categorySlug: string }) => {
                     </div>
 
                     {/* RIGHT COLUMN - SIDEBAR */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-24 space-y-6 self-start pb-8">
-
+                    <div className="lg:col-span-1 relative">
+                        <motion.div 
+                            ref={sidebarContentRef}
+                            style={{ y: stickyY }}
+                            className="space-y-6 pb-8"
+                        >
                             <DemoSidebarCard courseTitle={config.title} />
 
                             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
@@ -289,7 +300,7 @@ const CategoryListing = ({ categorySlug }: { categorySlug: string }) => {
                                     <Link to="/contact">Schedule Call</Link>
                                 </Button>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </div>
