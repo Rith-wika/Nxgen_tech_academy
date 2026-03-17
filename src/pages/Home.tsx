@@ -5,23 +5,55 @@ import { Link } from "react-router-dom";
 import { Helmet } from 'react-helmet-async';
 import { CourseCarousel } from "@/components/CourseCarousel";
 import { DemoModal } from "@/components/DemoModal";
+import { coursesData } from "@/data/categoryCourses";
 
 const sapCategories = [
   { title: "SAP Technical & Development", hours: "Advanced coding, configuration, and technical architecture modules.", link: "/courses/sap-technical" },
   { title: "SAP Functional Modules", hours: "Finance, Materials Management, Sales & Distribution, and more.", link: "/courses/sap-functional" },
   { title: "SAP Business Technology Platform (BTP)", hours: "Cloud integration and digital transformation modules.", link: "/courses/sap-btp" },
 ];
-
 const sapCourses = [
-  { title: "SAP ABAP on S/4 HANA", duration: "8-10 Weeks", link: "/courses/sap-abap-on-hana-course-online" },
-  { title: "SAP ABAP & CDS", duration: "8-10 Weeks", link: "/courses/sap-abap-rap" },
-  { title: "SAP FIORI UI5", duration: "40+ Hours", link: "/courses/sap-ui5-fiori-training" },
-  { title: "SAP BASIS", duration: "40+ Hours", link: "/courses/sap-basis-s4hana-training" },
-  { title: "SAP FICO On S4 HANA", duration: "2-3 Months", link: "/courses/sap-fico-course-training" },
-  { title: "SAP SD On S4 HANA", duration: "10-12 Weeks", link: "/courses/sap-sd-course-training" },
-  { title: "SAP MM On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-mm-course" },
-  { title: "SAP PP On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-pp-course" },
-  { title: "SAP QM On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-qm-course" },
+  { ...coursesData.find(c => c.id === "sap-abap-on-hana-course-online"), title: "SAP ABAP on S/4 HANA", duration: "8-10 Weeks", link: "/courses/sap-abap-on-hana-course-online" },
+  { ...coursesData.find(c => c.id === "sap-abap-rap"), title: "SAP ABAP & CDS", duration: "8-10 Weeks", link: "/courses/sap-abap-rap" },
+  { ...coursesData.find(c => c.id === "sap-ui5-fiori-training"), title: "SAP FIORI UI5", duration: "40+ Hours", link: "/courses/sap-ui5-fiori-training" },
+  { ...coursesData.find(c => c.id === "sap-basis-s4hana-training"), title: "SAP BASIS", duration: "40+ Hours", link: "/courses/sap-basis-s4hana-training" },
+  { ...coursesData.find(c => c.id === "sap-fico-course-training"), title: "SAP FICO On S4 HANA", duration: "2-3 Months", link: "/courses/sap-fico-course-training" },
+  { ...coursesData.find(c => c.id === "sap-sd-course-training"), title: "SAP SD On S4 HANA", duration: "10-12 Weeks", link: "/courses/sap-sd-course-training" },
+  { ...coursesData.find(c => c.id === "sap-mm-course"), title: "SAP MM On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-mm-course" },
+  { ...coursesData.find(c => c.id === "sap-pp-course"), title: "SAP PP On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-pp-course" },
+  { ...coursesData.find(c => c.id === "sap-qm-course"), title: "SAP QM On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-qm-course" },
+].map(c => ({
+  title: c.title || "",
+  duration: c.duration || "",
+  link: c.link || "",
+  image: c.image && c.image !== "code-icon" ? c.image : undefined
+}));
+
+const trendingCourses = [
+  { 
+    title: "Data Analytics", 
+    hours: "70 Hours", 
+    link: "/courses/power-bi",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop"
+  },
+  { 
+    title: "Python", 
+    hours: "45 Hours", 
+    link: "/courses/python",
+    image: "/PYTHON.jpg"
+  },
+  { 
+    title: "Digital Marketing", 
+    hours: "Multiple Courses", 
+    link: "/courses/digital-marketing",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop"
+  },
+  { 
+    title: "AIML", 
+    hours: "80 Hours", 
+    link: "/courses/aiml",
+    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop"
+  },
 ];
 
 const Home = () => {
@@ -308,35 +340,11 @@ const Home = () => {
         </div>
       </section> */}
 
-      {/* Trending Courses Grid */}
+      {/* Trending Courses Carousel */}
       <section className="py-20">
         <div className="w-full px-4 md:px-10 lg:px-20 mx-auto">
           <h2 className="text-3xl font-bold mb-10 text-center text-primary">Trending Courses</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { title: "Data Analytics", hours: "70 Hours", link: "/courses/power-bi" },
-              { title: "Python", hours: "45 Hours", link: "/courses/python" },
-              { title: "Digital Marketing", hours: "Multiple Courses", link: "/courses/digital-marketing" },
-              { title: "AIML", hours: "80 Hours", link: "/courses/aiml" },
-            ].map((course, i) => (
-              <Link key={i} to={course.link} className="bg-white border rounded-xl overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col">
-                <div className="h-40 bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-gray-100 to-gray-200 group-hover:scale-110 transition-transform duration-500"></div>
-                  <span className="relative text-gray-800 font-bold text-lg px-4 text-center group-hover:scale-105 transition-transform">{course.title}</span>
-                </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <p className="text-gray-500 text-sm mb-4 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                    {course.hours}
-                  </p>
-                  <div className="mt-auto text-primary font-bold group-hover:text-secondary flex items-center gap-2 transition-colors">
-                    Read More <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Link>
-            ))
-            }
-          </div>
+          <CourseCarousel items={trendingCourses} type="course" />
         </div>
       </section>
 

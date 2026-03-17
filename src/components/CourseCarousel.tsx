@@ -9,6 +9,7 @@ type Course = {
     duration?: string;
     hours?: string;
     link: string;
+    image?: string;
 };
 
 type CarouselProps = {
@@ -31,29 +32,15 @@ export const CourseCarousel: React.FC<CarouselProps> = ({
     type = 'course'
 }) => {
     // Mobile responsive cardsPerView
-    // We'll rely on CSS grid in the slide for responsiveness, 
-    // but for the grouping logic we need to decide how many items are in a "slide" (group).
-    // If we want a true carousel where items scroll one by one, we shouldn't use the grouping logic from GroupedCarousel.
-    // Instead, we should let Embla handle it and style slides with flex-basis.
-    // However, GroupedCarousel uses grouping. Let's try the flex-basis approach for smoother one-by-one scrolling if possible, 
-    // OR just stick to grouping if that's the project pattern. 
-    // The user said "carousel manner", usually implies smooth scrolling or paging.
-    // Let's use the grouping pattern to be consistent with GroupedCarousel for now, 
-    // but maybe adapted. 
-
-    // Actually, standard Embla usage is better for responsive carousels where you want 1 item on mobile, 2 on tablet, 4 on desktop without fixed groupings.
-
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop,
         align: 'start',
         slidesToScroll: 1,
         breakpoints: {
             '(min-width: 768px)': { slidesToScroll: 2 },
-            '(min-width: 1024px)': { slidesToScroll: 1 } // Scroll 1 by 1 or page by page?
+            '(min-width: 1024px)': { slidesToScroll: 1 } 
         }
     });
-
-    // We will NOT group slides manually. We will let Embla handle items.
 
     // Auto-play logic
     const autoplayRef = useRef<number | null>(null);
@@ -104,47 +91,71 @@ export const CourseCarousel: React.FC<CarouselProps> = ({
         <div className={`relative group ${className}`}>
             <div className="overflow-hidden p-2 -m-2" ref={emblaRef}>
                 <div className="flex touch-pan-y ml-[calc(1rem*-1)]">
-                    {/* ml negative margin to offset left padding of slides */}
-
                     {items.map((item, index) => (
                         <div
                             key={index}
                             className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-4"
-                        // 100% on mobile, 50% on tablet, 25% on desktop (4 items)
                         >
                             {type === 'course' ? (
-                                <div className="bg-white border rounded-xl overflow-hidden group/card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-full">
-                                    <div className="h-32 bg-primary/5 flex items-center justify-center relative overflow-hidden group-hover/card:bg-primary/5 transition-colors">
-                                        <span className="text-gray-800 font-bold text-lg px-4 text-center group-hover/card:text-primary">{item.title}</span>
+                                <Link to={item.link} className="block h-full group/card transition-all duration-300">
+                                    <div className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col">
+                                        <div className="h-40 bg-gray-100 relative overflow-hidden flex-shrink-0">
+                                            {item.image ? (
+                                                <img 
+                                                    src={item.image} 
+                                                    alt={item.title} 
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110" 
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-primary/5 flex items-center justify-center">
+                                                    <span className="text-gray-400 font-bold text-lg px-4 text-center">NxGen</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300"></div>
+                                        </div>
+                                        <div className="p-5 flex flex-col flex-grow">
+                                            <h3 className="text-gray-900 font-bold text-lg mb-3 leading-tight group-hover/card:text-primary transition-colors">
+                                                {item.title}
+                                            </h3>
+                                            <div className="mt-auto pt-4 border-t border-gray-50">
+                                                <p className="text-gray-500 text-sm flex items-center gap-2">
+                                                    {item.duration ? <Clock className="w-4 h-4 text-secondary" /> : <span className="w-2 h-2 rounded-full bg-secondary"></span>}
+                                                    {item.duration || item.hours}
+                                                </p>
+                                                <div className="mt-3 text-primary font-bold text-sm flex items-center gap-1 group-hover/card:gap-2 transition-all">
+                                                    Read More <ArrowRight className="w-3 h-3" />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="p-5 border-t">
-                                        <p className="text-gray-500 text-sm mb-3 flex items-center gap-2">
-                                            {/* Use Clock for duration if present, or just a dot for other types if needed */}
-                                            {item.duration ? <Clock className="w-4 h-4 text-secondary" /> : <span className="w-2 h-2 rounded-full bg-secondary"></span>}
-                                            {item.duration || item.hours}
-                                        </p>
-                                        <Link to={item.link} className="text-primary font-bold text-sm hover:text-secondary flex items-center gap-1">
-                                            Read More <ArrowRight className="w-3 h-3" />
-                                        </Link>
-                                    </div>
-                                </div>
+                                </Link>
                             ) : (
-                                // Category card style (from lines 209-224 of Home.tsx)
-                                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden group/card hover:-translate-y-2 transition-transform duration-300 h-full">
-                                    <div className="h-40 bg-gray-200 flex items-center justify-center relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-[#000080] opacity-80"></div>
-                                        <span className="relative text-white font-bold text-xl px-4 text-center">{item.title}</span>
+                                // Category card style
+                                <Link to={item.link} className="block h-full group/card">
+                                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
+                                        <div className="h-40 bg-gray-200 flex items-center justify-center relative overflow-hidden flex-shrink-0">
+                                            {item.image ? (
+                                                <img 
+                                                    src={item.image} 
+                                                    alt={item.title} 
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110" 
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 bg-gradient-to-br from-primary to-[#000080] opacity-80"></div>
+                                            )}
+                                            <span className="relative text-white font-bold text-xl px-4 text-center drop-shadow-md">{item.title}</span>
+                                        </div>
+                                        <div className="p-6">
+                                            <p className="text-gray-500 text-sm mb-4 flex items-center gap-2">
+                                                <span className="w-2 h-2 rounded-full bg-secondary"></span>
+                                                {item.hours || item.duration}
+                                            </p>
+                                            <div className="text-primary font-bold flex items-center gap-2 group-hover/card:gap-4 transition-all">
+                                                Read More <ArrowRight className="w-4 h-4" />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="p-6">
-                                        <p className="text-gray-500 text-sm mb-4 flex items-center gap-2">
-                                            <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                                            {item.hours || item.duration}
-                                        </p>
-                                        <Link to={item.link} className="text-primary font-bold hover:text-secondary flex items-center gap-2 group-hover/card:gap-4 transition-all">
-                                            Read More <ArrowRight className="w-4 h-4" />
-                                        </Link>
-                                    </div>
-                                </div>
+                                </Link>
                             )}
                         </div>
                     ))}
