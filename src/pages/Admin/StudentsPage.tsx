@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { LayoutDashboard, Users, UserCheck, Settings, Plus, Search, Edit2, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
+import { toast } from "sonner";
 
 const sidebarItems = [
     { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
@@ -14,19 +16,39 @@ const sidebarItems = [
 
 const StudentsPage = () => {
     const [search, setSearch] = useState("");
+    const [enrollments, setEnrollments] = useState<EnrollmentData[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const students = [
-        { id: "STU001", name: "John Doe", email: "john@example.com", course: "SAP ABAP", status: "Active" },
-        { id: "STU002", name: "Jane Smith", email: "jane@example.com", course: "SAP BTP", status: "Inactive" },
-        { id: "STU003", name: "Mike Johnson", email: "mike@example.com", course: "Python Full Stack", status: "Active" },
-    ];
+    useEffect(() => {
+        fetchEnrollments();
+    }, []);
+
+    const fetchEnrollments = async () => {
+        try {
+            setLoading(true);
+            const data = await enrollmentService.getAllEnrollments();
+            // Assuming the API returns a list or an object with results
+            setEnrollments(Array.isArray(data) ? data : data.results || []);
+        } catch (error: any) {
+            toast.error("Failed to fetch student enrollments.");
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const filteredEnrollments = enrollments.filter((e) =>
+        e.name.toLowerCase().includes(search.toLowerCase()) ||
+        e.email.toLowerCase().includes(search.toLowerCase()) ||
+        e.course.toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
         <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">Manage Students</h1>
-                <Button className="bg-[#000080] hover:bg-[#000060]">
-                    <Plus className="w-4 h-4 mr-2" /> Add Student
+                <h1 className="text-2xl font-bold text-gray-800">Manage Student Enrollments</h1>
+                <Button className="bg-[#000080] hover:bg-[#000060]" onClick={fetchEnrollments}>
+                    Refresh Data
                 </Button>
             </div>
 
@@ -35,7 +57,7 @@ const StudentsPage = () => {
                     <div className="relative max-w-sm">
                         <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
-                            placeholder="Search students..."
+                            placeholder="Search by name, email or course..."
                             className="pl-10"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -47,26 +69,34 @@ const StudentsPage = () => {
                         <table className="w-full text-left">
                             <thead className="border-b">
                                 <tr className="text-gray-500 text-sm">
-                                    <th className="pb-4 font-semibold">ID</th>
                                     <th className="pb-4 font-semibold">Name</th>
                                     <th className="pb-4 font-semibold">Email</th>
+                                    <th className="pb-4 font-semibold">Phone</th>
                                     <th className="pb-4 font-semibold">Course</th>
-                                    <th className="pb-4 font-semibold">Status</th>
+                                    <th className="pb-4 font-semibold">Type/Mode</th>
                                     <th className="pb-4 font-semibold text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y">
-                                {students.map((student) => (
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={6} className="py-8 text-center text-gray-400">Loading enrollments...</td>
+                                    </tr>
+                                ) : filteredEnrollments.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="py-8 text-center text-gray-400">No enrollments found.</td>
+                                    </tr>
+                                ) : filteredEnrollments.map((student) => (
                                     <tr key={student.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="py-4 font-medium">{student.id}</td>
-                                        <td className="py-4 font-semibold">{student.name}</td>
+                                        <td className="py-4 font-semibold text-gray-800">{student.name}</td>
                                         <td className="py-4 text-gray-600">{student.email}</td>
+                                        <td className="py-4 text-gray-600">{student.phone}</td>
                                         <td className="py-4 text-gray-600">{student.course}</td>
                                         <td className="py-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${student.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                                                }`}>
-                                                {student.status}
-                                            </span>
+                                            <div className="flex flex-col text-xs">
+                                                <span className="font-bold text-blue-700">{student.course_type}</span>
+                                                <span className="text-gray-500">{student.preferred_mode}</span>
+                                            </div>
                                         </td>
                                         <td className="py-4 text-right">
                                             <div className="flex justify-end gap-2">

@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { LayoutDashboard, Users, UserCheck, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
+import { toast } from "sonner";
 
 const MainDashboard = () => {
+    const [enrollments, setEnrollments] = useState<EnrollmentData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                setLoading(true);
+                const data = await enrollmentService.getAllEnrollments();
+                setEnrollments(Array.isArray(data) ? data : data.results || []);
+            } catch (error) {
+                console.error("Failed to fetch dashboard stats", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
     const sidebarItems = [
         { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
         { label: "Students", icon: Users, path: "/admin/students" },
@@ -12,11 +32,13 @@ const MainDashboard = () => {
     ];
 
     const stats = [
-        { title: "Total Students", value: "1,240", change: "+12%", icon: Users, color: "text-blue-600" },
+        { title: "Student Enrollments", value: loading ? "..." : enrollments.length.toLocaleString(), change: "+100%", icon: Users, color: "text-blue-600" },
         { title: "Total Instructors", value: "48", change: "+4%", icon: UserCheck, color: "text-green-600" },
         { title: "Total Courses", value: "32", change: "+8%", icon: LayoutDashboard, color: "text-purple-600" },
-        { title: "Recent Activities", value: "156", change: "+24%", icon: Settings, color: "text-orange-600" },
+        { title: "Recent Queries", value: "156", change: "+24%", icon: Settings, color: "text-orange-600" },
     ];
+
+    const recentEnrollments = enrollments.slice(0, 5);
 
     return (
         <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
@@ -34,7 +56,7 @@ const MainDashboard = () => {
                         <CardContent>
                             <div className="text-3xl font-bold">{stat.value}</div>
                             <p className="text-xs text-green-500 font-semibold mt-1">
-                                {stat.change} <span className="text-gray-400 font-normal">from last month</span>
+                                {stat.change} <span className="text-gray-400 font-normal">this month</span>
                             </p>
                         </CardContent>
                     </Card>
@@ -44,10 +66,29 @@ const MainDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Recent Students</CardTitle>
+                        <CardTitle>Recent Enrollments</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-gray-500">Student management content will appear here.</p>
+                        {loading ? (
+                            <p className="text-gray-400">Loading...</p>
+                        ) : recentEnrollments.length > 0 ? (
+                            <div className="space-y-4">
+                                {recentEnrollments.map((e, idx) => (
+                                    <div key={idx} className="flex justify-between items-center border-b pb-2 last:border-0">
+                                        <div>
+                                            <p className="font-semibold text-sm">{e.name}</p>
+                                            <p className="text-xs text-gray-500">{e.course}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs font-bold text-blue-700">{e.course_type}</p>
+                                            <p className="text-[10px] text-gray-400">{e.email}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-gray-500">No recent enrollments found.</p>
+                        )}
                     </CardContent>
                 </Card>
                 <Card>

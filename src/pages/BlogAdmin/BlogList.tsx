@@ -49,9 +49,18 @@ export default function BlogList() {
         }
     };
 
+    const renderSafe = (val: any) => {
+        if (val && typeof val === 'object') {
+            return val.value || val.name || val.id || JSON.stringify(val);
+        }
+        return val;
+    };
+
     const filteredBlogs = blogs.filter((blog) => {
-        const s = blog.title?.toLowerCase().includes(search.toLowerCase());
-        const f = statusFilter === 'All' || blog.status === statusFilter;
+        const title = renderSafe(blog.title)?.toString().toLowerCase();
+        const s = title?.includes(search.toLowerCase());
+        const status = renderSafe(blog.status);
+        const f = statusFilter === 'All' || status === statusFilter || blog.status === statusFilter;
         return s && f;
     });
 
@@ -88,6 +97,7 @@ export default function BlogList() {
                         <option value="All">All Statuses</option>
                         <option value="Published">Published</option>
                         <option value="Draft">Draft</option>
+                        <option value="Schedule">Schedule</option>
                     </select>
                 </div>
             </div>
@@ -115,12 +125,25 @@ export default function BlogList() {
                         ) : (
                             filteredBlogs.map((blog) => (
                                 <tr key={blog.id} className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-slate-800">{blog.title}</td>
-                                    <td className="px-6 py-4 text-slate-600">{blog.category || 'N/A'}</td>
+                                    <td className="px-6 py-4 font-medium text-slate-800">{renderSafe(blog.title)}</td>
+                                    <td className="px-6 py-4 text-slate-600">{renderSafe(blog.category) || 'N/A'}</td>
                                     <td className="px-6 py-4">
-                                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${blog.status === 'Published' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-slate-200 text-slate-700 border border-slate-300'}`}>
-                                            {blog.status || 'Draft'}
-                                        </span>
+                                        {(() => {
+                                            const status = renderSafe(blog.status);
+                                            const statusLower = status?.toString().toLowerCase();
+                                            const isPublished = statusLower === 'published';
+                                            const isScheduled = statusLower === 'schedule' || statusLower === 'scheduled';
+                                            
+                                            let badgeClass = "bg-slate-200 text-slate-700 border border-slate-300";
+                                            if (isPublished) badgeClass = "bg-green-100 text-green-700 border border-green-200";
+                                            if (isScheduled) badgeClass = "bg-blue-100 text-blue-700 border border-blue-200";
+
+                                            return (
+                                                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${badgeClass}`}>
+                                                    {status || 'Draft'}
+                                                </span>
+                                            );
+                                        })()}
                                     </td>
                                     <td className="px-6 py-4 text-slate-600 text-sm whitespace-nowrap">{blog.created_at ? new Date(blog.created_at).toLocaleDateString() : 'Unknown Date'}</td>
                                     <td className="px-6 py-4 text-right">

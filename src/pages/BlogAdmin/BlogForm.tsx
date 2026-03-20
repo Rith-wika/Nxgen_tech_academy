@@ -37,7 +37,17 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
 
     useEffect(() => {
         if (initialData) {
-            setFormData(initialData);
+            // Helper to get string value from potential object (DRF choice fields)
+            const getVal = (v: any) => (v && typeof v === 'object') ? (v.value || v.name || v.id) : v;
+
+            setFormData({
+                ...initialData,
+                category: getVal(initialData.category) || "",
+                status: getVal(initialData.status)?.toString().toLowerCase() || "draft",
+                // Ensure other fields are strings to avoid object-as-child errors if any
+                title: getVal(initialData.title) || "",
+                slug: getVal(initialData.slug) || "",
+            });
         }
     }, [initialData]);
 
