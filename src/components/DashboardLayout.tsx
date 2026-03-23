@@ -43,9 +43,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
     const isActive = (path: string) => location.pathname === path;
 
     return (
-        <div className="flex h-screen bg-gray-100 overflow-hidden">
+        <div className="flex min-h-screen bg-gray-100">
             {/* Desktop Sidebar */}
-            <aside className="hidden md:flex md:flex-col w-64 bg-[#000080] text-white transition-all duration-300 ease-in-out">
+            <aside className="hidden md:flex md:flex-col w-64 bg-[#000080] text-white transition-all duration-300 ease-in-out sticky top-0 h-screen overflow-hidden">
                 <div className="p-6 border-b border-white/10">
                     <h2 className="text-xl font-bold tracking-wider">{title}</h2>
                     <p className="text-xs text-white/60 mt-1 capitalize">{role.replace('_', ' ')} Portal</p>
@@ -115,9 +115,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <div className="flex-1 flex flex-col min-w-0">
                 {/* Top Navbar */}
-                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 shrink-0">
+                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 shrink-0 sticky top-0 z-10">
                     <button className="md:hidden p-2 text-gray-600" onClick={() => setIsMobileMenuOpen(true)}>
                         <Menu className="w-6 h-6" />
                     </button>
@@ -133,7 +133,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
                 </header>
 
                 {/* Content */}
-                <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-gray-50">
+                <main className="flex-1 p-4 md:p-8 bg-gray-50">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>

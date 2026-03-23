@@ -22,7 +22,12 @@ const Login = () => {
         }
     }, [navigate]);
 
-    const redirectBasedOnRole = (role: string) => {
+    const redirectBasedOnRole = (role: string, isFirstLogin: boolean = false) => {
+        if (role === "instructor" && isFirstLogin) {
+            navigate("/instructor/change-password");
+            return;
+        }
+
         switch (role) {
             case "admin":
                 navigate("/admin/dashboard");
@@ -46,24 +51,27 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            // Updated to match the expected payload in the request
-            const response = await axiosInstance.post("/api/auth/login/", {
-                username_or_email: username,
+            const response = await axiosInstance.post("/api/login/", {
+                username: username,
                 password,
                 role: role,
             });
 
             console.log("Login Response:", response.data);
 
+            const userRole = response.data.role || role;
+            const isFirstLogin = response.data.is_first_login || false;
+
             // Store tokens and user info
             localStorage.setItem("access_token", response.data.access);
             localStorage.setItem("refresh_token", response.data.refresh);
             localStorage.setItem("user_id", response.data.user_id);
             localStorage.setItem("username", response.data.username);
-            localStorage.setItem("role", response.data.role || role);
+            localStorage.setItem("role", userRole);
+            localStorage.setItem("is_first_login", String(isFirstLogin));
 
             toast.success("Login successful! Welcome back.");
-            redirectBasedOnRole(response.data.role || role);
+            redirectBasedOnRole(userRole, isFirstLogin);
         } catch (error: any) {
             console.error("Login Error:", error);
             toast.error(error.response?.data?.error || error.response?.data?.message || "Login failed. Check your credentials.");
@@ -120,7 +128,7 @@ const Login = () => {
                                         <SelectItem value="student">Student</SelectItem>
                                         <SelectItem value="instructor">Instructor</SelectItem>
                                         <SelectItem value="admin">Admin</SelectItem>
-                                        <SelectItem value="blog_admin">Blog Content</SelectItem>
+                                        <SelectItem value="blog">Blog Content</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

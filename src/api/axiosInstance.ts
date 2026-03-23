@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: "http://192.168.0.234:8000",
+    baseURL: "http://192.168.0.249:8000",
     headers: {
         "Content-Type": "application/json",
     },
@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
 
                 // Attempt to refresh the token. 
                 // NOTE: Confirm and update the URL below to match your backend's refresh endpoint (e.g. /api/token/refresh/)
-                const response = await axios.post("http://192.168.0.234:8000/api/token/refresh/", {
+                const response = await axios.post("http://192.168.0.249:8000/api/token/refresh/", {
                     refresh: refreshToken,
                 });
 

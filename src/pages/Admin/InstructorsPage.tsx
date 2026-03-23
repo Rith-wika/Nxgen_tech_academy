@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { LayoutDashboard, Users, UserCheck, Settings, Plus, Search, Edit2, Trash2, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,7 @@ const sidebarItems = [
 ];
 
 const InstructorsPage = () => {
+    const navigate = useNavigate();
     const [search, setSearch] = useState("");
 
     const instructors = [
@@ -25,7 +27,10 @@ const InstructorsPage = () => {
         <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">Manage Instructors</h1>
-                <Button className="bg-[#000080] hover:bg-[#000060]">
+                <Button
+                    className="bg-[#000080] hover:bg-[#000060]"
+                    onClick={() => navigate('/admin/instructors/add')}
+                >
                     <Plus className="w-4 h-4 mr-2" /> Add Instructor
                 </Button>
             </div>

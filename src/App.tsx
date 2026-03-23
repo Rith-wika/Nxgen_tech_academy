@@ -27,10 +27,13 @@ import Blogs from "./pages/Blogs";
 import SAPCategory from "./pages/SAPCategory";
 import Register from "./pages/Auth/Register";
 import Login from "./pages/Auth/Login";
+import ChangePassword from "./pages/Auth/ChangePassword";
 import MainDashboard from "./pages/Admin/MainDashboard";
 import StudentsPage from "./pages/Admin/StudentsPage";
 import InstructorsPage from "./pages/Admin/InstructorsPage";
+import AddInstructor from "./pages/Admin/AddInstructor";
 import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
+import InstructorProfile from "./pages/Instructor/InstructorProfile";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import BlogDashboard from "./pages/BlogAdmin/BlogDashboard";
 import CourseViewer from "./pages/Dashboard/CourseViewer";
@@ -102,6 +105,7 @@ const AppContent = () => {
                 <Route path="dashboard" element={<MainDashboard />} />
                 <Route path="students" element={<StudentsPage />} />
                 <Route path="instructors" element={<InstructorsPage />} />
+                <Route path="instructors/add" element={<AddInstructor />} />
               </Routes>
             </ProtectedRoute>
           } />
@@ -113,6 +117,8 @@ const AppContent = () => {
                 <Route path="dashboard" element={<InstructorDashboard />} />
                 <Route path="courses" element={<InstructorDashboard />} />
                 <Route path="upload-lesson" element={<InstructorDashboard />} />
+                <Route path="profile" element={<InstructorProfile />} />
+                <Route path="change-password" element={<ChangePassword />} />
               </Routes>
             </ProtectedRoute>
           } />
