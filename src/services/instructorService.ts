@@ -55,7 +55,7 @@ export const instructorService = {
     // Admin: List instructors
     getAllInstructors: async () => {
         try {
-            const res = await axiosInstance.get('/api/admin/instructors/', {
+            const res = await axiosInstance.get('/api/instructors/', {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("access_token")}` }
             });
             return res.data;
@@ -106,6 +106,19 @@ export const instructorService = {
             return res.data;
         } catch (error) {
             console.error("Error changing password", error);
+            throw error;
+        }
+    },
+
+    // Instructor: Get assigned courses
+    getMyCourses: async () => {
+        try {
+            const res = await axiosInstance.get('/api/instructors/my-courses/', {
+                headers: { "Authorization": `Bearer ${localStorage.getItem("access_token")}` }
+            });
+            return res.data;
+        } catch (error) {
+            console.error("Error fetching instructor courses", error);
             throw error;
         }
     }

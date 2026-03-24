@@ -28,16 +28,16 @@ const InstructorCourses = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchInstructorProfile();
+        fetchCourses();
     }, []);
 
-    const fetchInstructorProfile = async () => {
+    const fetchCourses = async () => {
         try {
             setLoading(true);
-            const profile = await instructorService.getProfile();
-            // Assuming profile.assigned_courses returns course objects
-            // If it returns IDs, we'd need to fetch detail but for now let's assume it has details
-            setCourses(profile.assigned_courses || []);
+            const data = await instructorService.getMyCourses();
+            // Handle both direct array and paginated response
+            const courseList = Array.isArray(data) ? data : (data.results || []);
+            setCourses(courseList);
         } catch (error) {
             toast.error("Failed to fetch assigned courses.");
             console.error(error);

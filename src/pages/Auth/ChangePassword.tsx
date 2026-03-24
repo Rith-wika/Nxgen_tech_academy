@@ -64,7 +64,8 @@ const ChangePassword = () => {
         try {
             await instructorService.changePassword({
                 current_password: passwords.currentPassword,
-                new_password: passwords.newPassword
+                new_password: passwords.newPassword,
+                confirm_password: passwords.confirmPassword
             });
             toast.success("Password changed successfully!");
 
