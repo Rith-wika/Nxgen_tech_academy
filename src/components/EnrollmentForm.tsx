@@ -4,6 +4,9 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { enrollmentService } from "@/services/enrollmentService";
+import { courseService } from "@/services/courseService";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import {
     Select,
     SelectContent,
@@ -19,24 +22,7 @@ interface EnrollmentFormProps {
     onSuccess?: () => void;
 }
 
-const COURSES = [
-    { id: 1, name: "SAP ABAP on HANA" },
-    { id: 2, name: "SAP ABAP on HANA (CDS & OData Training)" },
-    { id: 3, name: "SAP Fiori & UI5" },
-    { id: 4, name: "SAP SD" },
-    { id: 5, name: "SAP MM" },
-    { id: 6, name: "SAP FICO" },
-    { id: 7, name: "SAP PP" },
-    { id: 8, name: "SAP BTP For Working Professionals" },
-    { id: 9, name: "SAP BTP For Freshers" },
-    { id: 10, name: "SAP CPI Training" },
-    { id: 11, name: "SAP QM" },
-    { id: 12, name: "SAP BASIS" },
-    { id: 13, name: "Python" },
-    { id: 14, name: "AIML" },
-    { id: 15, name: "Data Analytics" },
-    { id: 16, name: "Digital Marketing" }
-];
+// Static Fallback removed - fetching from backend
 
 const QUALIFICATIONS = ["10th", "12th", "Graduate", "Post Graduate", "PhD", "Other"];
 const CURRENT_STATUS = ["Student", "Working", "Job Seeker"];
@@ -45,21 +31,45 @@ const BATCH_TIMINGS = ["Morning", "Afternoon", "Evening"];
 const EXPERIENCE_LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
 const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: EnrollmentFormProps) => {
-    const courseOptions = [...COURSES];
-    let initialCourseId = courseOptions[0].id;
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const data = await courseService.getAllCourses();
+                const courseList = Array.isArray(data) ? data : (data.results || []);
+                // Map backend 'title' to UI 'name' if necessary
+                const formattedCourses = courseList.map((c: any) => ({
+                    id: c.id,
+                    name: c.title || c.name || "Unnamed Course"
+                }));
+                setCourses(formattedCourses);
 
-    if (defaultCourse) {
-        const matched = courseOptions.find(c => c.name === defaultCourse);
-        if (matched) {
-            initialCourseId = matched.id;
-        }
-    }
+                // Set initial course
+                if (formattedCourses.length > 0) {
+                    let initialId = formattedCourses[0].id;
+                    if (defaultCourse) {
+                        const matched = formattedCourses.find((c: any) => c.name === defaultCourse);
+                        if (matched) initialId = matched.id;
+                    }
+                    setFormData(prev => ({ ...prev, course: initialId }));
+                }
+            } catch (error) {
+                console.error("Failed to fetch courses", error);
+                toast.error("Failed to load courses");
+            } finally {
+                setIsLoadingCourses(false);
+            }
+        };
+        fetchCourses();
+    }, [defaultCourse]);
+
+    const [courses, setCourses] = useState<{ id: number; name: string }[]>([]);
+    const [isLoadingCourses, setIsLoadingCourses] = useState(true);
 
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         phone: "",
-        course: initialCourseId,
+        course: 0, // initially 0, will set after fetch
         course_type: defaultCourseType || "Training",
         qualification: "",
         current_status: "",
@@ -303,14 +313,21 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
                             value={formData.course}
                             onChange={(e) => handleSelectChange("course", Number(e.target.value))}
                             required
+                            disabled={isLoadingCourses}
                             className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <option value="" disabled>Select a course</option>
-                            {courseOptions.map((course) => (
-                                <option key={course.id} value={course.id}>
-                                    {course.name}
-                                </option>
-                            ))}
+                            {isLoadingCourses ? (
+                                <option value="">Loading courses...</option>
+                            ) : (
+                                <>
+                                    <option value="" disabled>Select a course</option>
+                                    {courses.map((course) => (
+                                        <option key={course.id} value={course.id}>
+                                            {course.name}
+                                        </option>
+                                    ))}
+                                </>
+                            )}
                         </select>
                     </div>
                 </div>

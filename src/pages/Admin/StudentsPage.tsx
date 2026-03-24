@@ -38,9 +38,9 @@ const StudentsPage = () => {
     };
 
     const filteredEnrollments = enrollments.filter((e) =>
-        e.name.toLowerCase().includes(search.toLowerCase()) ||
-        e.email.toLowerCase().includes(search.toLowerCase()) ||
-        e.course.toLowerCase().includes(search.toLowerCase())
+        e.name?.toLowerCase().includes(search.toLowerCase()) ||
+        e.email?.toLowerCase().includes(search.toLowerCase()) ||
+        String(e.course).toLowerCase().includes(search.toLowerCase())
     );
 
     return (

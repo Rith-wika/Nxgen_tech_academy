@@ -13,20 +13,29 @@ const ChangePassword = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [passwords, setPasswords] = useState({
+        currentPassword: "",
         newPassword: "",
         confirmPassword: ""
     });
 
     const [errors, setErrors] = useState({
+        currentPassword: "",
         newPassword: "",
         confirmPassword: ""
     });
 
     const validate = () => {
         let isValid = true;
-        const newErrs = { newPassword: "", confirmPassword: "" };
+        const newErrs = { currentPassword: "", newPassword: "", confirmPassword: "" };
+
+        if (!passwords.currentPassword) {
+            newErrs.currentPassword = "Current password is required";
+            isValid = false;
+        }
 
         if (passwords.newPassword.length < 8) {
             newErrs.newPassword = "Password must be at least 8 characters long";
@@ -35,6 +44,11 @@ const ChangePassword = () => {
 
         if (passwords.newPassword !== passwords.confirmPassword) {
             newErrs.confirmPassword = "Passwords do not match";
+            isValid = false;
+        }
+
+        if (passwords.currentPassword === passwords.newPassword && passwords.newPassword !== "") {
+            newErrs.newPassword = "New password must be different from current password";
             isValid = false;
         }
 
@@ -48,13 +62,21 @@ const ChangePassword = () => {
 
         setLoading(true);
         try {
-            await instructorService.changePassword({ password: passwords.newPassword });
+            await instructorService.changePassword({
+                current_password: passwords.currentPassword,
+                new_password: passwords.newPassword
+            });
             toast.success("Password changed successfully!");
 
             // Mark as no longer first login in local storage if needed
             localStorage.setItem("is_first_login", "false");
 
-            navigate("/instructor/dashboard");
+            const role = localStorage.getItem("role");
+            if (role === "instructor") {
+                navigate("/instructor/dashboard");
+            } else {
+                navigate("/");
+            }
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to change password");
         } finally {
@@ -80,11 +102,33 @@ const ChangePassword = () => {
                     <CardHeader className="text-center space-y-2">
                         <CardTitle className="text-2xl font-bold text-gray-800">Change Password</CardTitle>
                         <CardDescription>
-                            This is your first login. For security reasons, you must change your password.
+                            Please update your password to continue.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="currentPassword">Current Password</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="currentPassword"
+                                        type={showCurrentPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className={`pr-10 ${errors.currentPassword ? 'border-red-500' : ''}`}
+                                        value={passwords.currentPassword}
+                                        onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                                {errors.currentPassword && <p className="text-red-500 text-xs">{errors.currentPassword}</p>}
+                            </div>
+
                             <div className="space-y-2">
                                 <Label htmlFor="newPassword">New Password</Label>
                                 <div className="relative">
@@ -113,14 +157,23 @@ const ChangePassword = () => {
 
                             <div className="space-y-2">
                                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                                <Input
-                                    id="confirmPassword"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="••••••••"
-                                    className={errors.confirmPassword ? 'border-red-500' : ''}
-                                    value={passwords.confirmPassword}
-                                    onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="confirmPassword"
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className={`pr-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                                        value={passwords.confirmPassword}
+                                        onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
                                 {errors.confirmPassword && <p className="text-red-500 text-xs">{errors.confirmPassword}</p>}
                             </div>
 

@@ -44,7 +44,7 @@ export const instructorService = {
                 }
             });
 
-            const res = await axiosInstance.post('/api/instructors/', formData, getHeaders());
+            const res = await axiosInstance.post('/api/instructors/register/', formData, getHeaders());
             return res.data;
         } catch (error) {
             console.error("Error creating instructor", error);

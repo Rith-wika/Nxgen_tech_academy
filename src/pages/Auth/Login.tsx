@@ -17,12 +17,14 @@ const Login = () => {
 
     useEffect(() => {
         const storedRole = localStorage.getItem("role");
+        const storedFirstLogin = localStorage.getItem("is_first_login") === "true";
         if (storedRole) {
-            redirectBasedOnRole(storedRole);
+            redirectBasedOnRole(storedRole, storedFirstLogin);
         }
     }, [navigate]);
 
     const redirectBasedOnRole = (role: string, isFirstLogin: boolean = false) => {
+        console.log("Redirecting...", { role, isFirstLogin });
         if (role === "instructor" && isFirstLogin) {
             navigate("/instructor/change-password");
             return;
@@ -51,27 +53,46 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await axiosInstance.post("/api/login/", {
-                username: username,
+            const response = await axiosInstance.post("/api/auth/login/", {
+                username_or_email: username,
                 password,
                 role: role,
             });
 
             console.log("Login Response:", response.data);
 
-            const userRole = response.data.role || role;
-            const isFirstLogin = response.data.is_first_login || false;
+            const userRole = (response.data.role || role).toLowerCase();
+            console.log("Full Login Response Data:", response.data);
+
+            // Handle various possible response field names for first login (boolean, string, or number)
+            // Checking both top-level and nested user object
+            const data = response.data;
+            const isFirstLogin =
+                data.is_first_login === true ||
+                data.is_first_login === "true" ||
+                data.is_first_login === 1 ||
+                data.first_login === true ||
+                data.first_login === "true" ||
+                data.first_login === 1 ||
+                data.user?.is_first_login === true ||
+                data.user?.is_first_login === "true" ||
+                data.user?.is_first_login === 1 ||
+                data.user?.first_login === true ||
+                data.user?.first_login === "true" ||
+                data.user?.first_login === 1 ||
+                false;
 
             // Store tokens and user info
             localStorage.setItem("access_token", response.data.access);
             localStorage.setItem("refresh_token", response.data.refresh);
             localStorage.setItem("user_id", response.data.user_id);
             localStorage.setItem("username", response.data.username);
-            localStorage.setItem("role", userRole);
+            const normalizedRole = userRole === "blog" ? "blog_admin" : userRole;
+            localStorage.setItem("role", normalizedRole);
             localStorage.setItem("is_first_login", String(isFirstLogin));
 
             toast.success("Login successful! Welcome back.");
-            redirectBasedOnRole(userRole, isFirstLogin);
+            redirectBasedOnRole(normalizedRole, isFirstLogin);
         } catch (error: any) {
             console.error("Login Error:", error);
             toast.error(error.response?.data?.error || error.response?.data?.message || "Login failed. Check your credentials.");

@@ -7,7 +7,6 @@ const InstructorDashboard = () => {
     const sidebarItems = [
         { label: "Dashboard", icon: LayoutDashboard, path: "/instructor/dashboard" },
         { label: "My Courses", icon: BookOpen, path: "/instructor/courses" },
-        { label: "Upload Lessons", icon: Upload, path: "/instructor/upload-lesson" },
         { label: "Students", icon: Users, path: "/instructor/students" },
         { label: "Profile", icon: User, path: "/instructor/profile" },
     ];

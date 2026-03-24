@@ -13,8 +13,12 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { instructorService } from "@/services/instructorService";
 import { courseService } from "@/services/courseService";
-import { Loader2, Upload, X, ArrowLeft, LayoutDashboard, Users, UserCheck, Settings } from "lucide-react";
+import { Loader2, Upload, X, ArrowLeft, LayoutDashboard, Users, UserCheck, Settings, Check, ChevronsUpDown } from "lucide-react";
 import { motion } from "framer-motion";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const sidebarItems = [
     { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
@@ -24,7 +28,7 @@ const sidebarItems = [
 ];
 
 const instructorSchema = z.object({
-    name: z.string().min(2, "Name is required"),
+    full_name: z.string().min(2, "Name is required"),
     email: z.string().email("Invalid email address"),
     phone: z.string().regex(/^\d{10}$/, "Phone number must be 10 digits"),
     employee_id: z.string().min(1, "Employee ID is required"),
@@ -43,28 +47,12 @@ type InstructorFormValues = z.infer<typeof instructorSchema>;
 const AddInstructor = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState<string>("");
+    const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
+    const [openCourseSelect, setOpenCourseSelect] = useState(false);
     const [documentName, setDocumentName] = useState<string>("");
     const [document, setDocument] = useState<File | null>(null);
 
-    const COURSE_OPTIONS = [
-        "SAP ABAP on HANA",
-        "SAP ABAP on HANA ( CDS & OData)",
-        "SAP Fiori & UI 5",
-        "SAP SD",
-        "SAP MM",
-        "SAP FICO",
-        "SAP PP",
-        "SAP BTP For Working Professionals",
-        "SAP BTP For Freshers",
-        "SAP CPI Training",
-        "SAP QM",
-        "SAP BASIS",
-        "Python",
-        "Data Analytics",
-        "Digital Marketing",
-        "AIML"
-    ];
+
 
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<InstructorFormValues>({
         resolver: zodResolver(instructorSchema),
@@ -73,12 +61,29 @@ const AddInstructor = () => {
         }
     });
 
+    const [courseList, setCourseList] = useState<{ id: number; title: string }[]>([]);
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const data = await courseService.getAllCourses();
+                // Handle both direct array and paginated response
+                const courses = Array.isArray(data) ? data : (data.results || []);
+                setCourseList(courses);
+            } catch (error) {
+                console.error("Failed to fetch courses from API", error);
+                toast.error("Failed to load courses. Please refresh the page.");
+            }
+        };
+        fetchCourses();
+    }, []);
+
     const onSubmit = async (data: InstructorFormValues) => {
         setLoading(true);
         try {
             const payload = {
                 ...data,
-                assigned_courses: selectedCourse ? [selectedCourse] : [],
+                assigned_courses: selectedCourses,
                 document_name: documentName,
                 documents: document,
             };
@@ -131,8 +136,8 @@ const AddInstructor = () => {
                         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Full Name*</Label>
-                                <Input id="name" {...register("name")} placeholder="Enter full name" />
-                                {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
+                                <Input id="name" {...register("full_name")} placeholder="Enter full name" />
+                                {errors.full_name && <p className="text-red-500 text-xs">{errors.full_name.message}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email*</Label>
@@ -163,20 +168,75 @@ const AddInstructor = () => {
                                 <Input id="date_of_joining" type="date" {...register("date_of_joining")} />
                                 {errors.date_of_joining && <p className="text-red-500 text-xs">{errors.date_of_joining.message}</p>}
                             </div>
-                            <div className="space-y-2 col-span-full">
-                                <Label htmlFor="course">Assign Course</Label>
-                                <Select onValueChange={setSelectedCourse} value={selectedCourse}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select an assigned course" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {COURSE_OPTIONS.map((course, index) => (
-                                            <SelectItem key={index} value={course}>
-                                                {course}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                            <div className="space-y-2 col-span-full flex flex-col">
+                                <Label htmlFor="course">Assign Courses</Label>
+                                <Popover open={openCourseSelect} onOpenChange={setOpenCourseSelect}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={openCourseSelect}
+                                            className="w-full justify-between h-auto min-h-[2.5rem] py-2 px-3 border border-slate-200 shadow-sm hover:bg-transparent"
+                                        >
+                                            <div className="flex flex-wrap gap-1 items-center">
+                                                {selectedCourses.length > 0 ? (
+                                                    selectedCourses.map((courseId) => {
+                                                        const course = courseList.find(c => c.id === courseId);
+                                                        return (
+                                                            <Badge
+                                                                key={courseId}
+                                                                variant="secondary"
+                                                                className="flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold bg-[#f0f4ff] text-[#000080] border border-[#e0e7ff] hover:bg-[#e8edff] transition-colors"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setSelectedCourses(selectedCourses.filter((id) => id !== courseId));
+                                                                }}
+                                                            >
+                                                                {course ? course.title : `ID: ${courseId}`}
+                                                                <X className="h-3 w-3 ml-1 cursor-pointer hover:text-red-500 transition-colors" />
+                                                            </Badge>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <span className="text-muted-foreground font-normal">Select courses...</span>
+                                                )}
+                                            </div>
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]" align="start">
+                                        <Command>
+                                            <CommandInput placeholder="Search courses..." />
+                                            <CommandList>
+                                                <CommandEmpty>No course found.</CommandEmpty>
+                                                <CommandGroup className="max-h-64 overflow-y-auto">
+                                                    {courseList.map((course) => (
+                                                        <CommandItem
+                                                            key={course.id}
+                                                            value={course.title}
+                                                            onSelect={() => {
+                                                                const courseId = course.id;
+                                                                setSelectedCourses(prev =>
+                                                                    prev.includes(courseId)
+                                                                        ? prev.filter(id => id !== courseId)
+                                                                        : [...prev, courseId]
+                                                                );
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    selectedCourses.includes(course.id) ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {course.title}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         </CardContent>
                     </Card>

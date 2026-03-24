@@ -40,7 +40,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
         navigate("/login");
     };
 
-    const isActive = (path: string) => location.pathname === path;
+    const isActive = (path: string) => {
+        if (location.pathname === path) return true;
+        // Specifically for instructor courses to stay active during drilling down
+        if (path === "/instructor/courses" && (
+            location.pathname.includes("/instructor/courses/") ||
+            location.pathname.includes("/instructor/lessons/")
+        )) return true;
+        return false;
+    };
 
     return (
         <div className="flex min-h-screen bg-gray-100">

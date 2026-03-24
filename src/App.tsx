@@ -34,6 +34,9 @@ import InstructorsPage from "./pages/Admin/InstructorsPage";
 import AddInstructor from "./pages/Admin/AddInstructor";
 import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
 import InstructorProfile from "./pages/Instructor/InstructorProfile";
+import InstructorCourses from "./pages/Instructor/InstructorCourses";
+import InstructorLessons from "./pages/Instructor/InstructorLessons";
+import InstructorTopics from "./pages/Instructor/InstructorTopics";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import BlogDashboard from "./pages/BlogAdmin/BlogDashboard";
 import CourseViewer from "./pages/Dashboard/CourseViewer";
@@ -115,8 +118,9 @@ const AppContent = () => {
               <Routes>
                 <Route path="/" element={<InstructorDashboard />} />
                 <Route path="dashboard" element={<InstructorDashboard />} />
-                <Route path="courses" element={<InstructorDashboard />} />
-                <Route path="upload-lesson" element={<InstructorDashboard />} />
+                <Route path="courses" element={<InstructorCourses />} />
+                <Route path="courses/:courseId/lessons" element={<InstructorLessons />} />
+                <Route path="lessons/:lessonId/topics" element={<InstructorTopics />} />
                 <Route path="profile" element={<InstructorProfile />} />
                 <Route path="change-password" element={<ChangePassword />} />
               </Routes>
