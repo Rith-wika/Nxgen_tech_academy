@@ -114,13 +114,13 @@ const InstructorCourses = () => {
                                         <ChevronRight className="w-4 h-4" />
                                     </Button>
 
-                                    <Button
+                                    {/* <Button
                                         variant="outline"
                                         className="w-full border-blue-100 hover:bg-blue-50 text-gray-600 transition-colors"
                                         onClick={() => window.open(`/courses/${course.id}`, '_blank')}
                                     >
                                         Preview Course <ExternalLink className="w-3 h-3 ml-2" />
-                                    </Button>
+                                    </Button> */}
                                 </div>
                             </CardContent>
                         </Card>

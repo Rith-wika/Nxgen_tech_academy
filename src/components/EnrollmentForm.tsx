@@ -80,9 +80,6 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
         terms_accepted: false,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isOtpSent, setIsOtpSent] = useState(false);
-    const [otp, setOtp] = useState("");
-    const [otpError, setOtpError] = useState("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
@@ -116,33 +113,9 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
         setIsSubmitting(true);
 
         try {
-            // First step: Submit enrollment and trigger OTP
+            // Submit enrollment directly
             await enrollmentService.enroll(formData);
-            toast.success("Enrollment request received. Verification required.");
-            setIsOtpSent(true);
-        } catch (error: any) {
-            console.error("Enrollment Error:", error);
-            toast.error(error.response?.data?.message || "Failed to submit enrollment. Please try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleVerifyOtp = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (otp.length !== 6) {
-            setOtpError("Please enter a valid 6-digit OTP");
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            // Here you would call enrollmentService.verifyOtp({ email: formData.email, otp });
-            // For now, we simulate success
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            toast.success("OTP Verified Successfully!");
-            onSuccess?.();
+            toast.success("Enrolled to the course successfully!");
 
             // Reset form
             setFormData({
@@ -153,112 +126,15 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
                 collegeCompanyName: "",
                 terms_accepted: false
             });
-            setIsOtpSent(false);
-            setOtp("");
+
+            onSuccess?.();
         } catch (error: any) {
-            console.error("OTP Verification Error:", error);
-            setOtpError(error.response?.data?.message || "Invalid OTP. Please try again.");
-            toast.error("Invalid OTP");
+            console.error("Enrollment Error:", error);
+            toast.error(error.response?.data?.message || "Failed to submit enrollment. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
     };
-
-    const maskPhone = (phone: string) => {
-        if (!phone) return "****";
-        const cleaned = phone.replace(/\D/g, "");
-        if (cleaned.length < 4) return "****";
-        // Show last 4 digits, mask the rest
-        return `******${cleaned.slice(-4)}`;
-    };
-
-    if (isOtpSent) {
-        return (
-            <div className="py-12 px-8 flex flex-col items-center text-center space-y-6 animate-in fade-in zoom-in duration-300">
-                <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-2">
-                    <svg className="w-10 h-10 text-[#000080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                </div>
-
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-gray-800">Verify Your Number</h2>
-                    <p className="text-gray-500">
-                        OTP has sent your <span className="font-semibold text-gray-700">{maskPhone(formData.phone)}</span> mobile number
-                    </p>
-                </div>
-
-                <form onSubmit={handleVerifyOtp} className="w-full max-w-sm space-y-8">
-                    <div className="space-y-4">
-                        <Label className="text-sm font-semibold text-gray-700 block text-center">Enter 6-Digit OTP</Label>
-                        <div className="flex justify-between gap-2">
-                            {[0, 1, 2, 3, 4, 5].map((index) => (
-                                <input
-                                    key={index}
-                                    id={`otp-input-${index}`}
-                                    type="text"
-                                    maxLength={1}
-                                    className={`w-12 h-14 text-center text-2xl font-bold border-2 rounded-lg focus:border-[#000080] focus:ring-0 outline-none transition-all ${otpError ? "border-red-500" : "border-gray-200"
-                                        }`}
-                                    value={otp[index] || ""}
-                                    onChange={(e) => {
-                                        const val = e.target.value.replace(/\D/g, "");
-                                        if (val) {
-                                            const newOtp = otp.split("");
-                                            newOtp[index] = val;
-                                            const combined = newOtp.join("");
-                                            setOtp(combined);
-                                            setOtpError("");
-
-                                            // Auto-focus next input
-                                            if (index < 5) {
-                                                const nextInput = document.getElementById(`otp-input-${index + 1}`);
-                                                nextInput?.focus();
-                                            }
-                                        }
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Backspace") {
-                                            if (!otp[index] && index > 0) {
-                                                // Focus previous input if current is empty
-                                                const prevInput = document.getElementById(`otp-input-${index - 1}`);
-                                                prevInput?.focus();
-                                            } else {
-                                                // Clear current digit
-                                                const newOtp = otp.split("");
-                                                newOtp[index] = "";
-                                                setOtp(newOtp.join(""));
-                                            }
-                                        }
-                                    }}
-                                />
-                            ))}
-                        </div>
-                        {otpError && <p className="text-red-500 text-xs mt-1 text-center">{otpError}</p>}
-                    </div>
-
-                    <Button
-                        type="submit"
-                        className="w-full bg-[#000080] hover:bg-[#000080]/90 text-white font-bold h-12 text-lg shadow-md transition-all rounded-md"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? "Verifying..." : "Verify OTP"}
-                    </Button>
-
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsOtpSent(false);
-                            setOtp("");
-                        }}
-                        className="text-sm text-gray-500 hover:text-[#000080] font-medium transition-colors"
-                    >
-                        Change Phone Number
-                    </button>
-                </form>
-            </div>
-        );
-    }
 
     return (
         <form onSubmit={handleSubmit} className="max-h-[80vh] overflow-y-auto py-6 thin-scrollbar">

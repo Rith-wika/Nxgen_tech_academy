@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
 import { toast } from "sonner";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import EnrollmentForm from "@/components/EnrollmentForm";
 
 const sidebarItems = [
     { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
@@ -18,6 +26,7 @@ const StudentsPage = () => {
     const [search, setSearch] = useState("");
     const [enrollments, setEnrollments] = useState<EnrollmentData[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
     useEffect(() => {
         fetchEnrollments();
@@ -47,9 +56,24 @@ const StudentsPage = () => {
         <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">Manage Student Enrollments</h1>
-                <Button className="bg-[#000080] hover:bg-[#000060]" onClick={fetchEnrollments}>
-                    Refresh Data
-                </Button>
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button className="bg-[#000080] hover:bg-[#000060]">
+                            <Plus className="w-4 h-4 mr-2" /> Add Student
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[90vh]">
+                        <DialogHeader>
+                            <DialogTitle>Add New Student Enrollment</DialogTitle>
+                        </DialogHeader>
+                        <EnrollmentForm
+                            onSuccess={() => {
+                                setIsAddDialogOpen(false);
+                                fetchEnrollments();
+                            }}
+                        />
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <Card>
