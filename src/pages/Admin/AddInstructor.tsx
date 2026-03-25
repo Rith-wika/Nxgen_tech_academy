@@ -66,10 +66,16 @@ const AddInstructor = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
+                console.log("Fetching courses in AddInstructor component...");
                 const data = await courseService.getAllCourses();
-                // Handle both direct array and paginated response
-                const courses = Array.isArray(data) ? data : (data.results || []);
-                setCourseList(courses);
+                const courseArray = Array.isArray(data) ? data : [];
+                console.log("Courses loaded:", courseArray);
+                
+                if (courseArray && courseArray.length > 0) {
+                    setCourseList(courseArray);
+                } else {
+                    toast.warning("No courses available. Please add courses first.");
+                }
             } catch (error) {
                 console.error("Failed to fetch courses from API", error);
                 toast.error("Failed to load courses. Please refresh the page.");

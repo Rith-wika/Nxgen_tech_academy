@@ -1,7 +1,7 @@
 import axiosInstance from "@/api/axiosInstance";
 
 export interface Lesson {
-    id?: number;
+    id?: string | number;
     course: number | string;
     title: string;
     description?: string;

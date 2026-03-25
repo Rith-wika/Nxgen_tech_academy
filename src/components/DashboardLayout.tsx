@@ -15,7 +15,6 @@ import {
     User,
     ChevronRight
 } from "lucide-react";
-import { Button } from "./ui/button";
 
 interface SidebarItem {
     label: string;
