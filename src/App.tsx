@@ -37,8 +37,16 @@ import InstructorProfile from "./pages/Instructor/InstructorProfile";
 import InstructorCourses from "./pages/Instructor/InstructorCourses";
 import InstructorLessons from "./pages/Instructor/InstructorLessons";
 import InstructorModuleLessons from "./pages/Instructor/InstructorModuleLessons";
+import InstructorStudents from "./pages/Instructor/InstructorStudents";
+import InstructorAssignments from "./pages/Instructor/InstructorAssignments";
+import AdminBatches from "./pages/Admin/AdminBatches";
+import AdminCourses from "./pages/Admin/AdminCourses";
 import InstructorTopics from "./pages/Instructor/InstructorTopics";
 import StudentDashboard from "./pages/Student/StudentDashboard";
+import StudentCourses from "./pages/Student/StudentCourses";
+import StudentProgress from "./pages/Student/StudentProgress";
+import StudentCertificates from "./pages/Student/StudentCertificates";
+import StudentProfile from "./pages/Student/StudentProfile";
 import BlogDashboard from "./pages/BlogAdmin/BlogDashboard";
 import CourseViewer from "./pages/Dashboard/CourseViewer";
 import BlogDetail from "./pages/BlogDetail";
@@ -110,6 +118,8 @@ const AppContent = () => {
                 <Route path="students" element={<StudentsPage />} />
                 <Route path="instructors" element={<InstructorsPage />} />
                 <Route path="instructors/add" element={<AddInstructor />} />
+                <Route path="courses" element={<AdminCourses />} />
+                <Route path="batches" element={<AdminBatches />} />
               </Routes>
             </ProtectedRoute>
           } />
@@ -123,6 +133,8 @@ const AppContent = () => {
                 <Route path="courses/:courseId/lessons" element={<InstructorLessons />} />
                 <Route path="courses/:courseId/modules/:moduleId/lessons" element={<InstructorModuleLessons />} />
                 <Route path="lessons/:lessonId/topics" element={<InstructorTopics />} />
+                <Route path="students" element={<InstructorStudents />} />
+                <Route path="assignments" element={<InstructorAssignments />} />
                 <Route path="profile" element={<InstructorProfile />} />
                 <Route path="change-password" element={<ChangePassword />} />
               </Routes>
@@ -134,7 +146,10 @@ const AppContent = () => {
               <Routes>
                 <Route path="/" element={<StudentDashboard />} />
                 <Route path="dashboard" element={<StudentDashboard />} />
-                <Route path="courses" element={<StudentDashboard />} />
+                <Route path="courses" element={<StudentCourses />} />
+                <Route path="progress" element={<StudentProgress />} />
+                <Route path="certificates" element={<StudentCertificates />} />
+                <Route path="profile" element={<StudentProfile />} />
                 <Route path="course/:id" element={<CourseViewer />} />
               </Routes>
             </ProtectedRoute>

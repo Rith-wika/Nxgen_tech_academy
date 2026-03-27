@@ -145,7 +145,7 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
 
     try {
       setIsSaving(true);
-      const updatedModule = await moduleService.updateModule(moduleId, {
+      const updatedModule = await moduleService.updateModule(courseId, moduleId, {
         title: draftModule.title,
         description: draftModule.description,
         moduleType: draftModule.moduleType,
@@ -176,7 +176,7 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
   const deleteModule = async (moduleId: string | number) => {
     try {
       setIsSaving(true);
-      await moduleService.deleteModule(moduleId);
+      await moduleService.deleteModule(courseId, moduleId);
 
       const nextModules = modules.filter((module) => module.id !== moduleId);
       updateModulesState(nextModules);

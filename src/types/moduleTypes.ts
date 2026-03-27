@@ -19,10 +19,23 @@ export interface Lesson {
   id?: EntityId;
   title: string;
   content: string;
-  notes: string;
+  videoUrl?: string;
   files: LessonFile[];
   links: LessonLink[];
+  assignment?: Assignment | null;
   order?: number;
+}
+
+export interface Assignment {
+  id?: EntityId;
+  title: string;
+  description: string;
+  dueDate?: string;
+}
+
+export interface SectionType {
+  id: "training" | "industry_readiness" | string;
+  label: string;
 }
 
 export interface Module {
@@ -53,15 +66,35 @@ export interface CreateLessonPayload {
   moduleId: EntityId;
   title: string;
   content: string;
-  notes: string;
+  videoUrl?: string;
   order?: number;
+  file?: File | null;
+  resourceTitle?: string;
+  resourceLink?: string;
+  assignmentTitle?: string;
+  assignmentDescription?: string;
+  assignmentDueDate?: string;
 }
 
 export interface UpdateLessonPayload {
   title?: string;
   content?: string;
-  notes?: string;
+  videoUrl?: string;
   order?: number;
+  file?: File | null;
+  resourceTitle?: string;
+  resourceLink?: string;
+  moduleId: EntityId;
+  assignmentTitle?: string;
+  assignmentDescription?: string;
+  assignmentDueDate?: string;
+}
+
+export interface UpsertAssignmentPayload {
+  lessonId: EntityId;
+  title: string;
+  description: string;
+  dueDate?: string;
 }
 
 export interface CreateLessonFilePayload {

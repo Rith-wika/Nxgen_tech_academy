@@ -39,10 +39,14 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
   const [newLesson, setNewLesson] = useState<Lesson>({
     title: "",
     content: "",
-    notes: "",
+    videoUrl: "",
     files: [],
     links: [],
   });
+
+  const emptyAssignment = { title: "", description: "", dueDate: "" };
+  const [newAssignment, setNewAssignment] = useState(emptyAssignment);
+  const [showNewAssignment, setShowNewAssignment] = useState(false);
 
   const [draftLesson, setDraftLesson] = useState<Lesson | null>(null);
   const hasAppliedInitialAddMode = useRef(false);
@@ -122,82 +126,6 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
     setDraftLesson(null);
   };
 
-  const syncLessonFiles = async (lessonId: string | number, original: Lesson, draft: Lesson) => {
-    const originalById = new Map(
-      original.files
-        .filter((file) => file.id !== undefined)
-        .map((file) => [String(file.id), file])
-    );
-    const draftById = new Map(
-      draft.files
-        .filter((file) => file.id !== undefined)
-        .map((file) => [String(file.id), file])
-    );
-
-    for (const [id] of originalById) {
-      if (!draftById.has(id)) {
-        await moduleService.deleteLessonFile(id);
-      }
-    }
-
-    const uploadedFiles = [];
-    for (const file of draft.files) {
-      if (!file.id && file.file) {
-        const uploaded = await moduleService.uploadLessonFile({ lessonId, file: file.file });
-        uploadedFiles.push(uploaded);
-      }
-    }
-
-    return [
-      ...draft.files.filter((file) => file.id !== undefined),
-      ...uploadedFiles,
-    ];
-  };
-
-  const syncLessonLinks = async (lessonId: string | number, original: Lesson, draft: Lesson) => {
-    const originalById = new Map(
-      original.links
-        .filter((link) => link.id !== undefined)
-        .map((link) => [String(link.id), link])
-    );
-    const draftById = new Map(
-      draft.links
-        .filter((link) => link.id !== undefined)
-        .map((link) => [String(link.id), link])
-    );
-
-    for (const [id, originalLink] of originalById) {
-      const draftLink = draftById.get(id);
-      if (!draftLink) {
-        await moduleService.deleteLessonLink(id);
-      } else if (draftLink.title !== originalLink.title || draftLink.url !== originalLink.url) {
-        await moduleService.deleteLessonLink(id);
-        draftById.delete(id);
-      }
-    }
-
-    const createdLinks = [];
-    for (const link of draft.links) {
-      if (!link.url.trim()) {
-        continue;
-      }
-
-      if (!link.id || !draftById.has(String(link.id))) {
-        const created = await moduleService.createLessonLink({
-          lessonId,
-          title: link.title || link.url,
-          url: link.url,
-        });
-        createdLinks.push(created);
-      }
-    }
-
-    return [
-      ...draft.links.filter((link) => link.id !== undefined && draftById.has(String(link.id))),
-      ...createdLinks,
-    ];
-  };
-
   const addLesson = async () => {
     if (!newLesson.title.trim()) {
       toast.error("Please enter a lesson title");
@@ -211,8 +139,14 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
         moduleId,
         title: newLesson.title,
         content: newLesson.content,
-        notes: newLesson.notes,
+        videoUrl: newLesson.videoUrl,
         order: lessons.length,
+        file: newLesson.files?.[0]?.file || null,
+        resourceTitle: newLesson.links?.[0]?.title || "",
+        resourceLink: newLesson.links?.[0]?.url || "",
+        assignmentTitle: showNewAssignment ? newAssignment.title : "",
+        assignmentDescription: showNewAssignment ? newAssignment.description : "",
+        assignmentDueDate: showNewAssignment ? newAssignment.dueDate : undefined,
       });
 
       const lessonId = createdLesson.id;
@@ -220,17 +154,10 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
         throw new Error("Lesson ID was not returned by the API.");
       }
 
-      const uploadedFiles = await syncLessonFiles(lessonId, { ...createdLesson, files: [], links: [] }, newLesson);
-      const createdLinks = await syncLessonLinks(lessonId, { ...createdLesson, files: [], links: [] }, newLesson);
-
-      const savedLesson: Lesson = {
-        ...createdLesson,
-        files: uploadedFiles,
-        links: createdLinks,
-      };
-
-      onLessonsChange([...lessons, savedLesson]);
-      setNewLesson({ title: "", content: "", notes: "", files: [], links: [] });
+      onLessonsChange([...lessons, createdLesson]);
+      setNewLesson({ title: "", content: "", videoUrl: "", files: [], links: [] });
+      setNewAssignment(emptyAssignment);
+      setShowNewAssignment(false);
       setIsAddingLesson(false);
       setExpandedLessonId(null);
       toast.success("Lesson created successfully");
@@ -260,28 +187,23 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
     try {
       setSavingLessonId(editingLessonId);
 
-      const originalLesson = lessons.find((lesson) => lesson.id === editingLessonId);
-      if (!originalLesson) {
-        throw new Error("Lesson not found in local state");
-      }
-
       const updatedBase = await moduleService.updateLesson(editingLessonId, {
+        moduleId,
         title: draftLesson.title,
         content: draftLesson.content,
-        notes: draftLesson.notes,
+        videoUrl: draftLesson.videoUrl,
         order: draftLesson.order,
+        file: draftLesson.files?.[0]?.file || null,
+        resourceTitle: draftLesson.links?.[0]?.title || "",
+        resourceLink: draftLesson.links?.[0]?.url || "",
+        assignmentTitle: draftLesson.assignment?.title || "",
+        assignmentDescription: draftLesson.assignment?.description || "",
+        assignmentDueDate: draftLesson.assignment?.dueDate || undefined,
       });
-
-      const syncedFiles = await syncLessonFiles(editingLessonId, originalLesson, draftLesson);
-      const syncedLinks = await syncLessonLinks(editingLessonId, originalLesson, draftLesson);
 
       const updatedLessons = lessons.map((lesson) =>
         lesson.id === editingLessonId
-          ? {
-              ...updatedBase,
-              files: syncedFiles,
-              links: syncedLinks,
-            }
+          ? updatedBase
           : lesson
       );
 
@@ -301,7 +223,7 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
       setSavingLessonId(lessonId);
 
       if (!isTemporaryId(lessonId)) {
-        await moduleService.deleteLesson(lessonId);
+        await moduleService.deleteLesson(moduleId, lessonId);
       }
 
       onLessonsChange(lessons.filter((lesson) => lesson.id !== lessonId));
@@ -448,6 +370,23 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
                     </div>
 
                     <div>
+                      <label className="text-sm font-medium text-gray-700 block mb-2">Video URL</label>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={currentLesson.videoUrl || ""}
+                          onChange={(e) => setDraftLesson((prev) => prev ? { ...prev, videoUrl: e.target.value } : prev)}
+                          placeholder="e.g. https://youtube.com/..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                        />
+                      ) : (
+                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-700">
+                          {lesson.videoUrl ? <a href={lesson.videoUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">{lesson.videoUrl}</a> : "No video URL"}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
                       <label className="text-sm font-medium text-gray-700 block mb-2">Content</label>
                       {isEditing ? (
                         <textarea
@@ -501,29 +440,57 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
                       />
                     </div>
 
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 block mb-2">Post-Lesson Notes</label>
+                    {/* Assignment Section */}
+                    <div className="pt-4 border-t border-gray-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <label className="text-base font-semibold text-gray-800">Assignment</label>
+                      </div>
+
                       {isEditing ? (
-                        <textarea
-                          value={currentLesson.notes}
-                          onChange={(event) =>
-                            setDraftLesson((prev) =>
-                              prev
-                                ? {
-                                    ...prev,
-                                    notes: event.target.value,
-                                  }
-                                : prev
-                            )
-                          }
-                          placeholder="Add notes for students..."
-                          disabled={saving}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080] min-h-[90px] resize-none"
-                        />
-                      ) : (
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 min-h-[70px]">
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap">{lesson.notes || "No notes added"}</p>
+                        <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                          <div>
+                            <label className="text-sm font-medium text-gray-700 block mb-1">Title *</label>
+                            <input
+                              type="text"
+                              value={currentLesson.assignment?.title || ""}
+                              onChange={(e) => setDraftLesson((prev) => prev ? { ...prev, assignment: { ...(prev.assignment || emptyAssignment), title: e.target.value } } : prev)}
+                              placeholder="Assignment Title"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-700 block mb-1">Description *</label>
+                            <textarea
+                              value={currentLesson.assignment?.description || ""}
+                              onChange={(e) => setDraftLesson((prev) => prev ? { ...prev, assignment: { ...(prev.assignment || emptyAssignment), description: e.target.value } } : prev)}
+                              placeholder="Instructions..."
+                              className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080] min-h-[80px] resize-none"
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 block mb-1">Due Date (Optional)</label>
+                              <input
+                                type="datetime-local"
+                                value={currentLesson.assignment?.dueDate ? new Date(new Date(currentLesson.assignment.dueDate).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
+                                onChange={(e) => setDraftLesson((prev) => prev ? { ...prev, assignment: { ...(prev.assignment || emptyAssignment), dueDate: e.target.value } } : prev)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                              />
+                            </div>
+                          </div>
                         </div>
+                      ) : (
+                        lesson.assignment ? (
+                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h5 className="font-medium text-gray-800">{lesson.assignment.title}</h5>
+                            <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{lesson.assignment.description}</p>
+                            <div className="flex gap-4 mt-3 text-sm text-gray-500">
+                              <span>Due: {lesson.assignment.dueDate ? new Date(lesson.assignment.dueDate).toLocaleString() : "No due date"}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500">No assignment added.</p>
+                        )
                       )}
                     </div>
                   </div>
@@ -563,6 +530,20 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
               />
             </div>
 
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-2">Video URL</label>
+                <input
+                  type="text"
+                  value={newLesson.videoUrl || ""}
+                  onChange={(e) => setNewLesson({ ...newLesson, videoUrl: e.target.value })}
+                  placeholder="e.g. https://youtube.com/..."
+                  disabled={saving}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-2">Content</label>
               <textarea
@@ -592,15 +573,57 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
               />
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700 block mb-2">Post-Lesson Notes</label>
-              <textarea
-                value={newLesson.notes}
-                onChange={(event) => setNewLesson({ ...newLesson, notes: event.target.value })}
-                placeholder="Add notes for students..."
-                disabled={saving}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080] min-h-[80px] resize-none"
-              />
+            <div className="pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <label className="text-base font-semibold text-gray-800">Assignment</label>
+                {!showNewAssignment ? (
+                  <Button variant="outline" size="sm" onClick={() => setShowNewAssignment(true)} disabled={saving}>
+                    + Add Assignment
+                  </Button>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={() => { setShowNewAssignment(false); setNewAssignment(emptyAssignment); }} disabled={saving} className="text-red-500">
+                    Remove Assignment
+                  </Button>
+                )}
+              </div>
+
+              {showNewAssignment && (
+                <div className="space-y-4 bg-white p-4 rounded-xl border border-gray-200">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 block mb-1">Title *</label>
+                    <input
+                      type="text"
+                      value={newAssignment.title}
+                      onChange={(e) => setNewAssignment({ ...newAssignment, title: e.target.value })}
+                      placeholder="Assignment Title"
+                      disabled={saving}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 block mb-1">Description *</label>
+                    <textarea
+                      value={newAssignment.description}
+                      onChange={(e) => setNewAssignment({ ...newAssignment, description: e.target.value })}
+                      placeholder="Instructions..."
+                      disabled={saving}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080] min-h-[80px] resize-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 block mb-1">Due Date (Optional)</label>
+                      <input
+                        type="datetime-local"
+                        value={newAssignment.dueDate ? new Date(new Date(newAssignment.dueDate).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
+                        onChange={(e) => setNewAssignment({ ...newAssignment, dueDate: e.target.value })}
+                        disabled={saving}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -612,7 +635,7 @@ export const LessonBuilder: React.FC<LessonBuilderProps> = ({
                 className="flex-1 rounded-xl"
                 onClick={() => {
                   setIsAddingLesson(false);
-                  setNewLesson({ title: "", content: "", notes: "", files: [], links: [] });
+                  setNewLesson({ title: "", content: "", videoUrl: "", files: [], links: [] });
                 }}
                 disabled={saving}
               >

@@ -13,12 +13,14 @@ import {
   UpdateLessonPayload,
   CreateLessonFilePayload,
   CreateLessonLinkPayload,
+  Assignment,
+  SectionType,
+  UpsertAssignmentPayload,
 } from "@/types/moduleTypes";
 
 const DUMMY_DB_KEY = "nxgen_dummy_module_db_v1";
 const dummyDbEnv = import.meta.env.VITE_USE_DUMMY_DB;
-const useDummyDb =
-  dummyDbEnv === "true" ? true : dummyDbEnv === "false" ? false : import.meta.env.DEV;
+const useDummyDb = dummyDbEnv === "true" ? true : false; // Disabled by default even in DEV so it forces API calls.
 
 type MockModuleRecord = {
   id: number;
@@ -34,7 +36,6 @@ type MockLessonRecord = {
   module: EntityId;
   title: string;
   content: string;
-  notes: string;
   order: number;
 };
 
@@ -153,15 +154,48 @@ const normalizeLessonLink = (raw: any): LessonLink => ({
   url: raw.url,
 });
 
-const normalizeLesson = (raw: any): Lesson => ({
-  id: raw.id,
-  title: raw.title || "Untitled lesson",
-  content: raw.content || "",
-  notes: raw.notes || "",
-  order: raw.order || 0,
-  files: (raw.files || raw.lesson_files || []).map(normalizeLessonFile),
-  links: (raw.links || raw.lesson_links || []).map(normalizeLessonLink),
-});
+const normalizeLesson = (raw: any): Lesson => {
+  const files = (raw.files || raw.lesson_files || []).map(normalizeLessonFile);
+  if (raw.file && files.length === 0) {
+    files.push({
+      id: raw.id, // using lesson id as a placeholder
+      filename: "Attachment",
+      fileType: "application/octet-stream",
+      fileUrl: raw.file
+    });
+  }
+
+  const links = (raw.content_resources || raw.links || raw.lesson_links || []).map((link: any) => ({
+    id: link.id,
+    title: link.title || "Resource",
+    url: link.youtube_url || link.url || "",
+  }));
+  if (raw.resource_link && links.length === 0) {
+    links.push({
+      id: raw.id, // using lesson id as placeholder
+      title: raw.resource_title || "Resource",
+      url: raw.resource_link
+    });
+  }
+
+  return {
+    id: raw.id,
+    title: raw.title || "Untitled lesson",
+    content: raw.content || "",
+    videoUrl: raw.video_url || raw.videoUrl || "",
+    order: raw.order || 0,
+    files,
+    links,
+    assignment: raw.assignment_title
+      ? {
+          id: raw.id,
+          title: raw.assignment_title || "",
+          description: raw.assignment_description || "",
+          dueDate: raw.assignment_due_date || "",
+        }
+      : null,
+  };
+};
 
 const normalizeModule = (raw: any): Module => ({
   id: raw.id,
@@ -171,6 +205,20 @@ const normalizeModule = (raw: any): Module => ({
   order: raw.order || 0,
   lessons: (raw.lessons || []).map(normalizeLesson),
 });
+
+const mapSectionTypeToModuleType = (value: string | undefined): "training" | "industryReady" => {
+  if (value === "industry_readiness") {
+    return "industryReady";
+  }
+  return "training";
+};
+
+const mapModuleTypeToSectionType = (value: "training" | "industryReady" | undefined): string => {
+  if (value === "industryReady") {
+    return "industry_readiness";
+  }
+  return "training";
+};
 
 const buildRawLesson = (lesson: MockLessonRecord, db: MockDb) => ({
   ...lesson,
@@ -222,7 +270,7 @@ const dummyDbApi = {
     };
   },
 
-  async updateModule(moduleId: EntityId, data: UpdateModulePayload) {
+  async updateModule(courseId: EntityId, moduleId: EntityId, data: UpdateModulePayload) {
     const db = readDummyDb();
     const moduleRecord = db.modules.find((module) => String(module.id) === String(moduleId));
 
@@ -242,21 +290,9 @@ const dummyDbApi = {
     };
   },
 
-  async deleteModule(moduleId: EntityId) {
+  async deleteModule(courseId: EntityId, moduleId: EntityId) {
     const db = readDummyDb();
-    const moduleIdsToDelete = new Set(
-      db.modules.filter((module) => String(module.id) === String(moduleId)).map((module) => String(module.id))
-    );
-    const lessonIdsToDelete = new Set(
-      db.lessons
-        .filter((lesson) => moduleIdsToDelete.has(String(lesson.module)))
-        .map((lesson) => String(lesson.id))
-    );
-
-    db.modules = db.modules.filter((module) => String(module.id) !== String(moduleId));
-    db.lessons = db.lessons.filter((lesson) => !lessonIdsToDelete.has(String(lesson.id)));
-    db.lessonFiles = db.lessonFiles.filter((file) => !lessonIdsToDelete.has(String(file.lesson)));
-    db.lessonLinks = db.lessonLinks.filter((link) => !lessonIdsToDelete.has(String(link.lesson)));
+    db.modules = db.modules.filter((m) => String(m.id) !== String(moduleId));
     writeDummyDb(db);
   },
 
@@ -275,7 +311,6 @@ const dummyDbApi = {
       module: payload.moduleId,
       title: payload.title,
       content: payload.content,
-      notes: payload.notes,
       order: payload.order || 0,
     };
 
@@ -296,14 +331,13 @@ const dummyDbApi = {
 
     if (data.title !== undefined) lessonRecord.title = data.title;
     if (data.content !== undefined) lessonRecord.content = data.content;
-    if (data.notes !== undefined) lessonRecord.notes = data.notes;
     if (data.order !== undefined) lessonRecord.order = data.order;
 
     writeDummyDb(db);
     return buildRawLesson(lessonRecord, db);
   },
 
-  async deleteLesson(lessonId: EntityId) {
+  async deleteLesson(moduleId: EntityId, lessonId: EntityId) {
     const db = readDummyDb();
     db.lessons = db.lessons.filter((lesson) => String(lesson.id) !== String(lessonId));
     db.lessonFiles = db.lessonFiles.filter((file) => String(file.lesson) !== String(lessonId));
@@ -361,11 +395,16 @@ export const moduleService = {
   getModulesByCourse: async (courseId: EntityId): Promise<Module[]> => {
     try {
       const data = await withDummyFallback(
-        async () => (await axiosInstance.get(`/api/modules/?course_id=${courseId}`)).data,
+        async () => (await axiosInstance.get(`/api/courses/courses/${courseId}/modules/`)).data,
         () => dummyDbApi.getModulesByCourse(courseId),
         "getModulesByCourse"
       );
-      return toArray(data).map(normalizeModule);
+      return toArray(data).map((item: any) =>
+        normalizeModule({
+          ...item,
+          module_type: mapSectionTypeToModuleType(item.section_type),
+        })
+      );
     } catch (error) {
       console.error("Error fetching modules:", error);
       throw error;
@@ -377,53 +416,56 @@ export const moduleService = {
       const data = await withDummyFallback(
         async () =>
           (
-            await axiosInstance.post("/api/modules/", {
-              course: payload.courseId,
+            await axiosInstance.post(`/api/courses/courses/${payload.courseId}/modules/`, {
               title: payload.title,
-              description: payload.description || "",
-              module_type: payload.moduleType || "training",
+              section_type: mapModuleTypeToSectionType(payload.moduleType),
               order: payload.order || 0,
             })
           ).data,
         () => dummyDbApi.createModule(payload),
         "createModule"
       );
-      return normalizeModule(data);
+      return normalizeModule({
+        ...data,
+        module_type: mapSectionTypeToModuleType(data.section_type),
+      });
     } catch (error) {
       console.error("Error creating module:", error);
       throw error;
     }
   },
 
-  updateModule: async (moduleId: EntityId, data: UpdateModulePayload): Promise<Module> => {
+  updateModule: async (courseId: EntityId, moduleId: EntityId, data: UpdateModulePayload): Promise<Module> => {
     try {
       const responseData = await withDummyFallback(
         async () =>
           (
-            await axiosInstance.patch(`/api/modules/${moduleId}/`, {
+            await axiosInstance.patch(`/api/courses/courses/${courseId}/modules/${moduleId}/`, {
               title: data.title,
-              description: data.description,
-              module_type: data.moduleType,
+              section_type: data.moduleType ? mapModuleTypeToSectionType(data.moduleType) : undefined,
               order: data.order,
             })
           ).data,
-        () => dummyDbApi.updateModule(moduleId, data),
+        () => dummyDbApi.updateModule(courseId, moduleId, data),
         "updateModule"
       );
-      return normalizeModule(responseData);
+      return normalizeModule({
+        ...responseData,
+        module_type: mapSectionTypeToModuleType(responseData.section_type),
+      });
     } catch (error) {
       console.error("Error updating module:", error);
       throw error;
     }
   },
 
-  deleteModule: async (moduleId: EntityId): Promise<void> => {
+  deleteModule: async (courseId: EntityId, moduleId: EntityId): Promise<void> => {
     try {
       await withDummyFallback(
         async () => {
-          await axiosInstance.delete(`/api/modules/${moduleId}/`);
+          await axiosInstance.delete(`/api/courses/courses/${courseId}/modules/${moduleId}/`);
         },
-        () => dummyDbApi.deleteModule(moduleId),
+        () => dummyDbApi.deleteModule(courseId, moduleId),
         "deleteModule"
       );
     } catch (error) {
@@ -436,7 +478,7 @@ export const moduleService = {
   getLessonsByModule: async (moduleId: EntityId): Promise<Lesson[]> => {
     try {
       const data = await withDummyFallback(
-        async () => (await axiosInstance.get(`/api/lessons/?module_id=${moduleId}`)).data,
+        async () => (await axiosInstance.get(`/api/courses/modules/${moduleId}/lessons/`)).data,
         () => dummyDbApi.getLessonsByModule(moduleId),
         "getLessonsByModule"
       );
@@ -450,16 +492,45 @@ export const moduleService = {
   createLesson: async (payload: CreateLessonPayload): Promise<Lesson> => {
     try {
       const data = await withDummyFallback(
-        async () =>
-          (
-            await axiosInstance.post("/api/lessons/", {
-              module: payload.moduleId,
-              title: payload.title,
-              content: payload.content,
-              notes: payload.notes,
-              order: payload.order || 0,
-            })
-          ).data,
+        async () => {
+          if (payload.file) {
+            const formData = new FormData();
+            formData.append("title", payload.title);
+            formData.append("content", payload.content || "");
+            if (payload.videoUrl) formData.append("video_url", payload.videoUrl);
+            if (payload.resourceTitle) formData.append("resource_title", payload.resourceTitle);
+            if (payload.resourceLink) formData.append("resource_link", payload.resourceLink);
+            formData.append("order", String(payload.order || 0));
+            formData.append("module", String(payload.moduleId));
+            formData.append("file", payload.file);
+
+            if (payload.assignmentTitle !== undefined) formData.append("assignment_title", payload.assignmentTitle);
+            if (payload.assignmentDescription !== undefined) formData.append("assignment_description", payload.assignmentDescription);
+            if (payload.assignmentDueDate !== undefined) formData.append("assignment_due_date", payload.assignmentDueDate);
+
+            return (
+              await axiosInstance.post(`/api/courses/modules/${payload.moduleId}/lessons/`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              })
+            ).data;
+          } else {
+            return (
+              await axiosInstance.post(`/api/courses/modules/${payload.moduleId}/lessons/`, {
+                title: payload.title,
+                content: payload.content || "",
+                file: null,
+                video_url: payload.videoUrl || "",
+                resource_title: payload.resourceTitle || "",
+                resource_link: payload.resourceLink || "",
+                order: payload.order || 0,
+                module: payload.moduleId,
+                assignment_title: payload.assignmentTitle || "",
+                assignment_description: payload.assignmentDescription || "",
+                assignment_due_date: payload.assignmentDueDate || null
+              })
+            ).data;
+          }
+        },
         () => dummyDbApi.createLesson(payload),
         "createLesson"
       );
@@ -473,15 +544,42 @@ export const moduleService = {
   updateLesson: async (lessonId: EntityId, data: UpdateLessonPayload): Promise<Lesson> => {
     try {
       const responseData = await withDummyFallback(
-        async () =>
-          (
-            await axiosInstance.patch(`/api/lessons/${lessonId}/`, {
-              title: data.title,
-              content: data.content,
-              notes: data.notes,
-              order: data.order,
-            })
-          ).data,
+        async () => {
+          if (data.file) {
+            const formData = new FormData();
+            if (data.title !== undefined) formData.append("title", data.title);
+            if (data.content !== undefined) formData.append("content", data.content);
+            if (data.videoUrl !== undefined) formData.append("video_url", data.videoUrl);
+            if (data.resourceTitle !== undefined) formData.append("resource_title", data.resourceTitle);
+            if (data.resourceLink !== undefined) formData.append("resource_link", data.resourceLink);
+            if (data.order !== undefined) formData.append("order", String(data.order));
+            formData.append("file", data.file);
+            
+            if (data.assignmentTitle !== undefined) formData.append("assignment_title", data.assignmentTitle);
+            if (data.assignmentDescription !== undefined) formData.append("assignment_description", data.assignmentDescription);
+            if (data.assignmentDueDate !== undefined) formData.append("assignment_due_date", data.assignmentDueDate);
+            
+            return (
+              await axiosInstance.patch(`/api/courses/modules/${data.moduleId}/lessons/${lessonId}/`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              })
+            ).data;
+          } else {
+            return (
+              await axiosInstance.patch(`/api/courses/modules/${data.moduleId}/lessons/${lessonId}/`, {
+                title: data.title,
+                content: data.content,
+                video_url: data.videoUrl,
+                resource_title: data.resourceTitle,
+                resource_link: data.resourceLink,
+                order: data.order,
+                assignment_title: data.assignmentTitle,
+                assignment_description: data.assignmentDescription,
+                assignment_due_date: data.assignmentDueDate
+              })
+            ).data;
+          }
+        },
         () => dummyDbApi.updateLesson(lessonId, data),
         "updateLesson"
       );
@@ -492,13 +590,13 @@ export const moduleService = {
     }
   },
 
-  deleteLesson: async (lessonId: EntityId): Promise<void> => {
+  deleteLesson: async (moduleId: EntityId, lessonId: EntityId): Promise<void> => {
     try {
       await withDummyFallback(
         async () => {
-          await axiosInstance.delete(`/api/lessons/${lessonId}/`);
+          await axiosInstance.delete(`/api/courses/modules/${moduleId}/lessons/${lessonId}/`);
         },
-        () => dummyDbApi.deleteLesson(lessonId),
+        () => dummyDbApi.deleteLesson(moduleId, lessonId),
         "deleteLesson"
       );
     } catch (error) {
@@ -548,40 +646,25 @@ export const moduleService = {
     }
   },
 
-  // Lesson Links
-  createLessonLink: async (payload: CreateLessonLinkPayload): Promise<any> => {
-    try {
-      const data = await withDummyFallback(
-        async () =>
-          (
-            await axiosInstance.post("/api/lesson-links/", {
-              lesson: payload.lessonId,
-              url: payload.url,
-              title: payload.title,
-            })
-          ).data,
-        () => dummyDbApi.createLessonLink(payload),
-        "createLessonLink"
-      );
-      return normalizeLessonLink(data);
-    } catch (error) {
-      console.error("Error creating link:", error);
-      throw error;
-    }
+  getSectionTypes: async (): Promise<SectionType[]> => {
+    const data = await axiosInstance.get("/api/courses/section-types/");
+    return Array.isArray(data.data) ? data.data : [];
   },
 
-  deleteLessonLink: async (linkId: EntityId): Promise<void> => {
-    try {
-      await withDummyFallback(
-        async () => {
-          await axiosInstance.delete(`/api/lesson-links/${linkId}/`);
-        },
-        () => dummyDbApi.deleteLessonLink(linkId),
-        "deleteLessonLink"
-      );
-    } catch (error) {
-      console.error("Error deleting link:", error);
-      throw error;
-    }
+  upsertLessonAssignment: async (payload: UpsertAssignmentPayload): Promise<Assignment> => {
+    const formattedDueDate = payload.dueDate ? new Date(payload.dueDate).toISOString() : null;
+    
+    const data = await axiosInstance.post(`/api/courses/lessons/${payload.lessonId}/assignment/`, {
+      title: payload.title,
+      description: payload.description,
+      ...(formattedDueDate ? { due_date: formattedDueDate } : {}),
+    });
+
+    return {
+      id: data.data?.id,
+      title: data.data?.title || payload.title,
+      description: data.data?.description || payload.description,
+      dueDate: data.data?.due_date || payload.dueDate,
+    };
   },
 };

@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { LayoutDashboard, Users, UserCheck, Settings } from "lucide-react";
+import { 
+    LayoutDashboard, 
+    Users, 
+    BookOpen, 
+    Settings, 
+    GraduationCap, 
+    TrendingUp, 
+    Activity,
+    UsersRound,
+    UserCheck,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
 import { toast } from "sonner";
@@ -28,12 +38,14 @@ const MainDashboard = () => {
         { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
         { label: "Students", icon: Users, path: "/admin/students" },
         { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
+        { label: "Courses", icon: BookOpen, path: "/admin/courses" },
+        { label: "Batches", icon: UsersRound, path: "/admin/batches" },
         { label: "Settings", icon: Settings, path: "/admin/settings" },
     ];
 
     const stats = [
         { title: "Student Enrollments", value: loading ? "..." : enrollments.length.toLocaleString(), change: "+100%", icon: Users, color: "text-blue-600" },
-        { title: "Total Instructors", value: "48", change: "+4%", icon: UserCheck, color: "text-green-600" },
+        { title: "Total Instructors", value: "48", change: "+4%", icon: Users, color: "text-green-600" },
         { title: "Total Courses", value: "32", change: "+8%", icon: LayoutDashboard, color: "text-purple-600" },
         { title: "Recent Queries", value: "156", change: "+24%", icon: Settings, color: "text-orange-600" },
     ];

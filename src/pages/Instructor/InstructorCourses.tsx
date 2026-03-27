@@ -105,10 +105,11 @@ const InstructorCourses = () => {
     };
 
     const sidebarItems = [
-        { label: "Dashboard", icon: LayoutDashboard, path: "/instructor/dashboard" },
-        { label: "My Courses", icon: BookOpen, path: "/instructor/courses" },
-        { label: "Students", icon: Users, path: "/instructor/students" },
-        { label: "Profile", icon: User, path: "/instructor/profile" },
+        { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
+        { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
+        { label: "Students",    icon: Users,           path: "/instructor/students" },
+        { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
+        { label: "Profile",     icon: User,            path: "/instructor/profile" },
     ];
 
     if (loading) {

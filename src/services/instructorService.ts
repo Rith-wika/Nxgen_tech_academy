@@ -18,6 +18,14 @@ export interface InstructorData {
     is_active: boolean;
 }
 
+type FormPayload = Record<string, unknown>;
+
+interface ChangePasswordPayload {
+    old_password: string;
+    new_password: string;
+    confirm_password: string;
+}
+
 const getHeaders = () => {
     const token = localStorage.getItem("access_token");
     return {
@@ -30,7 +38,7 @@ const getHeaders = () => {
 
 export const instructorService = {
     // Admin: Add instructor
-    createInstructor: async (data: any) => {
+    createInstructor: async (data: FormPayload) => {
         try {
             // Use FormData for file uploads
             const formData = new FormData();
@@ -53,9 +61,10 @@ export const instructorService = {
     },
 
     // Admin: List instructors
-    getAllInstructors: async () => {
+    getAllInstructors: async (courseId?: string | number) => {
         try {
-            const res = await axiosInstance.get('/api/instructors/', {
+            const url = courseId ? `/api/instructors/?course_id=${courseId}` : '/api/instructors/';
+            const res = await axiosInstance.get(url, {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("access_token")}` }
             });
             return res.data;
@@ -68,7 +77,7 @@ export const instructorService = {
     // Instructor: Get profile
     getProfile: async () => {
         try {
-            const res = await axiosInstance.get('/api/instructor/profile/', {
+            const res = await axiosInstance.get('/api/instructors/profile/', {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("access_token")}` }
             });
             return res.data;
@@ -79,7 +88,7 @@ export const instructorService = {
     },
 
     // Instructor: Update profile
-    updateProfile: async (data: any) => {
+    updateProfile: async (data: FormPayload) => {
         try {
             const formData = new FormData();
             Object.keys(data).forEach(key => {
@@ -89,7 +98,7 @@ export const instructorService = {
                     formData.append(key, data[key]);
                 }
             });
-            const res = await axiosInstance.patch('/api/instructor/profile/update/', formData, getHeaders());
+            const res = await axiosInstance.put('/api/instructors/profile/', formData, getHeaders());
             return res.data;
         } catch (error) {
             console.error("Error updating instructor profile", error);
@@ -98,7 +107,7 @@ export const instructorService = {
     },
 
     // Instructor: Change password
-    changePassword: async (passwords: any) => {
+    changePassword: async (passwords: ChangePasswordPayload) => {
         try {
             const res = await axiosInstance.post('/api/auth/change-password/', passwords, {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("access_token")}` }

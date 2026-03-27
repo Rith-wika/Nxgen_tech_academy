@@ -1,33 +1,44 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { LayoutDashboard, BookOpen, Upload, Users, User, Edit2, Save, X, Phone, Mail, BadgeCheck, Landmark, FileText } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, User, Phone, Mail, BadgeCheck, Landmark, FileText, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { instructorService } from "@/services/instructorService";
-import { motion, AnimatePresence } from "framer-motion";
 
 const sidebarItems = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/instructor/dashboard" },
-    { label: "My Courses", icon: BookOpen, path: "/instructor/courses" },
-    { label: "Students", icon: Users, path: "/instructor/students" },
-    { label: "Profile", icon: User, path: "/instructor/profile" },
+    { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
+    { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
+    { label: "Students",    icon: Users,           path: "/instructor/students" },
+    { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
+    { label: "Profile",     icon: User,            path: "/instructor/profile" },
 ];
 
 const InstructorProfile = () => {
-    const [isEditing, setIsEditing] = useState(false);
+    interface InstructorProfileData {
+        name?: string;
+        employee_id?: string;
+        date_of_joining?: string;
+        email?: string;
+        phone?: string;
+        qualification?: string;
+        experience?: string;
+        aadhaar_number?: string;
+        pan_number?: string;
+        bank_account_number?: string;
+        ifsc_code?: string;
+        assigned_courses_names?: string[];
+        document_url?: string;
+    }
+
     const [loading, setLoading] = useState(true);
-    const [profile, setProfile] = useState<any>(null);
-    const [editedProfile, setEditedProfile] = useState<any>(null);
+    const [profile, setProfile] = useState<InstructorProfileData | null>(null);
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const data = await instructorService.getProfile();
                 setProfile(data);
-                setEditedProfile(data);
             } catch (error) {
                 toast.error("Failed to load profile");
             } finally {
@@ -37,18 +48,15 @@ const InstructorProfile = () => {
         fetchProfile();
     }, []);
 
-    const handleUpdate = async () => {
-        try {
-            await instructorService.updateProfile(editedProfile);
-            setProfile(editedProfile);
-            setIsEditing(false);
-            toast.success("Profile updated successfully");
-        } catch (error) {
-            toast.error("Failed to update profile");
-        }
-    };
-
-    if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    if (loading) {
+        return (
+            <DashboardLayout role="instructor" sidebarItems={sidebarItems} title="Instructor Profile">
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#000080]" />
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout role="instructor" sidebarItems={sidebarItems} title="Instructor Profile">
@@ -63,20 +71,9 @@ const InstructorProfile = () => {
                             <p className="text-gray-500">{profile?.employee_id} • Joined on {profile?.date_of_joining}</p>
                         </div>
                     </div>
-                    {!isEditing ? (
-                        <Button onClick={() => setIsEditing(true)} className="bg-[#000080] hover:bg-[#000060]">
-                            <Edit2 className="w-4 h-4 mr-2" /> Edit Profile
-                        </Button>
-                    ) : (
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => setIsEditing(false)}>
-                                <X className="w-4 h-4 mr-1" /> Cancel
-                            </Button>
-                            <Button onClick={handleUpdate} className="bg-green-600 hover:bg-green-700">
-                                <Save className="w-4 h-4 mr-2" /> Save Changes
-                            </Button>
-                        </div>
-                    )}
+                    <span className="text-xs font-bold uppercase tracking-wide text-[#000080] bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+                        Read Only
+                    </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -91,35 +88,19 @@ const InstructorProfile = () => {
                             <CardContent className="p-6 space-y-4">
                                 <div className="space-y-1">
                                     <Label className="text-xs text-gray-400 uppercase">Email</Label>
-                                    {isEditing ? (
-                                        <Input value={editedProfile?.email} onChange={(e) => setEditedProfile({ ...editedProfile, email: e.target.value })} />
-                                    ) : (
-                                        <p className="flex items-center gap-2 font-medium text-gray-700"><Mail className="w-4 h-4 text-gray-400" /> {profile?.email}</p>
-                                    )}
+                                    <p className="flex items-center gap-2 font-medium text-gray-700"><Mail className="w-4 h-4 text-gray-400" /> {profile?.email || "Not provided"}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-xs text-gray-400 uppercase">Phone</Label>
-                                    {isEditing ? (
-                                        <Input value={editedProfile?.phone} onChange={(e) => setEditedProfile({ ...editedProfile, phone: e.target.value })} />
-                                    ) : (
-                                        <p className="flex items-center gap-2 font-medium text-gray-700"><Phone className="w-4 h-4 text-gray-400" /> {profile?.phone}</p>
-                                    )}
+                                    <p className="flex items-center gap-2 font-medium text-gray-700"><Phone className="w-4 h-4 text-gray-400" /> {profile?.phone || "Not provided"}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-xs text-gray-400 uppercase">Qualification</Label>
-                                    {isEditing ? (
-                                        <Input value={editedProfile?.qualification} onChange={(e) => setEditedProfile({ ...editedProfile, qualification: e.target.value })} />
-                                    ) : (
-                                        <p className="flex items-center gap-2 font-medium text-gray-700"><BadgeCheck className="w-4 h-4 text-gray-400" /> {profile?.qualification}</p>
-                                    )}
+                                    <p className="flex items-center gap-2 font-medium text-gray-700"><BadgeCheck className="w-4 h-4 text-gray-400" /> {profile?.qualification || "Not provided"}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-xs text-gray-400 uppercase">Experience</Label>
-                                    {isEditing ? (
-                                        <Input value={editedProfile?.experience} onChange={(e) => setEditedProfile({ ...editedProfile, experience: e.target.value })} />
-                                    ) : (
-                                        <p className="flex items-center gap-2 font-medium text-gray-700"><FileText className="w-4 h-4 text-gray-400" /> {profile?.experience}</p>
-                                    )}
+                                    <p className="flex items-center gap-2 font-medium text-gray-700"><FileText className="w-4 h-4 text-gray-400" /> {profile?.experience || "Not provided"}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -137,28 +118,20 @@ const InstructorProfile = () => {
                                 <div className="space-y-1">
                                     <Label className="text-xs text-gray-400 uppercase">Aadhaar Number</Label>
                                     <p className="font-semibold text-gray-800 tracking-wider">
-                                        {profile?.aadhaar_number?.replace(/\d(?=\d{4})/g, "•")}
+                                        {profile?.aadhaar_number ? profile.aadhaar_number.replace(/\d(?=\d{4})/g, "•") : "Not provided"}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-xs text-gray-400 uppercase">PAN Number</Label>
-                                    <p className="font-semibold text-gray-800 tracking-wider uppercase">{profile?.pan_number}</p>
+                                    <p className="font-semibold text-gray-800 tracking-wider uppercase">{profile?.pan_number || "Not provided"}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-xs text-gray-400 uppercase">Account Number</Label>
-                                    {isEditing ? (
-                                        <Input value={editedProfile?.bank_account_number} onChange={(e) => setEditedProfile({ ...editedProfile, bank_account_number: e.target.value })} />
-                                    ) : (
-                                        <p className="font-medium text-gray-800">{profile?.bank_account_number}</p>
-                                    )}
+                                    <p className="font-medium text-gray-800">{profile?.bank_account_number || "Not provided"}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <Label className="text-xs text-gray-400 uppercase">IFSC Code</Label>
-                                    {isEditing ? (
-                                        <Input value={editedProfile?.ifsc_code} onChange={(e) => setEditedProfile({ ...editedProfile, ifsc_code: e.target.value })} />
-                                    ) : (
-                                        <p className="font-medium text-gray-800 uppercase">{profile?.ifsc_code}</p>
-                                    )}
+                                    <p className="font-medium text-gray-800 uppercase">{profile?.ifsc_code || "Not provided"}</p>
                                 </div>
                             </CardContent>
                         </Card>

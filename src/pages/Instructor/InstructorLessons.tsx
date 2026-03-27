@@ -22,6 +22,7 @@ import {
   Save,
   X,
   Trash2,
+  FileText,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -40,10 +41,11 @@ const InstructorLessons = () => {
 
   const sidebarItems = useMemo(
     () => [
-      { label: "Dashboard", icon: LayoutDashboard, path: "/instructor/dashboard" },
-      { label: "My Courses", icon: BookOpen, path: "/instructor/courses" },
-      { label: "Students", icon: Users, path: "/instructor/students" },
-      { label: "Profile", icon: User, path: "/instructor/profile" },
+      { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
+      { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
+      { label: "Students",    icon: Users,           path: "/instructor/students" },
+      { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
+      { label: "Profile",     icon: User,            path: "/instructor/profile" },
     ],
     []
   );
@@ -163,7 +165,7 @@ const InstructorLessons = () => {
 
     try {
       setModuleSaving(true);
-      const updated = await moduleService.updateModule(moduleItem.id, { title });
+      const updated = await moduleService.updateModule(courseId!, moduleItem.id, { title });
 
       setModules((prev) =>
         prev.map((item) =>
@@ -199,7 +201,7 @@ const InstructorLessons = () => {
 
     try {
       setModuleSaving(true);
-      await moduleService.deleteModule(moduleItem.id);
+      await moduleService.deleteModule(courseId!, moduleItem.id);
       setModules((prev) => prev.filter((item) => String(item.id) !== String(moduleItem.id)));
       setLoadedLessonsByModule((prev) => {
         const next = { ...prev };

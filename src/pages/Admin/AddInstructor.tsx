@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { instructorService } from "@/services/instructorService";
 import { courseService } from "@/services/courseService";
-import { Loader2, Upload, X, ArrowLeft, LayoutDashboard, Users, UserCheck, Settings, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, Upload, X, ArrowLeft, LayoutDashboard, Users, UserCheck, Settings, Check, ChevronsUpDown, UsersRound, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -21,10 +21,12 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const sidebarItems = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-    { label: "Students", icon: Users, path: "/admin/students" },
-    { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
-    { label: "Settings", icon: Settings, path: "/admin/settings" },
+    { label: "Dashboard",   icon: LayoutDashboard, path: "/admin/dashboard" },
+    { label: "Students",    icon: Users,           path: "/admin/students" },
+    { label: "Instructors", icon: UserCheck,       path: "/admin/instructors" },
+    { label: "Courses",     icon: BookOpen,        path: "/admin/courses" },
+    { label: "Batches",     icon: UsersRound,      path: "/admin/batches" },
+    { label: "Settings",    icon: Settings,        path: "/admin/settings" },
 ];
 
 const instructorSchema = z.object({

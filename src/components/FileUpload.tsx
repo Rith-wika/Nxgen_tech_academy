@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Upload, X, FileText, File, FileIcon } from "lucide-react";
+import { Upload, X, FileText, File, FileIcon, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LessonFile } from "@/types/moduleTypes";
 
@@ -147,18 +147,35 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                     </p>
                   </div>
                 </div>
-                {!isReadOnly && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeFile(index)}
-                    disabled={isLoading}
-                    className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
+                <div className="flex items-center gap-1">
+                  {fileObj.fileUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      asChild
+                      className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      title="Download File"
+                    >
+                      <a href={fileObj.fileUrl} target="_blank" rel="noopener noreferrer" download>
+                        <Download className="w-4 h-4" />
+                      </a>
+                    </Button>
+                  )}
+                  {!isReadOnly && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(index)}
+                      disabled={isLoading}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      title="Remove File"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
