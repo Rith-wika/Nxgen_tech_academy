@@ -28,13 +28,14 @@ import { motion } from "framer-motion";
 import { useStickyParallax } from "@/hooks/useStickyParallax";
 import { useRef } from "react";
 
-const CourseDetail = () => {
-    const { id } = useParams();
+const CourseDetail = ({ id: propId }: { id?: string }) => {
+    const { id: paramId } = useParams();
+    const id = propId || paramId;
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"details" | "curriculum">("details");
     const [expandedModule, setExpandedModule] = useState<number | null>(null);
     const [activeSubTab, setActiveSubTab] = useState<"training" | "readiness">("training");
-    
+
     // Sticky Parallax Refs
     const gridContainerRef = useRef<HTMLDivElement>(null);
     const sidebarContentRef = useRef<HTMLDivElement>(null);
@@ -585,7 +586,7 @@ const CourseDetail = () => {
 
                     {/* RIGHT COLUMN: Sidebar (Sticky Demo Form) */}
                     <div className="lg:col-span-1 relative">
-                        <motion.div 
+                        <motion.div
                             ref={sidebarContentRef}
                             style={{ y: stickyY }}
                             className="space-y-6 pb-8"

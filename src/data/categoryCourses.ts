@@ -51,39 +51,27 @@ export const categoryConfig: Record<string, { title: string; description: string
         ]
     },
     "ai": {
-        title: "Artificial Intelligence",
-        description: "Build smart future-ready systems with AI training.",
+        title: "AI Programing",
+        description: "Learn Artificial intelligence training in Hyderabad with hands-on projects and expert trainers.",
         parentCategory: "AI",
         outcomes: [
-            "Understand the history, foundations, and key concepts of AI",
-            "Explore Neural Networks and Deep Learning architectures",
-            "Learn about Natural Language Processing (NLP) and Computer Vision",
-            "Implement AI algorithms using popular libraries like TensorFlow or PyTorch",
-            "Address ethical considerations and future trends in Artificial Intelligence"
+            "Improves analytical thinking and logical reasoning",
+            "Builds strong understanding of AI technologies",
+            "Provides practical, project-based learning experience",
+            "Enhances decision-making and prediction skills",
+            "Develops real-world problem-solving abilities"
         ]
     },
     "aiml": {
-        title: "AI & Machine Learning",
-        description: "Data-driven predictive modelling and machine learning mastery.",
+        title: "AIML Programing",
+        description: "AI and Machine Learning training in Hyderabad helps learners understand how systems learn from data and make accurate predictions.",
         parentCategory: "AIML",
         outcomes: [
-            "Understand the difference between AI, Machine Learning, and Deep Learning",
-            "Master Supervised, Unsupervised, and Reinforcement Learning algorithms",
-            "Perform data preprocessing, feature engineering, and model validation",
-            "Build and deploy predictive models for real-world problems",
-            "Use industry-standard tools like Scikit-learn, Pandas, and NumPy"
-        ]
-    },
-    "power-bi": {
-        title: "Foundation Courses",
-        description: "Visualize data for better insights with Power BI.",
-        parentCategory: "Data Analytics",
-        outcomes: [
-            "Connect to various data sources and transform data using Power Query",
-            "Create robust data models and relationships",
-            "Write DAX formulas for complex calculations and measures",
-            "Design interactive and visually appealing reports and dashboards",
-            "Publish and share insights using the Power BI Service"
+            "Strengthens data analysis and interpretation skills",
+            "Improves predictive modelling knowledge",
+            "Provides real-time project experience",
+            "Builds strong AIML fundamentals",
+            "Enhances decision-making abilities"
         ]
     },
     "sap-btp": {
@@ -109,6 +97,17 @@ export const categoryConfig: Record<string, { title: string; description: string
             "Design content marketing strategies that engage and convert",
             "Execute successful PPC and paid advertising campaigns",
             "Analyze marketing data to optimize campaign performance"
+        ]
+    },
+    "data-analytics-online-training": {
+        title: "Data Analytics programing",
+        description: "Master Data Analytics with Excel, SQL, Python, Power BI, and Tableau.",
+        parentCategory: "Data Analytics",
+        outcomes: [
+            "Understand data collection and cleaning",
+            "Learn data visualisation techniques",
+            "Work with real-time datasets",
+            "Build analytical dashboards"
         ]
     },
 };
@@ -244,13 +243,13 @@ export const coursesData: CourseData[] = [
     },
 
     // Python - Programming
-    { 
-        id: "python-course-training-hyderabad", 
-        title: "Python Programming", 
-        description: "Python Course training focuses on practical learning and industry skills from scratch.", 
-        categoryId: "python", 
-        image: "/PYTHON.jpg", 
-        rating: 5, 
+    {
+        id: "python-course-training-hyderabad",
+        title: "Python Programming",
+        description: "Python Course training focuses on practical learning and industry skills from scratch.",
+        categoryId: "python",
+        image: "/PYTHON.jpg",
+        rating: 5,
         price: "Contact Us",
         duration: "3 to 4 Months",
         enrolled: "1250+",
@@ -258,132 +257,69 @@ export const coursesData: CourseData[] = [
     },
 
     // AI - UPDATED CONTENT
-    { id: "ai-fundamentals", title: "Fundamentals of Artificial Intelligence", description: "Build a strong conceptual foundation in Artificial Intelligence.", categoryId: "ai", image: "https://via.placeholder.com/150", rating: 5, price: "₹20,000" },
-    { id: "ai-search", title: "Problem Solving & Search Techniques", description: "Master the algorithms that power AI decision making.", categoryId: "ai", image: "https://via.placeholder.com/150", rating: 5, price: "₹22,000" },
-    { id: "ai-knowledge", title: "Knowledge Representation & Reasoning", description: "Learn how AI systems store knowledge and reason with it.", categoryId: "ai", image: "https://via.placeholder.com/150", rating: 5, price: "₹25,000" },
-    { id: "ai-intel-basics", title: "Machine Intelligence Basics", description: "A foundational overview of machine learning concepts within AI.", categoryId: "ai", image: "https://via.placeholder.com/150", rating: 5, price: "₹20,000" },
-    { id: "ai-nlp-vision", title: "Natural Language & Vision Systems", description: "Introduction to AI's ability to see and speak.", categoryId: "ai", image: "https://via.placeholder.com/150", rating: 5, price: "₹28,000" },
-    { id: "ai-ethics", title: "AI Applications, Ethics & Deployment", description: "Understanding the impact, responsibility, and lifecycle of AI.", categoryId: "ai", image: "https://via.placeholder.com/150", rating: 5, price: "₹18,000" },
+    {
+        id: "artificial-intelligence-training-hyderabad",
+        title: "AI Programing",
+        description: "Artificial intelligence training in Hyderabad helps learners understand how machines think, learn, and act intelligently.",
+        categoryId: "ai",
+        image: "code-icon",
+        rating: 5,
+        price: "Contact Us",
+        duration: "3 to 4 Months",
+        enrolled: "1280+",
+        mode: "Online / Offline / Hybrid"
+    },
 
     // AIML - UPDATED CONTENT
-    { id: "aiml-python", title: "Python for AI & ML", description: "Learn Python programming and libraries required for AI & ML development.", categoryId: "aiml", image: "https://via.placeholder.com/150", rating: 5, price: "₹25,000" },
-    { id: "aiml-math", title: "Mathematics & Statistics for ML", description: "Understand the mathematical foundation behind ML algorithms.", categoryId: "aiml", image: "https://via.placeholder.com/150", rating: 5, price: "₹25,000" },
-    { id: "aiml-core-ml", title: "Core Machine Learning", description: "Build predictive models using fundamental ML algorithms.", categoryId: "aiml", image: "https://via.placeholder.com/150", rating: 5, price: "₹30,000" },
-    { id: "aiml-advanced-ml", title: "Advanced Machine Learning", description: "Explore complex ML algorithms used in industry.", categoryId: "aiml", image: "https://via.placeholder.com/150", rating: 5, price: "₹35,000" },
-    { id: "aiml-deep-learning", title: "Deep Learning & Neural Networks", description: "Build advanced AI systems using neural networks.", categoryId: "aiml", image: "https://via.placeholder.com/150", rating: 5, price: "₹40,000" },
-    { id: "aiml-nlp", title: "Natural Language Processing", description: "Develop AI systems that understand human language.", categoryId: "aiml", image: "https://via.placeholder.com/150", rating: 5, price: "₹35,000" },
-    { id: "aiml-cv", title: "Computer Vision & AI Systems", description: "Teach machines to understand images and videos.", categoryId: "aiml", image: "https://via.placeholder.com/150", rating: 5, price: "₹35,000" },
-    { id: "aiml-mlops", title: "MLOps & AI Deployment", description: "Deploy AI models into production environments.", categoryId: "aiml", image: "https://via.placeholder.com/150", rating: 5, price: "₹30,000" },
+    {
+        id: "aiml-training-hyderabad",
+        title: "AIML Programing",
+        description: "AI and Machine Learning training in Hyderabad helps learners understand how systems learn from data and make accurate predictions.",
+        categoryId: "aiml",
+        image: "code-icon",
+        rating: 5,
+        price: "Contact Us",
+        duration: "3 to 4 Months",
+        enrolled: "1150+",
+        mode: "Online / Offline / Hybrid"
+    },
 
-    // Data Analytics & Power BI - UPDATED CONTENT
-    {
-        id: "da-intro",
-        title: "Introduction to Data Analytics (Foundation)",
-        description: "Outcome: Understand the analytics lifecycle and business context. Topics: Data lifecycle, types of data, KPIs, cleaning, CSV/Excel.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹15,000"
-    },
-    {
-        id: "da-excel",
-        title: "Excel & Fundamental Analytics",
-        description: "Outcome: Perform business analysis using spreadsheets. Topics: Formulas (IF, VLOOKUP), Pivot Tables, Dashboards, and Descriptive statistics.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹18,000"
-    },
-    {
-        id: "da-sql",
-        title: "SQL for Data Analytics",
-        description: "Outcome: Query and prepare data from databases. Topics: SELECT, JOINS, Subqueries, aggregations, and query optimization.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹20,000"
-    },
-    {
-        id: "da-python",
-        title: "Python for Data Analytics",
-        description: "Outcome: Perform EDA and data manipulation programmatically. Topics: NumPy, Pandas, Handling missing data, EDA, and basic visualization.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹22,000"
-    },
-    {
-        id: "da-r",
-        title: "R Programming for Analytics (Optional Track)",
-        description: "Outcome: Statistical analysis and visualization in R. Topics: R syntax, Data wrangling, ggplot2, and Statistical summaries.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹20,000"
-    },
-    {
-        id: "da-viz",
-        title: "Data Visualization & BI Tools",
-        description: "Outcome: Build interactive dashboards for stakeholders. Topics: Power BI, Tableau, DAX basics, and Dashboard design principles.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹25,000"
-    },
-    {
-        id: "da-stats",
-        title: "Statistics & Probability for Analytics",
-        description: "Outcome: Validate insights with statistical reasoning. Topics: Mean, median, standard deviation, Hypothesis testing, and Correlation.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹18,000"
-    },
-    {
-        id: "da-predictive",
-        title: "Predictive Analytics & ML Basics",
-        description: "Outcome: Build simple predictive models. Topics: Regression, Classification basics, Clustering (K-Means), and Business forecasting.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹28,000"
-    },
-    {
-        id: "da-bigdata",
-        title: "Big Data & Cloud Analytics (Advanced)",
-        description: "Outcome: Work with large-scale and cloud data. Topics: Spark/Hadoop, Cloud data warehouses (AWS/GCP), and Querying large datasets.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹30,000"
-    },
-    {
-        id: "da-capstone",
-        title: "Capstone & Real-World Project",
-        description: "Outcome: End-to-end analytics project. Topics: Problem statement, Data cleaning, Analysis & visualization, and Final presentation.",
-        categoryId: "power-bi",
-        image: "code-icon",
-        rating: 5,
-        price: "₹40,000"
-    },
 
     // Digital Marketing Courses
     {
-        id: "dm-job-guarantee",
-        title: "Job Guarantee Digital Marketing Courses",
-        description: "Comprehensive training program designed to get you hired. Master SEO, SMM, PPC, and Content Marketing with 100% placement assistance and career support.",
+        id: "job-guarantee-digital-marketing-course",
+        title: "Job Guarantee Digital Marketing Course",
+        description: "6 months advanced training program in Hyderabad focusing on practical learning, AI tools, and 100% placement help.",
         categoryId: "digital-marketing",
         image: "code-icon",
         rating: 5,
-        price: "₹35,000"
+        price: "Contact Us",
+        duration: "6 Months",
+        enrolled: "850+",
+        mode: "Online / Offline"
     },
     {
-        id: "dm-online-offline",
-        title: "Online / Offline Digital Marketing Courses",
-        description: "Flexible learning options to suit your schedule. Learn Digital Marketing through live online sessions or immersive classroom training with hands-on projects.",
+        id: "digital-marketing-course-hyderabad",
+        title: "Digital Marketing Course",
+        description: "3 months fast-track training program in Hyderabad covering essential SEO, PPC, and Social Media Marketing skills.",
         categoryId: "digital-marketing",
         image: "code-icon",
         rating: 5,
-        price: "₹25,000"
+        price: "Contact Us",
+        duration: "3 Months",
+        enrolled: "1200+",
+        mode: "Online / Offline"
+    },
+    {
+        id: "data-analytics-online-training",
+        title: "Data Analytics programing",
+        description: "Data analytics online training helps you gain in-demand skills and build a successful career.",
+        categoryId: "data-analytics-online-training",
+        image: "/data-analytics.jpg",
+        rating: 5,
+        price: "Contact Us",
+        duration: "3 to 4 Months",
+        enrolled: "1500+",
+        mode: "Online / Offline / Hybrid"
     }
 ];

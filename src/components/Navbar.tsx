@@ -207,17 +207,17 @@ export const Navbar = () => {
                     },
                     {
                       name: "AI",
-                      link: "/courses/ai",
+                      link: "/courses/artificial-intelligence-training-hyderabad",
                       items: courseCategories.find((c) => c.category === "AI")?.items || []
                     },
                     {
                       name: "AIML",
-                      link: "/courses/aiml",
+                      link: "/courses/aiml-training-hyderabad",
                       items: courseCategories.find((c) => c.category === "AIML")?.items || []
                     },
                     {
                       name: "Data Analytics",
-                      link: "/courses/power-bi",
+                      link: "/courses/data-analytics-online-training",
                       items: courseCategories.find((c) => c.category === "Data Analytics")?.items || []
                     },
                     {
@@ -444,17 +444,17 @@ export const Navbar = () => {
                     },
                     {
                       name: "AI",
-                      link: "/courses/ai",
+                      link: "/courses/artificial-intelligence-training-hyderabad",
                       items: courseCategories.find((c) => c.category === "AI")?.items || []
                     },
                     {
                       name: "AIML",
-                      link: "/courses/aiml",
+                      link: "/courses/aiml-training-hyderabad",
                       items: courseCategories.find((c) => c.category === "AIML")?.items || []
                     },
                     {
                       name: "Data Analytics",
-                      link: "/courses/power-bi",
+                      link: "/courses/data-analytics-online-training",
                       items: courseCategories.find((c) => c.category === "Data Analytics")?.items || []
                     },
                     {

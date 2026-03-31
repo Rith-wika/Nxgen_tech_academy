@@ -90,9 +90,8 @@ const AppContent = () => {
           <Route path="courses/sap-technical" element={<CategoryListing categorySlug="sap-technical" />} />
           <Route path="courses/sap-functional" element={<CategoryListing categorySlug="sap-functional" />} />
           <Route path="courses/python" element={<CategoryListing categorySlug="python" />} />
-          <Route path="courses/ai" element={<CategoryListing categorySlug="ai" />} />
-          <Route path="courses/aiml" element={<CategoryListing categorySlug="aiml" />} />
-          <Route path="courses/power-bi" element={<CategoryListing categorySlug="power-bi" />} />
+          <Route path="courses/ai" element={<CourseDetail id="artificial-intelligence-training-hyderabad" />} />
+          <Route path="courses/aiml" element={<CourseDetail id="aiml-training-hyderabad" />} />
           <Route path="courses/digital-marketing" element={<CategoryListing categorySlug="digital-marketing" />} />
           <Route path="courses/sap-btp" element={<CategoryListing categorySlug="sap-btp" />} />
           <Route path="courses/:id" element={<CourseDetail />} />
