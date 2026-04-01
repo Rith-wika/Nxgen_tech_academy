@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
-  LayoutDashboard, Users, UserCheck, Settings, Plus, Search,
+  LayoutDashboard, Users, UserCheck, Plus, Search,
   Edit2, Trash2, BookOpen, UsersRound, Loader2, X, Save, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -18,7 +18,7 @@ const sidebarItems = [
   { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
   { label: "Courses", icon: BookOpen, path: "/admin/courses" },
   { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-  { label: "Settings", icon: Settings, path: "/admin/settings" },
+  // { label: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 
 interface Category { id: number; name: string; slug: string; is_active: boolean; }

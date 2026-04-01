@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LayoutDashboard, Users, UserCheck, Settings, Plus, UsersRound, BookOpen } from "lucide-react";
+import { LayoutDashboard, Users, UserCheck, Plus, UsersRound, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { batchService } from "@/services/batchService";
@@ -18,7 +18,7 @@ const sidebarItems = [
   { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
   { label: "Courses", icon: BookOpen, path: "/admin/courses" },
   { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-  { label: "Settings", icon: Settings, path: "/admin/settings" },
+  // { label: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 
 const AdminBatches = () => {

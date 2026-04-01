@@ -40,7 +40,7 @@ const MainDashboard = () => {
         { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
         { label: "Courses", icon: BookOpen, path: "/admin/courses" },
         { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-        { label: "Settings", icon: Settings, path: "/admin/settings" },
+        // { label: "Settings", icon: Settings, path: "/admin/settings" },
     ];
 
     const stats = [

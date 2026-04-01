@@ -55,20 +55,18 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await axiosInstance.post("/api/auth/login/", {
+            const loginPayload = {
                 username_or_email: username,
                 password,
                 role: role,
-            });
+            };
+            const responseData = (await axiosInstance.post("/api/auth/login/", loginPayload)).data;
 
-            console.log("Login Response:", response.data);
-
-            const userRole = (response.data.role || role).toLowerCase();
-            console.log("Full Login Response Data:", response.data);
+            const userRole = (responseData.role || role).toLowerCase();
 
             // Handle various possible response field names for first login (boolean, string, or number)
             // Checking both top-level and nested user object
-            const data = response.data;
+            const data = responseData;
             const isFirstLogin =
                 data.is_first_login === true ||
                 data.is_first_login === "true" ||
@@ -85,10 +83,10 @@ const Login = () => {
                 false;
 
             // Store tokens and user info
-            localStorage.setItem("access_token", response.data.access);
-            localStorage.setItem("refresh_token", response.data.refresh);
-            localStorage.setItem("user_id", response.data.user_id);
-            localStorage.setItem("username", response.data.username);
+            localStorage.setItem("access_token", responseData.access);
+            localStorage.setItem("refresh_token", responseData.refresh);
+            localStorage.setItem("user_id", responseData.user_id);
+            localStorage.setItem("username", responseData.username);
             const normalizedRole = userRole === "blog" ? "blog_admin" : userRole;
             localStorage.setItem("role", normalizedRole);
             localStorage.setItem("is_first_login", String(isFirstLogin));
@@ -129,7 +127,7 @@ const Login = () => {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="password">Password</Label>
-                                    <Link to="#" className="text-xs text-[#000080] hover:underline">Forgot password?</Link>
+                                    <Link to="/forgot-password" className="text-xs text-[#000080] hover:underline">Forgot password?</Link>
                                 </div>
                                 <div className="relative">
                                     <Input
@@ -174,12 +172,12 @@ const Login = () => {
                             <Button type="submit" className="w-full bg-[#000080] hover:bg-[#000060] text-lg py-6" disabled={isLoading}>
                                 {isLoading ? "Logging in..." : "Login"}
                             </Button>
-                            <div className="text-sm text-center text-gray-500">
+                            {/* <div className="text-sm text-center text-gray-500">
                                 Don't have an account?{" "}
                                 <Link to="/register" className="text-[#000080] font-semibold hover:underline">
                                     Register here
                                 </Link>
-                            </div>
+                            </div> */}
                         </CardFooter>
                     </form>
                 </Card>
