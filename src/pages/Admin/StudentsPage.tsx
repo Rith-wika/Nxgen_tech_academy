@@ -61,12 +61,22 @@ const StudentsPage = () => {
     if (!window.confirm("Approve this enrollment? The student will receive an email with login credentials.")) return;
     try {
       setActionLoading(id);
-      await axiosInstance.post(`/api/enrollments/admin/enrollments/${id}/approve/`);
-      toast.success("Enrollment approved! Confirmation email sent to student.");
+      const response = await axiosInstance.post(`/api/enrollments/admin/enrollments/${id}/approve/`);
+      toast.success(response.data?.message || "Enrollment approved! Confirmation email sent to student.");
       fetchEnrollments();
     } catch (err: any) {
-      toast.error(err?.response?.data?.error || "Failed to approve enrollment.");
       console.error(err);
+      let errorMessage = "Failed to approve enrollment.";
+      
+      if (err.response?.data) {
+        if (typeof err.response.data === 'object') {
+          errorMessage = err.response.data.error || err.response.data.message || errorMessage;
+        } else if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        }
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setActionLoading(null);
     }
@@ -76,12 +86,22 @@ const StudentsPage = () => {
     if (!window.confirm("Reject this enrollment? The student will be notified by email.")) return;
     try {
       setActionLoading(id);
-      await axiosInstance.post(`/api/enrollments/admin/enrollments/${id}/reject/`);
-      toast.success("Enrollment rejected. Student has been notified.");
+      const response = await axiosInstance.post(`/api/enrollments/admin/enrollments/${id}/reject/`);
+      toast.success(response.data?.message || "Enrollment rejected. Student has been notified.");
       fetchEnrollments();
     } catch (err: any) {
-      toast.error("Failed to reject enrollment.");
       console.error(err);
+      let errorMessage = "Failed to reject enrollment.";
+      
+      if (err.response?.data) {
+        if (typeof err.response.data === 'object') {
+          errorMessage = err.response.data.error || err.response.data.message || errorMessage;
+        } else if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        }
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setActionLoading(null);
     }
