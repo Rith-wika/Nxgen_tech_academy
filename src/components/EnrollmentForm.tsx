@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface EnrollmentFormProps {
     defaultCourse?: string;
-    defaultCourseType?: "Training" | "Industry Readiness";
+    defaultCourseType?: "Training" | "Internship" | "Master Course" | "Industry Readiness";
     onSuccess?: () => void;
 }
 
@@ -221,6 +221,8 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
                         >
                             <option value="" disabled>Select course type</option>
                             <option value="Training">Training</option>
+                            <option value="Internship">Internship</option>
+                            <option value="Master Course">Master Course</option>
                             <option value="Industry Readiness">Industry Readiness</option>
                         </select>
                     </div>

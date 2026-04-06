@@ -105,7 +105,7 @@ export const CoursePricing = ({ courseTitle }: CoursePricingProps) => {
                                 <div className="relative z-10 text-center">
                                     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
                                         <Users className="w-24 h-24 text-white mx-auto mb-4" />
-                                        <h3 className="text-3xl font-bold text-white mb-2">Industry Rediness</h3>
+                                        <h3 className="text-3xl font-bold text-white mb-2">Industry Readiness</h3>
                                         <p className="text-gray-200 text-lg">Real-World Experience</p>
                                     </div>
                                 </div>

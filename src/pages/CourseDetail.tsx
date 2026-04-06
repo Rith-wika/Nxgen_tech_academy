@@ -298,7 +298,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
 
                                 {content.keyTopics.length > 0 && activeSubTab === "training" && (
                                     <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
-                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
+                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-start gap-3">
                                             <BookOpen className="w-8 h-8 text-[#000080]" /> Key Topics Covered
                                         </h3>
                                         <div className="grid sm:grid-cols-2 gap-4">
@@ -315,7 +315,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
                                 )}
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                                    <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-center gap-3">
+                                    <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-start gap-3">
                                         <BookOpen className="w-8 h-8 text-[#000080]" />
                                         {activeSubTab === "training" ? `${basicCourse.title} Comprehensive Modules` : "Industry Readiness Program"}
                                     </h2>
@@ -399,12 +399,12 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
                                     return (
                                         <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md">
                                             {/* Main Section Heading */}
-                                            <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-center gap-3">
+                                            <h2 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-start gap-3">
                                                 < BookOpen className="w-8 h-8 text-[#000080]" /> Course Overview & Information
                                             </h2>
 
-                                            {/* For FICO and Python, move the title heading right after main section heading */}
-                                            {(id === "sap-fico-course-training" || id === "python-course-training-hyderabad") && (
+                                            {/* For FICO, Python and Digital Marketing, move the title heading right after main section heading */}
+                                            {(id === "sap-fico-course-training" || id === "python-course-training-hyderabad" || id === "digital-marketing-course-hyderabad" || id === "job-guarantee-digital-marketing-course") && (
                                                 <h3 className="text-2xl font-bold text-[#000080] mb-6">
                                                     What is {basicCourse.title}?
                                                 </h3>
@@ -418,7 +418,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
                                             ))}
 
                                             {/* For other courses, title heading remains here (after 3rd paragraph) */}
-                                            {!(id === "sap-fico-course-training" || id === "python-course-training-hyderabad") && (
+                                            {!(id === "sap-fico-course-training" || id === "python-course-training-hyderabad" || id === "digital-marketing-course-hyderabad" || id === "job-guarantee-digital-marketing-course") && (
                                                 <h3 className="text-2xl font-bold text-[#000080] mb-6">
                                                     What is {basicCourse.title}?
                                                 </h3>
@@ -453,7 +453,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
 
                                     return (
                                         <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-                                            <h3 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-center gap-3">
+                                            <h3 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-start gap-3">
                                                 <Star className="w-8 h-8 text-yellow-500" /> Why {basicCourse.title}?
                                             </h3>
 
@@ -475,7 +475,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
 
                                 {content.keyBenefits.length > 0 && (
                                     <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
+                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-start gap-3">
                                             <Award className="w-8 h-8 text-purple-600" /> Key Benefits
                                         </h3>
                                         <div className="grid sm:grid-cols-2 gap-4">
@@ -492,7 +492,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
                                 )}
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-                                    <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
+                                    <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-start gap-3">
                                         <CheckCircle className="w-8 h-8 text-[#10B981]" /> Why Choose NxGen Tech Academy?
                                     </h3>
                                     <div className="grid sm:grid-cols-2 gap-4">
@@ -508,7 +508,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
                                 </section>
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400">
-                                    <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
+                                    <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-start gap-3">
                                         <Briefcase className="w-8 h-8 text-orange-500" /> Career Opportunities
                                     </h3>
                                     <ul className="space-y-4 pl-2">
@@ -523,7 +523,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
 
 
                                 <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500">
-                                    <h3 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-center gap-3">
+                                    <h3 className="text-3xl font-bold text-[#000080] mb-6 flex items-center justify-start gap-3">
                                         <Clock className="w-8 h-8 text-[#000080]" /> Fees and Duration
                                     </h3>
                                     <div className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
@@ -563,7 +563,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
 
                                 {content.faqs && content.faqs.length > 0 && (
                                     <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-[600ms]">
-                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-center gap-3">
+                                        <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-start gap-3">
                                             <Award className="w-8 h-8 text-blue-600" /> Frequently Asked Questions
                                         </h3>
                                         <div className="space-y-6">

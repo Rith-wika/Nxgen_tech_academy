@@ -30,29 +30,35 @@ const sapCourses = [
 }));
 
 const trendingCourses = [
-  { 
-    title: "Data Analytics", 
-    hours: "70 Hours", 
+  {
+    title: "Data Analytics",
+    hours: "70 Hours",
     link: "/courses/power-bi",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop"
+    image: "/data-analytics.jpg"
   },
-  { 
-    title: "Python", 
-    hours: "45 Hours", 
+  {
+    title: "Python",
+    hours: "45 Hours",
     link: "/courses/python",
-    image: "/PYTHON.jpg"
+    image: "/python.jpg"
   },
-  { 
-    title: "Digital Marketing", 
-    hours: "Multiple Courses", 
+  {
+    title: "Digital Marketing",
+    hours: "Multiple Courses",
     link: "/courses/digital-marketing",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop"
+    image: "/digital-marketing.JPG"
   },
-  { 
-    title: "AIML", 
-    hours: "80 Hours", 
+  {
+    title: "AIML",
+    hours: "80 Hours",
     link: "/courses/aiml",
-    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop"
+    image: "/aiml.jpg"
+  },
+  {
+    title: "AI",
+    hours: "80 Hours",
+    link: "/courses/ai",
+    image: "/ai.jpg"
   },
 ];
 
@@ -94,7 +100,7 @@ const Home = () => {
   return (
     <div className="min-h-screen font-sans text-gray-800 overflow-x-hidden">
       <Helmet>
-        <title>Best IT Training Institute in Hyderabad | NxGen Tech Academy</title>
+        <title>NxGen Tech Academy | Hyderabad</title>
         <meta name="description" content="NxGen Tech Academy is the leading IT training institute in Hyderabad, offering professional courses in SAP, Python, Data Science, and more with 100% placement assistance." />
         <link rel="canonical" href={siteUrl} />
 
@@ -125,7 +131,7 @@ const Home = () => {
             </p>
 
             <div className="flex items-center justify-center gap-4 text-xs font-medium ml-auto mr-0 md:mr-4 bg-black/10 px-3 md:px-4 py-1.5 rounded-md border border-white/10 whitespace-nowrap">
-            <div className="flex items-center gap-1.5 hidden sm:flex">
+              <div className="flex items-center gap-1.5 hidden sm:flex">
                 <Presentation className="w-3.5 h-3.5 text-secondary" />
                 <span>Upcoming Event</span>
               </div>
