@@ -114,8 +114,8 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
 
         try {
             // Submit enrollment directly
-            await enrollmentService.enroll(formData);
-            toast.success("Enrolled to the course successfully!");
+            const response = await enrollmentService.enroll(formData);
+            toast.success("Enrolled to the course successfully! Redirecting...");
 
             // Reset form
             setFormData({
@@ -130,7 +130,31 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
             onSuccess?.();
         } catch (error: any) {
             console.error("Enrollment Error:", error);
-            toast.error(error.response?.data?.message || "Failed to submit enrollment. Please try again.");
+            
+            // Better error handling
+            let errorMessage = "Failed to submit enrollment. Please try again.";
+            
+            if (error.response?.data) {
+                if (typeof error.response.data === 'object') {
+                    // Handle validation errors
+                    const firstError = Object.values(error.response.data)[0];
+                    if (Array.isArray(firstError)) {
+                        errorMessage = firstError[0] as string;
+                    } else if (typeof firstError === 'string') {
+                        errorMessage = firstError;
+                    } else if (error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    } else if (error.response.data.error) {
+                        errorMessage = error.response.data.error;
+                    }
+                } else if (typeof error.response.data === 'string') {
+                    errorMessage = error.response.data;
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

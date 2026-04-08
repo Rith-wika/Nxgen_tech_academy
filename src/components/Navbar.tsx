@@ -101,6 +101,12 @@ export const Navbar = () => {
   };
 
   const role = localStorage.getItem("role");
+  const dashboardPath =
+    role === "admin" ? "/admin/dashboard" :
+    role === "instructor" ? "/instructor/dashboard" :
+    role === "student" ? "/student/dashboard" :
+    role === "blog_admin" ? "/blog-admin" :
+    "/";
   const isAuthPage = [
     "/student-login",
     "/instructor-login",
@@ -360,7 +366,7 @@ export const Navbar = () => {
                   asChild
                   className="bg-secondary hover:bg-secondary/90 text-white font-medium px-2 xl:px-6"
                 >
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to={dashboardPath}>Dashboard</Link>
                 </Button>
                 <Button
                   variant="outline"
@@ -531,7 +537,7 @@ export const Navbar = () => {
               <>
                 <Button asChild className="w-full bg-secondary text-white">
                   <Link
-                    to="/dashboard"
+                    to={dashboardPath}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     My Dashboard

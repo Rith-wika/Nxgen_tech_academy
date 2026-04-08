@@ -34,6 +34,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
     const navigate = useNavigate();
     const location = useLocation();
 
+    const studentTopNavItems = [
+        { label: "Resume Builder", path: "/student/progress" },
+        { label: "My Resumes", path: "/student/certificates" },
+        { label: "My Account", path: "/student/profile" },
+    ];
+
     const handleLogout = () => {
         localStorage.clear();
         navigate("/login");
@@ -124,18 +130,55 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Top Navbar */}
-                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 shrink-0 sticky top-0 z-10">
-                    <button className="md:hidden p-2 text-gray-600" onClick={() => setIsMobileMenuOpen(true)}>
-                        <Menu className="w-6 h-6" />
-                    </button>
-                    <div className="flex-1 flex justify-end items-center gap-4">
-                        <div className="hidden md:flex flex-col items-end">
-                            <span className="text-sm font-semibold text-gray-800">{localStorage.getItem("username")}</span>
-                            <span className="text-xs text-gray-500 capitalize">{role.replace('_', ' ')}</span>
-                        </div>
-                        <div className="w-10 h-10 rounded-full bg-[#000080] text-white flex items-center justify-center font-bold">
-                            {localStorage.getItem("username")?.[0]?.toUpperCase()}
-                        </div>
+                <header className="w-full bg-gradient-to-r from-[#000080] via-blue-700 to-cyan-600 shadow-md shrink-0 sticky top-0 z-10">
+                    <div className="h-16 px-4 md:px-8 flex items-center justify-between gap-3">
+                        <button className="md:hidden p-2 text-white" onClick={() => setIsMobileMenuOpen(true)}>
+                            <Menu className="w-6 h-6" />
+                        </button>
+
+                        {role === "student" ? (
+                            <>
+                                <div className="hidden md:flex items-center gap-2 lg:gap-4">
+                                    {studentTopNavItems.map((item) => (
+                                        <Link
+                                            key={item.path}
+                                            to={item.path}
+                                            className={`px-3 py-2 rounded-lg text-sm lg:text-base font-medium transition-colors ${isActive(item.path)
+                                                ? "bg-white text-[#000080]"
+                                                : "text-white/90 hover:text-white hover:bg-white/15"
+                                                }`}
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    ))}
+                                    <button
+                                        onClick={handleLogout}
+                                        className="px-3 py-2 rounded-lg text-sm lg:text-base font-medium text-white/90 hover:text-white hover:bg-white/15 transition-colors"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+
+                                <div className="md:hidden flex-1 text-white font-semibold truncate">
+                                    {localStorage.getItem("username")}
+                                </div>
+
+                                <div className="w-10 h-10 rounded-full bg-white text-[#000080] flex items-center justify-center font-bold shrink-0">
+                                    {localStorage.getItem("username")?.[0]?.toUpperCase()}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex-1" />
+                                <div className="hidden md:flex flex-col items-end">
+                                    <span className="text-sm font-semibold text-white">{localStorage.getItem("username")}</span>
+                                    <span className="text-xs text-white/80 capitalize">{role.replace('_', ' ')}</span>
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white text-[#000080] flex items-center justify-center font-bold">
+                                    {localStorage.getItem("username")?.[0]?.toUpperCase()}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </header>
 

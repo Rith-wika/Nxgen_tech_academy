@@ -9,6 +9,22 @@ import { instructorService } from "@/services/instructorService";
 import { Eye, EyeOff, Lock, CheckCircle2, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
+const getPasswordValidationError = (password: string): string | null => {
+    if (password.length < 8) {
+        return "Password must be at least 8 characters long";
+    }
+    if (!/[A-Z]/.test(password)) {
+        return "Password must include at least one capital letter";
+    }
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
+        return "Password must include at least one special character";
+    }
+    if (/(.)\1/.test(password)) {
+        return "Password cannot contain repeated consecutive characters";
+    }
+    return null;
+};
+
 const ChangePassword = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -37,8 +53,9 @@ const ChangePassword = () => {
             isValid = false;
         }
 
-        if (passwords.newPassword.length < 8) {
-            newErrs.newPassword = "Password must be at least 8 characters long";
+        const passwordValidationError = getPasswordValidationError(passwords.newPassword);
+        if (passwordValidationError) {
+            newErrs.newPassword = passwordValidationError;
             isValid = false;
         }
 
@@ -63,7 +80,7 @@ const ChangePassword = () => {
         setLoading(true);
         try {
             await instructorService.changePassword({
-                current_password: passwords.currentPassword,
+                old_password: passwords.currentPassword,
                 new_password: passwords.newPassword,
                 confirm_password: passwords.confirmPassword
             });
@@ -153,6 +170,18 @@ const ChangePassword = () => {
                                 <p className="text-xs text-gray-500 flex items-center gap-1">
                                     <CheckCircle2 className={`w-3 h-3 ${passwords.newPassword.length >= 8 ? 'text-green-500' : 'text-gray-300'}`} />
                                     Minimum 8 characters
+                                </p>
+                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                    <CheckCircle2 className={`w-3 h-3 ${/[A-Z]/.test(passwords.newPassword) ? 'text-green-500' : 'text-gray-300'}`} />
+                                    At least one capital letter
+                                </p>
+                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                    <CheckCircle2 className={`w-3 h-3 ${/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(passwords.newPassword) ? 'text-green-500' : 'text-gray-300'}`} />
+                                    At least one special character
+                                </p>
+                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                    <CheckCircle2 className={`w-3 h-3 ${!/(.)\1/.test(passwords.newPassword) && passwords.newPassword.length > 0 ? 'text-green-500' : 'text-gray-300'}`} />
+                                    No repeated consecutive characters
                                 </p>
                             </div>
 

@@ -7,12 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("student");
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -53,20 +55,18 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await axiosInstance.post("/api/auth/login/", {
+            const loginPayload = {
                 username_or_email: username,
                 password,
                 role: role,
-            });
+            };
+            const responseData = (await axiosInstance.post("/api/auth/login/", loginPayload)).data;
 
-            console.log("Login Response:", response.data);
-
-            const userRole = (response.data.role || role).toLowerCase();
-            console.log("Full Login Response Data:", response.data);
+            const userRole = (responseData.role || role).toLowerCase();
 
             // Handle various possible response field names for first login (boolean, string, or number)
             // Checking both top-level and nested user object
-            const data = response.data;
+            const data = responseData;
             const isFirstLogin =
                 data.is_first_login === true ||
                 data.is_first_login === "true" ||
@@ -83,10 +83,10 @@ const Login = () => {
                 false;
 
             // Store tokens and user info
-            localStorage.setItem("access_token", response.data.access);
-            localStorage.setItem("refresh_token", response.data.refresh);
-            localStorage.setItem("user_id", response.data.user_id);
-            localStorage.setItem("username", response.data.username);
+            localStorage.setItem("access_token", responseData.access);
+            localStorage.setItem("refresh_token", responseData.refresh);
+            localStorage.setItem("user_id", responseData.user_id);
+            localStorage.setItem("username", responseData.username);
             const normalizedRole = userRole === "blog" ? "blog_admin" : userRole;
             localStorage.setItem("role", normalizedRole);
             localStorage.setItem("is_first_login", String(isFirstLogin));
@@ -127,17 +127,31 @@ const Login = () => {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="password">Password</Label>
-                                    <Link to="#" className="text-xs text-[#000080] hover:underline">Forgot password?</Link>
+                                    <Link to="/forgot-password" className="text-xs text-[#000080] hover:underline">Forgot password?</Link>
                                 </div>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    placeholder="Enter password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    className="border-gray-300 focus:border-[#000080] focus:ring-[#000080]"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="password"
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="Enter password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        className="border-gray-300 focus:border-[#000080] focus:ring-[#000080] pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#000080] transition-colors"
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="h-5 w-5" />
+                                        ) : (
+                                            <Eye className="h-5 w-5" />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="role">Login As</Label>
@@ -158,12 +172,12 @@ const Login = () => {
                             <Button type="submit" className="w-full bg-[#000080] hover:bg-[#000060] text-lg py-6" disabled={isLoading}>
                                 {isLoading ? "Logging in..." : "Login"}
                             </Button>
-                            <div className="text-sm text-center text-gray-500">
+                            {/* <div className="text-sm text-center text-gray-500">
                                 Don't have an account?{" "}
                                 <Link to="/register" className="text-[#000080] font-semibold hover:underline">
                                     Register here
                                 </Link>
-                            </div>
+                            </div> */}
                         </CardFooter>
                     </form>
                 </Card>

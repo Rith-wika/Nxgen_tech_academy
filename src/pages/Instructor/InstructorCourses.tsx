@@ -171,11 +171,11 @@ const InstructorCourses = () => {
                                             <div className="flex items-center justify-between text-sm text-gray-600 border-b pb-4">
                                                 <div className="flex items-center gap-2">
                                                     <PlayCircle className="w-4 h-4 text-[#000080]" />
-                                                    <span>Modules: {course.lesson_count || 0}</span>
+                                                    <span>Modules: {course.topic_count || 0}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <FileText className="w-4 h-4 text-[#000080]" />
-                                                    <span>Lessons: {course.topic_count || 0}</span>
+                                                    <span>Lessons: {course.lesson_count || 0}</span>
                                                 </div>
                                             </div>
 
