@@ -21,6 +21,7 @@ export interface InstructorData {
 type FormPayload = Record<string, unknown>;
 
 interface ChangePasswordPayload {
+    current_password?: string;
     old_password: string;
     new_password: string;
     confirm_password: string;

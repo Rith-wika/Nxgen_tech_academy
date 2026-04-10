@@ -118,6 +118,16 @@ const InstructorsPage = () => {
     }
   };
 
+  const handleActivate = async (instructor: any) => {
+    try {
+      await axiosInstance.post(`/api/instructors/${instructor.id}/activate/`);
+      toast.success("Instructor activated.");
+      fetchAllData();
+    } catch (err) {
+      toast.error("Failed to activate instructor.");
+    }
+  };
+
   const filtered = instructorList.filter((ins) =>
     (ins.full_name || ins.name || "").toLowerCase().includes(search.toLowerCase()) ||
     (ins.email || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -198,12 +208,19 @@ const InstructorsPage = () => {
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
-                            {instructor.is_active && (
+                            {instructor.is_active ? (
                               <button
                                 className="px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
                                 onClick={() => handleDeactivate(instructor)}
                               >
                                 Deactivate
+                              </button>
+                            ) : (
+                              <button
+                                className="px-3 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-50 rounded-lg transition-colors border border-green-200"
+                                onClick={() => handleActivate(instructor)}
+                              >
+                                Activate
                               </button>
                             )}
                           </div>

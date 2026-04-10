@@ -80,6 +80,7 @@ const ChangePassword = () => {
         setLoading(true);
         try {
             await instructorService.changePassword({
+                current_password: passwords.currentPassword,
                 old_password: passwords.currentPassword,
                 new_password: passwords.newPassword,
                 confirm_password: passwords.confirmPassword

@@ -29,6 +29,7 @@ const AdminBatches = () => {
   
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isManageStudentsOpen, setIsManageStudentsOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<any>(null);
 
@@ -39,6 +40,13 @@ const AdminBatches = () => {
     instructor: "", // id
   });
 
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    description: "",
+    course: "",
+    instructor: "",
+  });
+
   const [studentSearch, setStudentSearch] = useState("");
 
   const filteredInstructors = useMemo(() => {
@@ -47,6 +55,13 @@ const AdminBatches = () => {
       i.courses?.some((c: any) => String(c.id) === String(formData.course))
     );
   }, [instructors, formData.course]);
+
+  const editFilteredInstructors = useMemo(() => {
+    if (!editFormData.course) return [];
+    return instructors.filter((i: any) => 
+      i.courses?.some((c: any) => String(c.id) === String(editFormData.course))
+    );
+  }, [instructors, editFormData.course]);
 
   useEffect(() => {
     fetchInitialData();
@@ -96,6 +111,46 @@ const AdminBatches = () => {
       loadBatches();
     } catch (error) {
       toast.error("Error creating batch");
+      console.error(error);
+    }
+  };
+
+  const openEditDialog = (batch: any) => {
+    setSelectedBatch(batch);
+    setEditFormData({
+      name: batch.name || "",
+      description: batch.description || "",
+      course: String(batch.course || ""),
+      instructor: batch.instructor ? String(batch.instructor) : "",
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleUpdate = async () => {
+    if (!selectedBatch) return;
+    if (!editFormData.name || !editFormData.course) {
+      toast.error("Name and Course are required.");
+      return;
+    }
+
+    if (selectedBatch.instructor && String(selectedBatch.instructor) !== String(editFormData.instructor || selectedBatch.instructor)) {
+      toast.error("Assigned batch instructor cannot be changed. Create a new batch instead.");
+      return;
+    }
+
+    try {
+      await batchService.updateBatch(selectedBatch.id, {
+        name: editFormData.name,
+        description: editFormData.description,
+        course: Number(editFormData.course),
+        instructor: editFormData.instructor ? Number(editFormData.instructor) : undefined,
+      });
+      toast.success("Batch updated successfully");
+      setIsEditOpen(false);
+      setSelectedBatch(null);
+      loadBatches();
+    } catch (error: any) {
+      toast.error(error.response?.data?.instructor || error.response?.data?.detail || "Error updating batch");
       console.error(error);
     }
   };
@@ -242,6 +297,72 @@ const AdminBatches = () => {
                   </div>
                   
                   <div className="flex flex-wrap gap-2 pt-2 border-t">
+                    <Dialog open={isEditOpen && selectedBatch?.id === batch.id} onOpenChange={(open) => {
+                      setIsEditOpen(open);
+                      if (open) {
+                        openEditDialog(batch);
+                      } else {
+                        setSelectedBatch(null);
+                      }
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex-1">Edit Batch</Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Edit Batch</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label>Batch Name</Label>
+                            <Input
+                              placeholder="Batch name"
+                              value={editFormData.name}
+                              onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Description</Label>
+                            <Input
+                              placeholder="Batch description"
+                              value={editFormData.description}
+                              onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Course</Label>
+                            <select
+                              className="w-full h-10 px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                              value={editFormData.course}
+                              onChange={(e) => setEditFormData({ ...editFormData, course: e.target.value })}
+                            >
+                              <option value="">Select a Course</option>
+                              {courses.map((c) => (
+                                <option key={c.id} value={c.id}>{c.title}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Instructor</Label>
+                            <select
+                              className="w-full h-10 px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                              value={editFormData.instructor}
+                              onChange={(e) => setEditFormData({ ...editFormData, instructor: e.target.value })}
+                              disabled={Boolean(selectedBatch?.instructor)}
+                            >
+                              <option value="">{selectedBatch?.instructor ? "Assigned instructor locked" : "Select an Instructor"}</option>
+                              {editFilteredInstructors.map((i: any) => (
+                                <option key={i.id} value={i.id}>{i.full_name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="pt-2 flex justify-end">
+                            <Button onClick={handleUpdate} className="bg-[#000080] hover:bg-[#000060]">Save Changes</Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
                     <Dialog open={isManageStudentsOpen && selectedBatch?.id === batch.id} onOpenChange={(open) => {
                       setIsManageStudentsOpen(open);
                       if (open) setSelectedBatch(batch);

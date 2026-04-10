@@ -159,24 +159,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
                                     </button>
                                 </div>
 
-                                <div className="md:hidden flex-1 text-white font-semibold truncate">
+                                <Link to="/student/profile" className="md:hidden flex-1 text-white font-semibold truncate">
                                     {localStorage.getItem("username")}
-                                </div>
+                                </Link>
 
-                                <div className="w-10 h-10 rounded-full bg-white text-[#000080] flex items-center justify-center font-bold shrink-0">
+                                <Link to="/student/profile" className="w-10 h-10 rounded-full bg-white text-[#000080] flex items-center justify-center font-bold shrink-0">
                                     {localStorage.getItem("username")?.[0]?.toUpperCase()}
-                                </div>
+                                </Link>
                             </>
                         ) : (
                             <>
                                 <div className="flex-1" />
-                                <div className="hidden md:flex flex-col items-end">
+                                <Link to={role === "instructor" ? "/instructor/profile" : "/"} className="hidden md:flex flex-col items-end">
                                     <span className="text-sm font-semibold text-white">{localStorage.getItem("username")}</span>
                                     <span className="text-xs text-white/80 capitalize">{role.replace('_', ' ')}</span>
-                                </div>
-                                <div className="w-10 h-10 rounded-full bg-white text-[#000080] flex items-center justify-center font-bold">
+                                </Link>
+                                <Link to={role === "instructor" ? "/instructor/profile" : "/"} className="w-10 h-10 rounded-full bg-white text-[#000080] flex items-center justify-center font-bold">
                                     {localStorage.getItem("username")?.[0]?.toUpperCase()}
-                                </div>
+                                </Link>
                             </>
                         )}
                     </div>

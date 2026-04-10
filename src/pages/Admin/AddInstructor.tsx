@@ -37,7 +37,7 @@ const instructorSchema = z.object({
     date_of_joining: z.string().min(1, "Date of joining is required"),
     qualification: z.string().min(1, "Qualification is required"),
     experience: z.string().min(1, "Experience is required"),
-    bank_account_number: z.string().min(1, "Bank account number is required"),
+    bank_account_number: z.string().min(1, "Bank account number is required").max(20, "Bank account number must not exceed 20 characters"),
     ifsc_code: z.string().min(1, "IFSC Code is required"),
     pan_number: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"),
     aadhaar_number: z.string().regex(/^\d{12}$/, "Aadhaar number must be 12 digits"),
@@ -285,7 +285,7 @@ const AddInstructor = () => {
                         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="bank_account_number">Bank Account Number</Label>
-                                <Input id="bank_account_number" {...register("bank_account_number")} placeholder="Enter account number" />
+                                <Input id="bank_account_number" maxLength={20} {...register("bank_account_number")} placeholder="Enter account number" />
                                 {errors.bank_account_number && <p className="text-red-500 text-xs">{errors.bank_account_number.message}</p>}
                             </div>
                             <div className="space-y-2">
