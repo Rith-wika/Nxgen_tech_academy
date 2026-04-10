@@ -20,7 +20,7 @@ const sidebarItems = [
   { label: "Batches", icon: UsersRound, path: "/admin/batches" },
   // { label: "Settings", icon: Settings, path: "/admin/settings" },
 ];
-
+       
 interface Category { id: number; name: string; slug: string; is_active: boolean; }
 interface Course { id: number; title: string; description: string; price: string; is_active: boolean; category: number; }
 
