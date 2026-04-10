@@ -49,11 +49,11 @@ export const Footer = () => {
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Contact Us
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/blogs" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Blogs
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -121,14 +121,14 @@ export const Footer = () => {
         {/* Highlighted Footer Section */}
         <div className="mt-12 bg-gradient-to-r from-[#000080]/20 via-[#000080]/40 to-[#000080]/20 border border-[#000080]/50 rounded-2xl py-8 px-6 text-center transform hover:scale-[1.01] transition-transform duration-300 shadow-lg">
           <h2 className="text-xl md:text-xl font-bold tracking-wide text-white mb-2">
-            NXGenTech Academy
+            NxGenTech Academy
           </h2>
           <p className="text-[#22c55e] font-medium text-lg md:text-lg mb-3">
             Industry-Focused Learning & Career Development
           </p>
           <p className="text-slate-300 text-sm md:text-lg flex items-center justify-center gap-2">
             <span className="w-8 h-[1px] bg-slate-500"></span>
-            Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors cursor-pointer relative z-20"><b>Sriainfotech Pvt. Ltd.</b></a>
+            Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors cursor-pointer relative z-20"><b>SRIA Infotech Pvt. Ltd.</b></a>
             <span className="w-8 h-[1px] bg-slate-500"></span>
           </p>
         </div>

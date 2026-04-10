@@ -33,7 +33,7 @@ const trendingCourses = [
   {
     title: "Data Analytics",
     hours: "70 Hours",
-    link: "/courses/power-bi",
+    link: "/courses/data-analytics",
     image: "/data-analytics.jpg"
   },
   {

@@ -168,7 +168,7 @@ const CategoryListing = ({ categorySlug }: { categorySlug: string }) => {
                                         className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group"
                                     >
                                         {/* Image Header */}
-                                        <div className="relative h-48 w-full overflow-hidden bg-gray-100">
+                                        <div className="relative h-58 w-full overflow-hidden bg-gray-100">
                                             {course.image && course.image !== "code-icon" ? (
                                                 <img
                                                     src={course.image}
