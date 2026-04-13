@@ -11,7 +11,7 @@ interface EnrollmentModalProps {
     isOpen: boolean;
     onClose: () => void;
     courseTitle?: string;
-    courseType?: "Training" | "Internship" | "Master Course";
+    courseType?: "Training" | "Industry Readiness";
 }
 
 export const EnrollmentModal = ({ isOpen, onClose, courseTitle, courseType }: EnrollmentModalProps) => {

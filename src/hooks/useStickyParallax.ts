@@ -10,7 +10,7 @@ export const useStickyParallax = (
     containerRef: RefObject<HTMLElement>,
     sidebarRef: RefObject<HTMLElement>,
 ) => {
-    const [dimensions, setDimensions] = useState({ containerHeight: 0, sidebarHeight: 0 });
+    const [dimensions, setDimensions] = useState({ containerHeight: 0, sidebarHeight: 0, isDesktop: true });
 
     useEffect(() => {
         const measure = () => {
@@ -18,6 +18,7 @@ export const useStickyParallax = (
                 setDimensions({
                     containerHeight: containerRef.current.offsetHeight,
                     sidebarHeight: sidebarRef.current.offsetHeight,
+                    isDesktop: window.innerWidth >= 1024
                 });
             }
         };
@@ -45,9 +46,9 @@ export const useStickyParallax = (
     // Calculate how much the sidebar needs to travel
     const travelDistance = Math.max(0, dimensions.containerHeight - dimensions.sidebarHeight);
 
-    // Create a smooth transform
-    const yRange = useTransform(scrollYProgress, [0, 1], [0, travelDistance]);
-    
+    // Create a smooth transform, disable on mobile (since items are stacked, not side-by-side)
+    const yRange = useTransform(scrollYProgress, [0, 1], [0, dimensions.isDesktop ? travelDistance : 0]);
+
     // Add tighter spring physics to reduce 'swinging' and make it feel more direct
     const smoothY = useSpring(yRange, {
         stiffness: 300,

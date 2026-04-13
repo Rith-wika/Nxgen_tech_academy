@@ -67,7 +67,7 @@ const StudentsPage = () => {
     } catch (err: any) {
       console.error(err);
       let errorMessage = "Failed to approve enrollment.";
-      
+
       if (err.response?.data) {
         if (typeof err.response.data === 'object') {
           errorMessage = err.response.data.error || err.response.data.message || errorMessage;
@@ -75,7 +75,7 @@ const StudentsPage = () => {
           errorMessage = err.response.data;
         }
       }
-      
+
       toast.error(errorMessage);
     } finally {
       setActionLoading(null);
@@ -92,7 +92,7 @@ const StudentsPage = () => {
     } catch (err: any) {
       console.error(err);
       let errorMessage = "Failed to reject enrollment.";
-      
+
       if (err.response?.data) {
         if (typeof err.response.data === 'object') {
           errorMessage = err.response.data.error || err.response.data.message || errorMessage;
@@ -100,7 +100,7 @@ const StudentsPage = () => {
           errorMessage = err.response.data;
         }
       }
-      
+
       toast.error(errorMessage);
     } finally {
       setActionLoading(null);
@@ -138,7 +138,7 @@ const StudentsPage = () => {
                 <Plus className="w-4 h-4 mr-2" /> Add Student
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col pb-0">
               <DialogHeader>
                 <DialogTitle>Add New Student Enrollment</DialogTitle>
               </DialogHeader>
@@ -154,11 +154,10 @@ const StudentsPage = () => {
           <button
             key={s}
             onClick={() => setFilterStatus(s)}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold capitalize transition-colors ${
-              filterStatus === s
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold capitalize transition-colors ${filterStatus === s
                 ? "bg-[#000080] text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
+              }`}
           >
             {s} ({counts[s]})
           </button>

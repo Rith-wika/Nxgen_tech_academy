@@ -26,7 +26,7 @@ const AdminBatches = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [instructors, setInstructors] = useState<any[]>([]);
   const [enrollments, setEnrollments] = useState<any[]>([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -51,14 +51,14 @@ const AdminBatches = () => {
 
   const filteredInstructors = useMemo(() => {
     if (!formData.course) return [];
-    return instructors.filter((i: any) => 
+    return instructors.filter((i: any) =>
       i.courses?.some((c: any) => String(c.id) === String(formData.course))
     );
   }, [instructors, formData.course]);
 
   const editFilteredInstructors = useMemo(() => {
     if (!editFormData.course) return [];
-    return instructors.filter((i: any) => 
+    return instructors.filter((i: any) =>
       i.courses?.some((c: any) => String(c.id) === String(editFormData.course))
     );
   }, [instructors, editFormData.course]);
@@ -173,22 +173,22 @@ const AdminBatches = () => {
       await batchService.manageStudents(selectedBatch.id, [email], action);
       toast.success(`Student ${action === 'add' ? 'added' : 'removed'} successfully`);
       loadBatches();
-      
+
       // Update selectedBatch state to reflect change immediately inside modal
       setSelectedBatch(prev => {
-        if(!prev) return;
+        if (!prev) return;
         const students = Array.isArray(prev.students) ? [...prev.students] : [];
         const detail = Array.isArray(prev.students_detail) ? [...prev.students_detail] : [];
 
         if (action === 'add') {
-           students.push(email);
-           detail.push({ id: Date.now(), email, name: email });
+          students.push(email);
+          detail.push({ id: Date.now(), email, name: email });
         } else {
-           const sIdx = students.indexOf(email);
-           if(sIdx !== -1) students.splice(sIdx, 1);
-           
-           const dIdx = detail.findIndex((s:any) => s.email === email);
-           if(dIdx !== -1) detail.splice(dIdx, 1);
+          const sIdx = students.indexOf(email);
+          if (sIdx !== -1) students.splice(sIdx, 1);
+
+          const dIdx = detail.findIndex((s: any) => s.email === email);
+          if (dIdx !== -1) detail.splice(dIdx, 1);
         }
         return { ...prev, students, students_detail: detail };
       });
@@ -203,16 +203,16 @@ const AdminBatches = () => {
   // We match enrollment data course name with the selected batch's course title
   const filteredEnrollmentsByCourse = useMemo(() => {
     if (!selectedBatch) return [];
-    
+
     // Some enrollments might use string for course, some might use ID.
     // Let's compare ID if available.
     return enrollments.filter(e => {
       const matchCourse = String(e.course) === String(selectedBatch.course);
-      
-      const matchSearch = 
-        e.name?.toLowerCase().includes(studentSearch.toLowerCase()) || 
+
+      const matchSearch =
+        e.name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
         e.email?.toLowerCase().includes(studentSearch.toLowerCase());
-        
+
       return matchCourse && matchSearch && e.email;
     });
   }, [enrollments, selectedBatch, studentSearch]);
@@ -295,7 +295,7 @@ const AdminBatches = () => {
                     <span>Students: {(batch.students || []).length}</span>
                     <span>Instructor: {instructors.find(i => String(i.id) === String(batch.instructor))?.full_name || 'Unassigned'}</span>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-2 pt-2 border-t">
                     <Dialog open={isEditOpen && selectedBatch?.id === batch.id} onOpenChange={(open) => {
                       setIsEditOpen(open);
@@ -348,7 +348,6 @@ const AdminBatches = () => {
                               className="w-full h-10 px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#000080]"
                               value={editFormData.instructor}
                               onChange={(e) => setEditFormData({ ...editFormData, instructor: e.target.value })}
-                              disabled={Boolean(selectedBatch?.instructor)}
                             >
                               <option value="">{selectedBatch?.instructor ? "Assigned instructor locked" : "Select an Instructor"}</option>
                               {editFilteredInstructors.map((i: any) => (
@@ -379,26 +378,26 @@ const AdminBatches = () => {
                           <DialogTitle>Manage Students for {batch.name}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 py-2">
-                          <Input 
-                            placeholder="Filter enrollments by email or name..." 
+                          <Input
+                            placeholder="Filter enrollments by email or name..."
                             value={studentSearch}
                             onChange={(e) => setStudentSearch(e.target.value)}
                           />
                           <div className="max-h-96 overflow-y-auto rounded-md border">
                             {filteredEnrollmentsByCourse.length === 0 ? (
-                               <p className="p-4 text-center text-gray-500 text-sm">No enrollments match this batch's course.</p>
+                              <p className="p-4 text-center text-gray-500 text-sm">No enrollments match this batch's course.</p>
                             ) : (
                               filteredEnrollmentsByCourse.map((enrollment) => {
                                 // Check both IDs and emails for safety
-                                const isAdded = (selectedBatch?.students_detail || []).some((s:any) => s.email === enrollment.email);
+                                const isAdded = (selectedBatch?.students_detail || []).some((s: any) => s.email === enrollment.email);
                                 return (
                                   <div key={enrollment.email} className="flex justify-between items-center p-3 border-b hover:bg-slate-50">
                                     <div className="flex flex-col">
                                       <span className="text-sm font-medium">{enrollment.name}</span>
                                       <span className="text-xs text-gray-500">{enrollment.email} &bull; {enrollment.course}</span>
                                     </div>
-                                    <Button 
-                                      size="sm" 
+                                    <Button
+                                      size="sm"
                                       variant={isAdded ? "destructive" : "secondary"}
                                       onClick={() => handleStudentAction(enrollment.email, isAdded ? 'remove' : 'add')}
                                     >
@@ -412,7 +411,7 @@ const AdminBatches = () => {
                         </div>
                       </DialogContent>
                     </Dialog>
-                    
+
                     <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(batch.id)}>
                       Delete Batch
                     </Button>

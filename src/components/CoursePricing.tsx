@@ -11,9 +11,9 @@ interface CoursePricingProps {
 export const CoursePricing = ({ courseTitle }: CoursePricingProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
-    const [selectedType, setSelectedType] = useState<"Training" | "Internship" | "Master Course">("Training");
+    const [selectedType, setSelectedType] = useState<"Training" | "Industry Readiness">("Training");
 
-    const handleEnrollClick = (type: "Training" | "Internship" | "Master Course") => {
+    const handleEnrollClick = (type: "Training" | "Industry Readiness") => {
         setSelectedType(type);
         setIsModalOpen(true);
     };
@@ -148,7 +148,7 @@ export const CoursePricing = ({ courseTitle }: CoursePricingProps) => {
                                         Schedule Demo
                                     </Button>
                                     <Button
-                                        onClick={() => handleEnrollClick("Internship")}
+                                        onClick={() => handleEnrollClick("Industry Readiness")}
                                         className="bg-green-700 hover:bg-green-800 text-white font-bold h-12"
                                     >
                                         Enroll Now
@@ -162,8 +162,8 @@ export const CoursePricing = ({ courseTitle }: CoursePricingProps) => {
                     {/* <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all">
 
                         <div className="grid md:grid-cols-2 gap-0"> */}
-                            {/* Left Section - Image/Visual */}
-                            {/* <div className="bg-gradient-to-br from-[#000080] to-blue-900 p-12 flex items-center justify-center relative overflow-hidden">
+                    {/* Left Section - Image/Visual */}
+                    {/* <div className="bg-gradient-to-br from-[#000080] to-blue-900 p-12 flex items-center justify-center relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-48 h-48 bg-white opacity-5 rounded-full translate-x-1/4 -translate-y-1/4"></div>
                                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -translate-x-1/4 translate-y-1/4"></div>
 
@@ -176,8 +176,8 @@ export const CoursePricing = ({ courseTitle }: CoursePricingProps) => {
                                 </div>
                             </div> */}
 
-                            {/* Right Section - Details */}
-                            {/* <div className="p-8 md:p-10 flex flex-col">
+                    {/* Right Section - Details */}
+                    {/* <div className="p-8 md:p-10 flex flex-col">
                                 <div className="mb-6">
                                     <div className="flex items-baseline gap-2 mb-2">
                                         <span className="text-4xl font-bold text-[#000080]">₹35,000</span>

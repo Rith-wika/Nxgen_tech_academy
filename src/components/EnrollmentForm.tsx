@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface EnrollmentFormProps {
     defaultCourse?: string;
-    defaultCourseType?: "Training" | "Internship" | "Master Course" | "Industry Readiness";
+    defaultCourseType?: "Training" | "Industry Readiness";
     onSuccess?: () => void;
 }
 
@@ -26,7 +26,7 @@ interface EnrollmentFormProps {
 
 const QUALIFICATIONS = ["10th", "12th", "Graduate", "Post Graduate", "PhD", "Other"];
 const CURRENT_STATUS = ["Student", "Working", "Job Seeker"];
-const PREFERRED_MODES = ["Online", "Offline", "Hybrid"];
+const PREFERRED_MODES = ["Online", "Offline"];
 const BATCH_TIMINGS = ["Morning", "Afternoon", "Evening"];
 const EXPERIENCE_LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
@@ -35,7 +35,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
         const fetchCourses = async () => {
             try {
                 const data = await courseService.getAllCourses();
-                const courseList = Array.isArray(data) ? data : (data.results || []);
+                const courseList = Array.isArray(data) ? data : ((data as any).results || []);
                 // Map backend 'title' to UI 'name' if necessary
                 const formattedCourses = courseList.map((c: any) => ({
                     id: c.id,
@@ -130,10 +130,10 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
             onSuccess?.();
         } catch (error: any) {
             console.error("Enrollment Error:", error);
-            
+
             // Better error handling
             let errorMessage = "Failed to submit enrollment. Please try again.";
-            
+
             if (error.response?.data) {
                 if (typeof error.response.data === 'object') {
                     // Handle validation errors
@@ -153,7 +153,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
             } else if (error.message) {
                 errorMessage = error.message;
             }
-            
+
             toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
@@ -245,8 +245,6 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess }: Enrollm
                         >
                             <option value="" disabled>Select course type</option>
                             <option value="Training">Training</option>
-                            <option value="Internship">Internship</option>
-                            <option value="Master Course">Master Course</option>
                             <option value="Industry Readiness">Industry Readiness</option>
                         </select>
                     </div>

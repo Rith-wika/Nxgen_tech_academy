@@ -102,7 +102,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-[80vh] bg-gray-50 flex items-center justify-center py-12">
+        <div className="min-h-[100vh] bg-gray-50 flex items-center justify-center py-12">
             <div className="container mx-auto px-4 flex justify-center">
                 <Card className="w-full max-w-md shadow-lg border-t-4 border-t-[#000080]">
                     <CardHeader className="space-y-1">

@@ -22,7 +22,7 @@ const StudentDashboard = () => {
             try {
                 const statsRes = await axiosInstance.get("/api/enrollments/student/dashboard-stats/");
                 setStats(statsRes.data);
-                
+
                 const coursesRes = await axiosInstance.get("/api/enrollments/student/courses/");
                 setEnrolledCourses(coursesRes.data);
             } catch (error) {
@@ -48,7 +48,7 @@ const StudentDashboard = () => {
                                     <p className="text-red-600 text-sm">Batch: {liveClass.batch_name} is currently live.</p>
                                 </div>
                             </div>
-                            <a 
+                            <a
                                 href={liveClass.live_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -75,7 +75,7 @@ const StudentDashboard = () => {
                         <div className="text-4xl font-bold">{stats.completed_lessons_count < 10 ? `0${stats.completed_lessons_count}` : stats.completed_lessons_count}</div>
                     </CardHeader>
                 </Card>
-               {/* <Card className="shadow-lg transform transition-transform hover:scale-105">
+                {/* <Card className="shadow-lg transform transition-transform hover:scale-105">
                     <CardHeader>
                         <CardTitle className="text-gray-500 text-sm uppercase">Next Live Session</CardTitle>
                         <div className="text-lg font-bold">{stats.next_live_session}</div>
