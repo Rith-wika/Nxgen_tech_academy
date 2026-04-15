@@ -73,7 +73,10 @@ const AdminCourses = () => {
 
   const saveCourse = async () => {
     const { id, mode, ...rest } = courseDialog.data;
-    if (!rest.title || !rest.category || !rest.price) { toast.error("Title, category and price are required."); return; }
+    if (!rest.title || !rest.category || !rest.price || !String(rest.description || "").trim()) {
+      toast.error("Title, description, category and price are required.");
+      return;
+    }
     try {
       setSaving(true);
       const payload = { ...rest, price: parseFloat(rest.price), category: Number(rest.category) };
@@ -288,7 +291,7 @@ const AdminCourses = () => {
                 onChange={e => setCourseDialog(p => ({ ...p, data: { ...p.data, price: e.target.value } }))} />
             </div>
             <div className="space-y-1">
-              <Label>Description</Label>
+              <Label>Description *</Label>
               <textarea
                 rows={3}
                 className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#000080] resize-none"

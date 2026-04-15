@@ -33,11 +33,6 @@ export default function BlogList() {
         }
     };
 
-    const fallbackData = [
-        { id: 1, title: 'Learn React in 2026', status: 'Published', category: 'Frontend', created_at: '2026-02-27' },
-        { id: 2, title: 'Mastering AI with Python', status: 'Draft', category: 'AI', created_at: '2026-02-25' },
-    ];
-
     const handleDelete = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this blog?")) return;
         try {

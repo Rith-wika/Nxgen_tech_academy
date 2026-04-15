@@ -93,11 +93,13 @@ const ChangePassword = () => {
             const role = localStorage.getItem("role");
             if (role === "instructor") {
                 navigate("/instructor/dashboard");
+            } else if (role === "student") {
+                navigate("/student/dashboard");
             } else {
                 navigate("/");
             }
         } catch (error: any) {
-            toast.error(error.response?.data?.message || "Failed to change password");
+            toast.error(error.response?.data?.error || error.response?.data?.message || "Failed to change password");
         } finally {
             setLoading(false);
         }

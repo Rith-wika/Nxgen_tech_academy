@@ -509,9 +509,7 @@ export const moduleService = {
             if (payload.assignmentDueDate !== undefined) formData.append("assignment_due_date", payload.assignmentDueDate);
 
             return (
-              await axiosInstance.post(`/api/courses/modules/${payload.moduleId}/lessons/`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-              })
+              await axiosInstance.post(`/api/courses/modules/${payload.moduleId}/lessons/`, formData)
             ).data;
           } else {
             return (
@@ -560,9 +558,7 @@ export const moduleService = {
             if (data.assignmentDueDate !== undefined) formData.append("assignment_due_date", data.assignmentDueDate);
             
             return (
-              await axiosInstance.patch(`/api/courses/modules/${data.moduleId}/lessons/${lessonId}/`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-              })
+              await axiosInstance.patch(`/api/courses/modules/${data.moduleId}/lessons/${lessonId}/`, formData)
             ).data;
           } else {
             return (

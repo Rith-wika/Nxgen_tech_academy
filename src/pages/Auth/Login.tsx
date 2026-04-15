@@ -27,8 +27,8 @@ const Login = () => {
 
     const redirectBasedOnRole = (role: string, isFirstLogin: boolean = false) => {
         console.log("Redirecting...", { role, isFirstLogin });
-        if (role === "instructor" && isFirstLogin) {
-            navigate("/instructor/change-password");
+        if (isFirstLogin && (role === "instructor" || role === "student")) {
+            navigate(`/${role}/change-password`);
             return;
         }
 

@@ -32,6 +32,12 @@ export interface BlogTagOption {
     name: string;
 }
 
+export interface BlogCategoryCreateResponse {
+    created: boolean;
+    detail: string;
+    category: BlogCategoryOption;
+}
+
 const normalizeBlog = (raw: any): BlogPost => {
     const categoryObj = raw?.category;
     const tags = Array.isArray(raw?.tags) ? raw.tags : [];
@@ -120,6 +126,26 @@ export const blogService = {
             };
         } catch (error) {
             console.error("Error fetching blog meta", error);
+            throw error;
+        }
+    },
+
+    getCategories: async (): Promise<BlogCategoryOption[]> => {
+        try {
+            const res = await axiosInstance.get('/api/blogs/admin/categories/', getHeaders());
+            return Array.isArray(res.data) ? res.data : [];
+        } catch (error) {
+            console.error("Error fetching blog categories", error);
+            throw error;
+        }
+    },
+
+    createCategory: async (name: string): Promise<BlogCategoryCreateResponse> => {
+        try {
+            const res = await axiosInstance.post('/api/blogs/admin/categories/', { name }, getHeaders());
+            return res.data;
+        } catch (error) {
+            console.error("Error creating blog category", error);
             throw error;
         }
     },

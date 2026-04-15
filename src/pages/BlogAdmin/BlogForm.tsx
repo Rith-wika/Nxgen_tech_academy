@@ -16,6 +16,9 @@ interface BlogFormProps {
 export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [metaLoading, setMetaLoading] = useState(true);
+    const [creatingCategory, setCreatingCategory] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState("");
     const quillRef = useRef<ReactQuill>(null);
 
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -37,17 +40,27 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         video_url: "",
     });
 
-    useEffect(() => {
-        const loadMeta = async () => {
+    const loadMeta = async () => {
+        try {
+            setMetaLoading(true);
+            const meta = await blogService.getMeta();
+            setCategoryOptions(meta.categories || []);
+            setTagOptions(meta.tags || []);
+        } catch {
+            // Fallback category call keeps category dropdown usable even if tags/meta call fails.
             try {
-                const meta = await blogService.getMeta();
-                setCategoryOptions(meta.categories);
-                setTagOptions(meta.tags);
+                const categories = await blogService.getCategories();
+                setCategoryOptions(categories);
             } catch {
-                toast.error("Failed to load categories and tags.");
+                setCategoryOptions([]);
+                toast.error("Failed to load blog categories.");
             }
-        };
+        } finally {
+            setMetaLoading(false);
+        }
+    };
 
+    useEffect(() => {
         loadMeta();
     }, []);
 
@@ -168,6 +181,58 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         }
     };
 
+    const handleCreateCategory = async () => {
+        const name = newCategoryName.replace(/\s+/g, " ").trim();
+        if (!name) {
+            toast.error("Please enter a category name.");
+            return;
+        }
+        if (name.length > 150) {
+            toast.error("Category name cannot exceed 150 characters.");
+            return;
+        }
+
+        const duplicate = categoryOptions.find(
+            (c) => c.name.trim().toLowerCase() === name.toLowerCase()
+        );
+        if (duplicate) {
+            setFormData((prev) => ({ ...prev, category: duplicate.id }));
+            setNewCategoryName("");
+            toast.info("Category already exists. Selected existing category.");
+            return;
+        }
+
+        try {
+            setCreatingCategory(true);
+            const result = await blogService.createCategory(name);
+            const category = result?.category;
+            setNewCategoryName("");
+            await loadMeta();
+            if (category?.id) {
+                setFormData((prev) => ({ ...prev, category: category.id }));
+            }
+            if (result?.created) {
+                toast.success(result.detail || "Category added successfully.");
+            } else {
+                toast.info(result?.detail || "Category already exists. Selected existing category.");
+            }
+        } catch (error: any) {
+            const status = error?.response?.status;
+            const detail = error?.response?.data?.detail;
+            if (status === 400) {
+                toast.error(detail || "Invalid category data.");
+            } else if (status === 401 || status === 403) {
+                toast.error("You are not authorized to add categories.");
+            } else if (!error?.response) {
+                toast.error("Network error. Please check your connection.");
+            } else {
+                toast.error(detail || "Failed to create category. Please try again.");
+            }
+        } finally {
+            setCreatingCategory(false);
+        }
+    };
+
     const handleUndo = () => {
         const editor = quillRef.current?.getEditor();
         if (editor) {
@@ -201,6 +266,15 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         }
     }), []);
 
+    const normalizedCategoryName = newCategoryName.replace(/\s+/g, " ").trim();
+    const isCategoryNameEmpty = normalizedCategoryName.length === 0;
+    const isCategoryNameTooLong = normalizedCategoryName.length > 150;
+    const matchingCategory = categoryOptions.find(
+        (category) => category.name.trim().toLowerCase() === normalizedCategoryName.toLowerCase()
+    );
+    const isCategoryDuplicate = Boolean(matchingCategory);
+    const canSubmitCategory = !creatingCategory && !isCategoryNameEmpty && !isCategoryNameTooLong;
+
     return (
         <form onSubmit={handleSubmit} className="space-y-8 bg-white max-w-5xl w-full mx-auto md:p-6 p-4 border rounded-xl shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -223,13 +297,44 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                         className="w-full h-12 border border-slate-200 bg-slate-50 rounded-lg px-4 focus:outline-none focus:ring-2 focus:ring-[#000080]"
                         required
                     >
-                        <option value="">Select Category...</option>
+                        <option value="">{metaLoading ? "Loading categories..." : "Select Category..."}</option>
                         {categoryOptions.map((category) => (
                             <option key={category.id} value={category.id}>
                                 {category.name}
                             </option>
                         ))}
                     </select>
+                    {categoryOptions.length === 0 && !metaLoading && (
+                        <p className="text-xs text-amber-700">No categories found. Add one below to continue.</p>
+                    )}
+                    <div className="flex gap-2">
+                        <Input
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            placeholder="Add new category"
+                            className="h-10 bg-slate-50 border-slate-200"
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="h-10"
+                            onClick={handleCreateCategory}
+                            disabled={!canSubmitCategory}
+                        >
+                            {creatingCategory ? "Adding..." : "Add"}
+                        </Button>
+                    </div>
+                    {!isCategoryNameEmpty && isCategoryNameTooLong && (
+                        <p className="text-xs text-red-600">Category name must be 150 characters or less.</p>
+                    )}
+                    {!isCategoryNameEmpty && !isCategoryNameTooLong && isCategoryDuplicate && (
+                        <p className="text-xs text-amber-700">
+                            Category already exists. Clicking Add will auto-select "{matchingCategory?.name}".
+                        </p>
+                    )}
+                    {!isCategoryNameEmpty && !isCategoryNameTooLong && !isCategoryDuplicate && (
+                        <p className="text-xs text-slate-500">Click Add to create this category and auto-select it.</p>
+                    )}
                 </div>
                 <div className="space-y-3">
                     <Label htmlFor="status" className="text-sm font-semibold text-slate-700">Publish Status</Label>

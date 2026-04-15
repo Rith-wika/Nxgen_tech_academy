@@ -180,6 +180,7 @@ const AppContent = () => {
               <Routes>
                 <Route path="/" element={<StudentDashboard />} />
                 <Route path="dashboard" element={<StudentDashboard />} />
+                <Route path="change-password" element={<ChangePassword />} />
                 <Route path="courses" element={<StudentCourses />} />
                 <Route path="assignments" element={<StudentAssignments />} />
                 <Route path="progress" element={<StudentProgress />} />
