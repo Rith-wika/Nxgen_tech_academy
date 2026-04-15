@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { BlogPost, blogService } from "@/services/blogService";
+import { BlogCategoryOption, BlogPost, BlogTagOption, blogService } from "@/services/blogService";
 import { useNavigate } from "react-router-dom";
 
 interface BlogFormProps {
@@ -20,6 +20,8 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
 
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [categoryOptions, setCategoryOptions] = useState<BlogCategoryOption[]>([]);
+    const [tagOptions, setTagOptions] = useState<BlogTagOption[]>([]);
 
     const [formData, setFormData] = useState<BlogPost>({
         title: "",
@@ -36,14 +38,29 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
     });
 
     useEffect(() => {
+        const loadMeta = async () => {
+            try {
+                const meta = await blogService.getMeta();
+                setCategoryOptions(meta.categories);
+                setTagOptions(meta.tags);
+            } catch {
+                toast.error("Failed to load categories and tags.");
+            }
+        };
+
+        loadMeta();
+    }, []);
+
+    useEffect(() => {
         if (initialData) {
             // Helper to get string value from potential object (DRF choice fields)
             const getVal = (v: any) => (v && typeof v === 'object') ? (v.value || v.name || v.id) : v;
 
             setFormData({
                 ...initialData,
-                category: getVal(initialData.category) || "",
+                category: initialData.category_id || getVal(initialData.category) || "",
                 status: getVal(initialData.status)?.toString().toLowerCase() || "draft",
+                tags: initialData.tag_ids?.join(",") || "",
                 // Ensure other fields are strings to avoid object-as-child errors if any
                 title: getVal(initialData.title) || "",
                 slug: getVal(initialData.slug) || "",
@@ -89,11 +106,33 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         try {
             const submitData = new FormData();
 
-            Object.entries(formData).forEach(([key, value]) => {
-                if (key !== 'image_url' && key !== 'video_url' && key !== 'tags' && value !== undefined && value !== null) {
-                    submitData.append(key, String(value));
+            const normalizedStatus = formData.status === "schedule" ? "scheduled" : formData.status;
+            const tagsAsIds = (formData.tags || "")
+                .split(",")
+                .map((tag) => tag.trim())
+                .filter(Boolean)
+                .map((tag) => Number(tag))
+                .filter((tagId) => !Number.isNaN(tagId));
+
+            const payload: Record<string, string> = {
+                title: formData.title,
+                content: formData.content,
+                excerpt: formData.excerpt || "",
+                category: String(formData.category || ""),
+                status: normalizedStatus,
+            };
+
+            if (normalizedStatus === "scheduled" && formData.scheduled_date && formData.scheduled_time) {
+                payload.publish_at = `${formData.scheduled_date}T${formData.scheduled_time}:00`;
+            }
+
+            Object.entries(payload).forEach(([key, value]) => {
+                if (value !== "") {
+                    submitData.append(key, value);
                 }
             });
+
+            tagsAsIds.forEach((tagId) => submitData.append("tags", String(tagId)));
 
             // If tags is a comma-separated list of IDs, we send them individually for many-to-many fields
             // if (formData.tags) {
@@ -106,15 +145,11 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             // }
 
             if (imageFile) {
-                submitData.append('image_url', imageFile);
-            } else if (formData.image_url) {
-                submitData.append('image_url', formData.image_url);
+                submitData.append('featured_image', imageFile);
             }
 
             if (videoFile) {
-                submitData.append('video_url', videoFile);
-            } else if (formData.video_url) {
-                submitData.append('video_url', formData.video_url);
+                submitData.append('video', videoFile);
             }
 
             if (isEdit && initialData?.id) {
@@ -189,14 +224,11 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                         required
                     >
                         <option value="">Select Category...</option>
-                        {/* UPDATE CAUTION: These values MUST be the integer IDs from your backend Category model. 
-                            E.g. <option value="1">SAP</option> 
-                            I've set them as dummy IDs 1 to 6 below, you must match them with your DB.  */}
-                        <option value="SAP">SAP</option>
-                        <option value="Data Analytics">Data Analytics</option>
-                        <option value="Python">Python</option>
-                        <option value="AIML">AIML</option>
-                        <option value="Digital Marketing">Digital Marketing</option>
+                        {categoryOptions.map((category) => (
+                            <option key={category.id} value={category.id}>
+                                {category.name}
+                            </option>
+                        ))}
                     </select>
                 </div>
                 <div className="space-y-3">
@@ -248,9 +280,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-200 pt-8 mt-8">
                 <div className="space-y-3">
                     <Label htmlFor="tags" className="text-sm font-semibold text-slate-700">Tags (comma separated IDs)</Label>
-                    {/* IMPORTANT: Because your backend expects Primary Keys for tags, you must input integer IDs (e.g. "1, 2, 3"). 
-                        If you want to use strings, you must alter your Django models/serializers. */}
-                    <Input id="tags" name="tags" value={formData.tags} onChange={handleInputChange} className="h-12 bg-slate-50 border-slate-200" placeholder="e.g. 1, 2, 3" />
+                    <Input id="tags" name="tags" value={formData.tags} onChange={handleInputChange} className="h-12 bg-slate-50 border-slate-200" placeholder={tagOptions.length ? `Available IDs: ${tagOptions.map((tag) => `${tag.id}:${tag.name}`).join(" | ")}` : "e.g. 1, 2, 3"} />
                 </div>
                 <div className="space-y-3">
                     <Label htmlFor="imageFile" className="text-sm font-semibold text-slate-700">Upload Featured Image</Label>

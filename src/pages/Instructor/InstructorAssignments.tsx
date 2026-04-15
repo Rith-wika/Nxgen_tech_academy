@@ -1,9 +1,19 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
-  LayoutDashboard, BookOpen, Users, User, FileText, Plus, Search,
-  Eye, Edit, Trash2, Calendar, FileDown, CheckCircle, FileUp, ListChecks,
-  Loader2
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  User,
+  FileText,
+  Plus,
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  CheckCircle,
+  ListChecks,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,38 +23,87 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import axiosInstance from "@/api/axiosInstance";
+import { moduleService } from "@/services/moduleService";
+import { instructorService } from "@/services/instructorService";
 
-// ========================
-// MODELS & MOCK DATA
-// ========================
+type AssignmentStatus = "Draft" | "Active" | "Closed";
 
-type AssignmentStatus = "Draft" | "Active" | "Closed" | "Graded";
-type SubmissionStatus = "Submitted" | "Late" | "Not Submitted";
-
-interface Submission {
-  id: string;
-  assignmentId: string;
-  studentName: string;
-  submissionDate: string | null;
-  status: SubmissionStatus;
-  marks: number | null;
-  feedback: string;
-  fileUrl?: string;
+interface AssignmentItem {
+  lessonId: number;
+  moduleId: number;
+  moduleTitle: string;
+  courseId: number;
+  courseTitle: string;
+  lessonTitle: string;
+  assignmentTitle: string;
+  assignmentDescription: string;
+  assignmentDueDate: string | null;
+  submissionsCount: number;
+  status: AssignmentStatus;
 }
 
-interface Assignment {
-  id: string;
+interface SubmissionItem {
+  submissionId: number | null;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  status: "Submitted" | "Not Submitted";
+  submittedAt: string | null;
+  textAnswer?: string;
+  fileUrl?: string;
+  score?: number | null;
+  feedback?: string;
+  gradedAt?: string | null;
+  gradedBy?: string | null;
+}
+
+interface AssignmentApiItem {
+  assignment: {
+    assignment_title?: string;
+    assignment_description?: string;
+    assignment_due_date?: string | null;
+  };
+  course: {
+    id: number;
+    title: string;
+  };
+  module: {
+    id: number;
+    title: string;
+  };
+  lesson: {
+    id: number;
+    title: string;
+  };
+  submissions_count: number;
+}
+
+interface SubmissionApiItem {
+  submission_id: number | null;
+  student_id: number;
+  student_name: string;
+  student_email: string;
+  status: "Submitted" | "Not Submitted";
+  submitted_at: string | null;
+  score?: number | null;
+  feedback?: string;
+  graded_at?: string | null;
+  graded_by?: string | null;
+  submission_data: {
+    text_answer?: string;
+    file_upload?: string;
+  } | null;
+}
+
+type FormState = {
+  courseId: string;
+  moduleId: string;
+  lessonId: string;
   title: string;
   description: string;
-  course: string;
-  module: string;
-  batch: string;
   dueDate: string;
-  maxMarks: number;
-  type: string; // Coding, Theory, Quiz
-  status: AssignmentStatus;
-  fileUrl?: string;
-}
+};
 
 const sidebarItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/instructor/dashboard" },
@@ -53,28 +112,28 @@ const sidebarItems = [
   { label: "Assignments", icon: FileText, path: "/instructor/assignments" },
   { label: "Profile", icon: User, path: "/instructor/profile" },
 ];
+const initialFormState: FormState = {
+  courseId: "",
+  moduleId: "",
+  lessonId: "",
+  title: "",
+  description: "",
+  dueDate: "",
+};
 
-const mockAssignments: Assignment[] = [
-  {
-    id: "a1", title: "React Hooks Implementation", description: "Implement a custom hook.", course: "React Mastery", module: "Hooks", batch: "Batch A", dueDate: "2026-04-20T23:59", maxMarks: 100, type: "Coding", status: "Active"
-  },
-  {
-    id: "a2", title: "SAP ABAP Fundamentals", description: "Answer the theory questions.", course: "SAP ABAP", module: "Basics", batch: "Batch C", dueDate: "2026-03-10T23:59", maxMarks: 50, type: "Theory", status: "Closed"
+const deriveStatus = (dueDate: string | null): AssignmentStatus => {
+  if (!dueDate) {
+    return "Draft";
   }
-];
+  return new Date(dueDate) < new Date() ? "Closed" : "Active";
+};
 
-const mockSubmissions: Submission[] = [
-  { id: "s1", assignmentId: "a1", studentName: "John Doe", submissionDate: "2026-04-12T10:00", status: "Submitted", marks: null, feedback: "" },
-  { id: "s2", assignmentId: "a1", studentName: "Jane Smith", submissionDate: null, status: "Not Submitted", marks: null, feedback: "" },
-  { id: "s3", assignmentId: "a2", studentName: "John Doe", submissionDate: "2026-03-11T08:00", status: "Late", marks: 40, feedback: "Good effort." },
-];
-
-const mockCourses = ["React Mastery", "SAP ABAP", "Python Data Science"];
-const mockBatches = ["Batch A", "Batch B", "Batch C"];
-const mockTypes = ["Coding", "Theory", "Quiz"];
-
-const initialFormState = {
-  title: "", description: "", course: "", module: "", batch: "", dueDate: "", maxMarks: 100, type: "Coding",
+const toDatetimeLocal = (iso?: string | null) => {
+  if (!iso) return "";
+  const date = new Date(iso);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
 };
 
 // ========================
@@ -82,13 +141,16 @@ const initialFormState = {
 // ========================
 
 const InstructorAssignments = () => {
-  const [assignments, setAssignments] = useState<Assignment[]>(mockAssignments);
-  const [submissions, setSubmissions] = useState<Submission[]>(mockSubmissions);
+  const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
+  const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
+  const [courses, setCourses] = useState<Array<{ id: number; title: string }>>([]);
+  const [modules, setModules] = useState<Array<{ id: number; title: string }>>([]);
+  const [lessons, setLessons] = useState<Array<{ id: number; title: string }>>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // Filters
   const [filterCourse, setFilterCourse] = useState("");
-  const [filterBatch, setFilterBatch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterSearch, setFilterSearch] = useState("");
 
@@ -99,33 +161,108 @@ const InstructorAssignments = () => {
   const [isGradeOpen, setIsGradeOpen] = useState(false);
 
   // Selected State
-  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
-  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [selectedAssignment, setSelectedAssignment] = useState<AssignmentItem | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<SubmissionItem | null>(null);
   const [formData, setFormData] = useState(initialFormState);
-  const [gradeData, setGradeData] = useState({ marks: 0, feedback: "" });
+  const [gradeData, setGradeData] = useState({ score: "", feedback: "" });
+
+  const fetchAssignments = async () => {
+    try {
+      const res = await axiosInstance.get("/api/courses/instructor-assignments/");
+      const data: AssignmentApiItem[] = Array.isArray(res.data) ? res.data : [];
+      const mapped = data.map((item) => ({
+        lessonId: item.lesson.id,
+        moduleId: item.module.id,
+        moduleTitle: item.module.title,
+        courseId: item.course.id,
+        courseTitle: item.course.title,
+        lessonTitle: item.lesson.title,
+        assignmentTitle: item.assignment?.assignment_title || item.lesson.title,
+        assignmentDescription: item.assignment?.assignment_description || "",
+        assignmentDueDate: item.assignment?.assignment_due_date || null,
+        submissionsCount: item.submissions_count || 0,
+        status: deriveStatus(item.assignment?.assignment_due_date || null),
+      }));
+      setAssignments(mapped);
+    } catch (error) {
+      console.error("Failed to fetch assignments", error);
+      toast.error("Failed to load assignments.");
+    }
+  };
+
+  useEffect(() => {
+    const boot = async () => {
+      try {
+        setInitialLoading(true);
+        const [courseData] = await Promise.all([
+          instructorService.getMyCourses(),
+          fetchAssignments(),
+        ]);
+        setCourses(Array.isArray(courseData) ? courseData : []);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    boot();
+  }, []);
+
+  useEffect(() => {
+    const loadModules = async () => {
+      if (!formData.courseId) {
+        setModules([]);
+        return;
+      }
+      try {
+        const data = await moduleService.getModulesByCourse(Number(formData.courseId));
+        setModules(data.map((module) => ({ id: Number(module.id), title: module.title })));
+      } catch {
+        setModules([]);
+      }
+    };
+
+    loadModules();
+  }, [formData.courseId]);
+
+  useEffect(() => {
+    const loadLessons = async () => {
+      if (!formData.moduleId) {
+        setLessons([]);
+        return;
+      }
+      try {
+        const data = await moduleService.getLessonsByModule(Number(formData.moduleId));
+        setLessons(data.map((lesson) => ({ id: Number(lesson.id), title: lesson.title })));
+      } catch {
+        setLessons([]);
+      }
+    };
+
+    loadLessons();
+  }, [formData.moduleId]);
 
   const filteredAssignments = useMemo(() => {
-    return assignments.filter(a => {
-      const matchCourse = filterCourse ? a.course === filterCourse : true;
-      const matchBatch = filterBatch ? a.batch === filterBatch : true;
+    return assignments.filter((a) => {
+      const matchCourse = filterCourse ? String(a.courseId) === filterCourse : true;
       const matchStatus = filterStatus ? a.status === filterStatus : true;
-      const matchSearch = a.title.toLowerCase().includes(filterSearch.toLowerCase());
-      return matchCourse && matchBatch && matchStatus && matchSearch;
+      const matchSearch = a.assignmentTitle.toLowerCase().includes(filterSearch.toLowerCase());
+      return matchCourse && matchStatus && matchSearch;
     });
-  }, [assignments, filterCourse, filterBatch, filterStatus, filterSearch]);
-
-  const getSubmissionsForAssignment = (id: string) => submissions.filter(s => s.assignmentId === id);
+  }, [assignments, filterCourse, filterStatus, filterSearch]);
 
   // ========================
   // HANDLERS
   // ========================
 
-  const handleOpenForm = (assignment?: Assignment) => {
+  const handleOpenForm = (assignment?: AssignmentItem) => {
     if (assignment) {
       setFormData({
-        title: assignment.title, description: assignment.description, course: assignment.course,
-        module: assignment.module, batch: assignment.batch, dueDate: assignment.dueDate,
-        maxMarks: assignment.maxMarks, type: assignment.type
+        title: assignment.assignmentTitle,
+        description: assignment.assignmentDescription,
+        courseId: String(assignment.courseId),
+        moduleId: String(assignment.moduleId),
+        lessonId: String(assignment.lessonId),
+        dueDate: toDatetimeLocal(assignment.assignmentDueDate),
       });
       setSelectedAssignment(assignment);
     } else {
@@ -135,8 +272,8 @@ const InstructorAssignments = () => {
     setIsFormOpen(true);
   };
 
-  const handleSaveAssignment = async (status: AssignmentStatus) => {
-    if (!formData.title || !formData.course || !formData.batch || !formData.dueDate) {
+  const handleSaveAssignment = async () => {
+    if (!formData.courseId || !formData.moduleId || !formData.lessonId || !formData.title || !formData.description || !formData.dueDate) {
       toast.error("Please fill in all required fields.");
       return;
     }
@@ -146,52 +283,145 @@ const InstructorAssignments = () => {
     }
 
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      if (selectedAssignment) {
-        setAssignments(prev => prev.map(a => a.id === selectedAssignment.id ? { ...a, ...formData, status } : a));
-        toast.success(`Assignment updated successfully!`);
-      } else {
-        const newAssignment: Assignment = {
-          id: `a${Date.now()}`,
-          ...formData,
-          status,
-        };
-        setAssignments(prev => [newAssignment, ...prev]);
-        toast.success(`Assignment created successfully!`);
-      }
-      setLoading(false);
+    try {
+      await moduleService.upsertLessonAssignment({
+        moduleId: Number(formData.moduleId),
+        lessonId: Number(formData.lessonId),
+        title: formData.title,
+        description: formData.description,
+        dueDate: formData.dueDate,
+      });
+
+      await fetchAssignments();
+      toast.success(selectedAssignment ? "Assignment updated successfully!" : "Assignment created successfully!");
       setIsFormOpen(false);
-    }, 600);
-  };
-
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this assignment?")) {
-      setAssignments(prev => prev.filter(a => a.id !== id));
-      setSubmissions(prev => prev.filter(s => s.assignmentId !== id));
-      toast.success("Assignment deleted.");
-    }
-  };
-
-  const handleCloseAssignment = (id: string) => {
-    if (window.confirm("Close this assignment? Students will no longer submit.")) {
-      setAssignments(prev => prev.map(a => a.id === id ? { ...a, status: "Closed" } : a));
-      toast.success("Assignment closed.");
-      setIsDetailsOpen(false);
-    }
-  };
-
-  const handleSaveGrade = () => {
-    if (!selectedSubmission) return;
-    setLoading(true);
-    setTimeout(() => {
-      setSubmissions(prev => prev.map(s => s.id === selectedSubmission.id ? {
-        ...s, marks: gradeData.marks, feedback: gradeData.feedback
-      } : s));
-      toast.success("Grade submitted successfully.");
+    } catch (error) {
+      console.error("Failed to save assignment", error);
+      toast.error("Failed to save assignment.");
+    } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (assignment: AssignmentItem) => {
+    if (window.confirm("Are you sure you want to delete this assignment?")) {
+      try {
+        setLoading(true);
+        await moduleService.upsertLessonAssignment({
+          moduleId: assignment.moduleId,
+          lessonId: assignment.lessonId,
+          title: "",
+          description: "",
+          dueDate: undefined,
+        });
+        await fetchAssignments();
+        toast.success("Assignment deleted.");
+      } catch (error) {
+        console.error("Failed to delete assignment", error);
+        toast.error("Failed to delete assignment.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleCloseAssignment = async (assignment: AssignmentItem) => {
+    if (window.confirm("Close this assignment? Students will no longer submit.")) {
+      try {
+        setLoading(true);
+        await moduleService.upsertLessonAssignment({
+          moduleId: assignment.moduleId,
+          lessonId: assignment.lessonId,
+          title: assignment.assignmentTitle,
+          description: assignment.assignmentDescription,
+          dueDate: new Date().toISOString(),
+        });
+        await fetchAssignments();
+        toast.success("Assignment closed.");
+        setIsDetailsOpen(false);
+      } catch (error) {
+        console.error("Failed to close assignment", error);
+        toast.error("Failed to close assignment.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleOpenSubmissions = async (assignment: AssignmentItem) => {
+    try {
+      setLoading(true);
+      setSelectedAssignment(assignment);
+      const res = await axiosInstance.get(
+        `/api/courses/modules/${assignment.moduleId}/lessons/${assignment.lessonId}/assignment/status/`
+      );
+
+      const data: SubmissionApiItem[] = Array.isArray(res.data) ? res.data : [];
+      setSubmissions(
+        data.map((item) => ({
+          submissionId: item.submission_id,
+          studentId: item.student_id,
+          studentName: item.student_name,
+          studentEmail: item.student_email,
+          status: item.status,
+          submittedAt: item.submitted_at,
+          textAnswer: item.submission_data?.text_answer,
+          fileUrl: item.submission_data?.file_upload,
+          score: item.score ?? null,
+          feedback: item.feedback || "",
+          gradedAt: item.graded_at ?? null,
+          gradedBy: item.graded_by ?? null,
+        }))
+      );
+      setIsSubmissionsOpen(true);
+    } catch (error) {
+      console.error("Failed to load submissions", error);
+      toast.error("Failed to load submissions.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openGradeDialog = (submission: SubmissionItem) => {
+    setSelectedSubmission(submission);
+    setGradeData({
+      score: submission.score !== null && submission.score !== undefined ? String(submission.score) : "",
+      feedback: submission.feedback || "",
+    });
+    setIsGradeOpen(true);
+  };
+
+  const handleSaveGrade = async () => {
+    if (!selectedAssignment || !selectedSubmission || !selectedSubmission.submissionId) {
+      toast.error("Invalid submission selected.");
+      return;
+    }
+
+    const parsedScore = Number(gradeData.score);
+    if (!Number.isInteger(parsedScore) || parsedScore < 0 || parsedScore > 100) {
+      toast.error("Score must be an integer between 0 and 100.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axiosInstance.patch(
+        `/api/courses/modules/${selectedAssignment.moduleId}/lessons/${selectedAssignment.lessonId}/assignment/submissions/${selectedSubmission.submissionId}/grade/`,
+        {
+          score: parsedScore,
+          feedback: gradeData.feedback,
+        }
+      );
+
+      toast.success("Grade saved.");
       setIsGradeOpen(false);
-    }, 600);
+      await handleOpenSubmissions(selectedAssignment);
+    } catch (error) {
+      console.error("Failed to save grade", error);
+      toast.error("Failed to save grade.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -199,13 +429,21 @@ const InstructorAssignments = () => {
       case "Active": return "bg-green-100 text-green-800 border-green-200";
       case "Draft": return "bg-gray-100 text-gray-800 border-gray-200";
       case "Closed": return "bg-red-100 text-red-800 border-red-200";
-      case "Graded": return "bg-blue-100 text-blue-800 border-blue-200";
       case "Submitted": return "bg-green-50 text-green-700 border-green-200";
-      case "Late": return "bg-orange-50 text-orange-700 border-orange-200";
       case "Not Submitted": return "bg-red-50 text-red-700 border-red-200";
       default: return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
+
+  if (initialLoading) {
+    return (
+      <DashboardLayout role="instructor" sidebarItems={sidebarItems} title="Assignments">
+        <div className="flex items-center justify-center min-h-[320px]">
+          <Loader2 className="w-8 h-8 animate-spin text-[#000080]" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout role="instructor" sidebarItems={sidebarItems} title="Assignments">
@@ -233,21 +471,14 @@ const InstructorAssignments = () => {
             <Label className="text-xs text-gray-500 mb-1 block">Filter Course</Label>
             <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={filterCourse} onChange={(e) => setFilterCourse(e.target.value)}>
               <option value="">All Courses</option>
-              {mockCourses.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <Label className="text-xs text-gray-500 mb-1 block">Filter Batch</Label>
-            <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={filterBatch} onChange={(e) => setFilterBatch(e.target.value)}>
-              <option value="">All Batches</option>
-              {mockBatches.map(b => <option key={b} value={b}>{b}</option>)}
+              {courses.map((course) => <option key={course.id} value={String(course.id)}>{course.title}</option>)}
             </select>
           </div>
           <div>
             <Label className="text-xs text-gray-500 mb-1 block">Filter Status</Label>
             <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
               <option value="">All Statuses</option>
-              {["Draft", "Active", "Closed", "Graded"].map(s => <option key={s} value={s}>{s}</option>)}
+              {["Draft", "Active", "Closed"].map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
         </CardContent>
@@ -274,28 +505,27 @@ const InstructorAssignments = () => {
                 </tr>
               ) : (
                 filteredAssignments.map((assignment) => {
-                  const subs = getSubmissionsForAssignment(assignment.id);
-                  const submittedCount = subs.filter(s => s.status !== "Not Submitted").length;
-                  const totalCount = subs.length;
-                  const isOverdue = new Date(assignment.dueDate) < new Date() && assignment.status === "Active";
+                  const isOverdue = !!assignment.assignmentDueDate && new Date(assignment.assignmentDueDate) < new Date() && assignment.status === "Active";
 
                   return (
-                    <tr key={assignment.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={`${assignment.moduleId}-${assignment.lessonId}`} className="hover:bg-slate-50 transition-colors">
                       <td className="px-4 py-3 font-medium text-gray-900">
-                        {assignment.title}
+                        {assignment.assignmentTitle}
                         {isOverdue && <Badge variant="outline" className="ml-2 text-red-600 border-red-200 bg-red-50 text-[10px]">Overdue</Badge>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-col">
-                          <span className="font-medium text-[#000080]">{assignment.course}</span>
-                          <span className="text-xs text-gray-500">{assignment.batch}</span>
+                          <span className="font-medium text-[#000080]">{assignment.courseTitle}</span>
+                          <span className="text-xs text-gray-500">{assignment.moduleTitle}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
-                        {new Date(assignment.dueDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                        {assignment.assignmentDueDate
+                          ? new Date(assignment.assignmentDueDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })
+                          : "No due date"}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className="font-semibold">{submittedCount}</span> <span className="text-gray-400">/ {totalCount}</span>
+                        <span className="font-semibold">{assignment.submissionsCount}</span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <Badge className={`${getStatusColor(assignment.status)} font-medium`}>{assignment.status}</Badge>
@@ -305,13 +535,13 @@ const InstructorAssignments = () => {
                           <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50" title="View Details" onClick={() => { setSelectedAssignment(assignment); setIsDetailsOpen(true); }}>
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50" title="View Submissions" onClick={() => { setSelectedAssignment(assignment); setIsSubmissionsOpen(true); }}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50" title="View Submissions" onClick={() => handleOpenSubmissions(assignment)}>
                             <ListChecks className="w-4 h-4" />
                           </Button>
                           <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-600 hover:text-gray-800 hover:bg-gray-100" title="Edit" onClick={() => handleOpenForm(assignment)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50" title="Delete" onClick={() => handleDelete(assignment.id)}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50" title="Delete" onClick={() => handleDelete(assignment)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -342,51 +572,35 @@ const InstructorAssignments = () => {
             </div>
             <div className="space-y-2">
               <Label>Course <span className="text-red-500">*</span></Label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.course} onChange={e => setFormData({ ...formData, course: e.target.value })}>
+              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.courseId} onChange={e => setFormData({ ...formData, courseId: e.target.value, moduleId: "", lessonId: "" })}>
                 <option value="" disabled>Select Course</option>
-                {mockCourses.map(c => <option key={c} value={c}>{c}</option>)}
+                {courses.map((c) => <option key={c.id} value={String(c.id)}>{c.title}</option>)}
               </select>
             </div>
             <div className="space-y-2">
-              <Label>Module</Label>
-              <Input value={formData.module} onChange={e => setFormData({ ...formData, module: e.target.value })} placeholder="e.g. Module 2" />
+              <Label>Module <span className="text-red-500">*</span></Label>
+              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.moduleId} onChange={e => setFormData({ ...formData, moduleId: e.target.value, lessonId: "" })}>
+                <option value="" disabled>Select Module</option>
+                {modules.map((m) => <option key={m.id} value={String(m.id)}>{m.title}</option>)}
+              </select>
             </div>
             <div className="space-y-2">
-              <Label>Batch <span className="text-red-500">*</span></Label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.batch} onChange={e => setFormData({ ...formData, batch: e.target.value })}>
-                <option value="" disabled>Select Batch</option>
-                {mockBatches.map(b => <option key={b} value={b}>{b}</option>)}
+              <Label>Lesson <span className="text-red-500">*</span></Label>
+              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.lessonId} onChange={e => setFormData({ ...formData, lessonId: e.target.value })}>
+                <option value="" disabled>Select Lesson</option>
+                {lessons.map((l) => <option key={l.id} value={String(l.id)}>{l.title}</option>)}
               </select>
             </div>
             <div className="space-y-2">
               <Label>Due Date & Time <span className="text-red-500">*</span></Label>
               <Input type="datetime-local" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} />
             </div>
-            <div className="space-y-2">
-              <Label>Assignment Type</Label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
-                {mockTypes.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label>Maximum Marks</Label>
-              <Input type="number" min="0" value={formData.maxMarks} onChange={e => setFormData({ ...formData, maxMarks: Number(e.target.value) })} />
-            </div>
-            <div className="sm:col-span-2 space-y-2 mt-2">
-              <Label>Attach File (Optional)</Label>
-              <Input type="file" className="cursor-pointer" />
-            </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0 mt-4">
             <Button variant="outline" onClick={() => setIsFormOpen(false)} disabled={loading}>Cancel</Button>
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => handleSaveAssignment("Draft")} disabled={loading || !formData.title || !formData.course}>
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Save as Draft
-              </Button>
-              <Button onClick={() => handleSaveAssignment("Active")} disabled={loading || !formData.title || !formData.course || !formData.batch || !formData.dueDate} className="bg-[#000080] hover:bg-[#000060] text-white">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Publish Assignment
-              </Button>
-            </div>
+            <Button onClick={handleSaveAssignment} disabled={loading || !formData.title || !formData.courseId || !formData.moduleId || !formData.lessonId || !formData.dueDate} className="bg-[#000080] hover:bg-[#000060] text-white">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Save Assignment
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -399,8 +613,8 @@ const InstructorAssignments = () => {
               <DialogHeader>
                 <div className="flex justify-between items-start pr-6">
                   <div>
-                    <DialogTitle className="text-xl text-[#000080]">{selectedAssignment.title}</DialogTitle>
-                    <CardDescription className="mt-1">{selectedAssignment.course} • {selectedAssignment.batch}</CardDescription>
+                    <DialogTitle className="text-xl text-[#000080]">{selectedAssignment.assignmentTitle}</DialogTitle>
+                    <CardDescription className="mt-1">{selectedAssignment.courseTitle} • {selectedAssignment.moduleTitle}</CardDescription>
                   </div>
                   <Badge className={`${getStatusColor(selectedAssignment.status)}`}>{selectedAssignment.status}</Badge>
                 </div>
@@ -408,44 +622,21 @@ const InstructorAssignments = () => {
               <div className="space-y-6 py-4">
                 <div>
                   <h4 className="text-sm font-semibold text-gray-500 mb-2">Description</h4>
-                  <p className="text-sm text-gray-800 bg-gray-50 p-3 rounded-md">{selectedAssignment.description}</p>
+                  <p className="text-sm text-gray-800 bg-gray-50 p-3 rounded-md">{selectedAssignment.assignmentDescription || "No description"}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><span className="text-gray-500">Module:</span> <span className="font-medium">{selectedAssignment.module || 'N/A'}</span></div>
-                  <div><span className="text-gray-500">Type:</span> <span className="font-medium">{selectedAssignment.type}</span></div>
-                  <div><span className="text-gray-500">Due Date:</span> <span className="font-medium">{new Date(selectedAssignment.dueDate).toLocaleString()}</span></div>
-                  <div><span className="text-gray-500">Max Marks:</span> <span className="font-medium">{selectedAssignment.maxMarks}</span></div>
-                </div>
-
-                {/* Submissions Summary */}
-                <div className="mt-6 pt-4 border-t">
-                  <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2"><Users className="w-4 h-4" /> Submissions Summary</h4>
-                  <div className="grid grid-cols-4 gap-2 text-center">
-                    <div className="bg-gray-50 p-2 rounded border border-gray-100">
-                      <div className="text-lg font-bold text-gray-700">{getSubmissionsForAssignment(selectedAssignment.id).length}</div>
-                      <div className="text-[10px] uppercase text-gray-500 font-semibold mt-1">Total</div>
-                    </div>
-                    <div className="bg-green-50 p-2 rounded border border-green-100">
-                      <div className="text-lg font-bold text-green-700">{getSubmissionsForAssignment(selectedAssignment.id).filter(s => s.status === "Submitted").length}</div>
-                      <div className="text-[10px] uppercase text-green-600 font-semibold mt-1">Submitted</div>
-                    </div>
-                    <div className="bg-orange-50 p-2 rounded border border-orange-100">
-                      <div className="text-lg font-bold text-orange-700">{getSubmissionsForAssignment(selectedAssignment.id).filter(s => s.status === "Late").length}</div>
-                      <div className="text-[10px] uppercase text-orange-600 font-semibold mt-1">Late</div>
-                    </div>
-                    <div className="bg-red-50 p-2 rounded border border-red-100">
-                      <div className="text-lg font-bold text-red-700">{getSubmissionsForAssignment(selectedAssignment.id).filter(s => s.status === "Not Submitted").length}</div>
-                      <div className="text-[10px] uppercase text-red-600 font-semibold mt-1">Pending</div>
-                    </div>
-                  </div>
+                  <div><span className="text-gray-500">Module:</span> <span className="font-medium">{selectedAssignment.moduleTitle}</span></div>
+                  <div><span className="text-gray-500">Lesson:</span> <span className="font-medium">{selectedAssignment.lessonTitle}</span></div>
+                  <div><span className="text-gray-500">Due Date:</span> <span className="font-medium">{selectedAssignment.assignmentDueDate ? new Date(selectedAssignment.assignmentDueDate).toLocaleString() : "No due date"}</span></div>
+                  <div><span className="text-gray-500">Submissions:</span> <span className="font-medium">{selectedAssignment.submissionsCount}</span></div>
                 </div>
               </div>
               <DialogFooter className="gap-2 sm:gap-0">
                 <Button variant="outline" onClick={() => { setIsDetailsOpen(false); handleOpenForm(selectedAssignment); }}>Edit Assignment</Button>
                 {selectedAssignment.status === "Active" && (
-                  <Button variant="destructive" onClick={() => handleCloseAssignment(selectedAssignment.id)}>Close Assignment</Button>
+                  <Button variant="destructive" onClick={() => handleCloseAssignment(selectedAssignment)}>Close Assignment</Button>
                 )}
-                <Button className="bg-[#000080]" onClick={() => { setIsDetailsOpen(false); setIsSubmissionsOpen(true); }}>View Submissions</Button>
+                <Button className="bg-[#000080]" onClick={() => { setIsDetailsOpen(false); handleOpenSubmissions(selectedAssignment); }}>View Submissions</Button>
               </DialogFooter>
             </>
           )}
@@ -458,7 +649,7 @@ const InstructorAssignments = () => {
           {selectedAssignment && (
             <>
               <DialogHeader>
-                <DialogTitle>Submissions: {selectedAssignment.title}</DialogTitle>
+                <DialogTitle>Submissions: {selectedAssignment.assignmentTitle}</DialogTitle>
                 <DialogDescription>Track and grade student submissions for this assignment.</DialogDescription>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto py-4">
@@ -466,32 +657,70 @@ const InstructorAssignments = () => {
                   <thead className="bg-slate-50 border-b text-slate-500 font-medium">
                     <tr>
                       <th className="px-4 py-2">Student Name</th>
+                      <th className="px-4 py-2">Email</th>
                       <th className="px-4 py-2">Date</th>
                       <th className="px-4 py-2 text-center">Status</th>
-                      <th className="px-4 py-2 text-center">Marks</th>
-                      <th className="px-4 py-2 text-right">Actions</th>
+                      <th className="px-4 py-2">Answer</th>
+                      <th className="px-4 py-2">Grade</th>
+                      <th className="px-4 py-2 text-right">File</th>
+                      <th className="px-4 py-2 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y text-gray-700">
-                    {getSubmissionsForAssignment(selectedAssignment.id).map(sub => (
-                      <tr key={sub.id} className="hover:bg-slate-50 transition-colors">
+                    {submissions.map((sub) => (
+                      <tr key={sub.studentId} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3 font-medium">{sub.studentName}</td>
-                        <td className="px-4 py-3 text-gray-500">{sub.submissionDate ? new Date(sub.submissionDate).toLocaleDateString() : '-'}</td>
+                        <td className="px-4 py-3 text-gray-500">{sub.studentEmail}</td>
+                        <td className="px-4 py-3 text-gray-500">{sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : '-'}</td>
                         <td className="px-4 py-3 text-center">
                           <Badge className={getStatusColor(sub.status)}>{sub.status}</Badge>
                         </td>
-                        <td className="px-4 py-3 text-center font-medium">
-                          {sub.marks !== null ? `${sub.marks}/${selectedAssignment.maxMarks}` : '-'}
+                        <td className="px-4 py-3 max-w-[240px]">
+                          <p className="line-clamp-2 text-xs text-slate-600">{sub.textAnswer || '-'}</p>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-slate-600">
+                          {sub.score !== null && sub.score !== undefined ? (
+                            <div className="space-y-1">
+                              <p className="font-semibold text-slate-800">{sub.score}/100</p>
+                              <p className="line-clamp-2">{sub.feedback || "No feedback"}</p>
+                              {sub.gradedAt && (
+                                <p className="text-[11px] text-slate-500">
+                                  Graded {new Date(sub.gradedAt).toLocaleString()}
+                                  {sub.gradedBy ? ` by ${sub.gradedBy}` : ""}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <span>-</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <Button size="sm" variant={sub.marks !== null ? "outline" : "default"} className={sub.marks === null && sub.status !== "Not Submitted" ? "bg-[#000080] text-white hover:bg-[#000060]" : ""} disabled={sub.status === "Not Submitted"} onClick={() => { setSelectedSubmission(sub); setGradeData({ marks: sub.marks || 0, feedback: sub.feedback }); setIsGradeOpen(true); }}>
-                            {sub.marks !== null ? "Edit Grade" : "Grade"}
-                          </Button>
+                          {sub.fileUrl ? (
+                            <a href={sub.fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
+                              Open File
+                            </a>
+                          ) : (
+                            <span className="text-xs text-slate-400">No file</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {sub.status === "Submitted" && sub.submissionId ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openGradeDialog(sub)}
+                              className="text-xs"
+                            >
+                              {sub.score !== null && sub.score !== undefined ? "Edit Grade" : "Grade"}
+                            </Button>
+                          ) : (
+                            <span className="text-xs text-slate-400">-</span>
+                          )}
                         </td>
                       </tr>
                     ))}
-                    {getSubmissionsForAssignment(selectedAssignment.id).length === 0 && (
-                      <tr><td colSpan={5} className="py-6 text-center text-gray-500">No submissions found.</td></tr>
+                    {submissions.length === 0 && (
+                      <tr><td colSpan={7} className="py-6 text-center text-gray-500">No submissions found.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -504,48 +733,44 @@ const InstructorAssignments = () => {
         </DialogContent>
       </Dialog>
 
-      {/* GRADE SUBMISSION Modal */}
+      {/* GRADE Modal */}
       <Dialog open={isGradeOpen} onOpenChange={setIsGradeOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          {selectedSubmission && selectedAssignment && (
-            <>
-              <DialogHeader>
-                <DialogTitle>Grade Submission</DialogTitle>
-                <DialogDescription>Evaluating <strong>{selectedSubmission.studentName}</strong>'s work.</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="bg-blue-50 p-4 rounded-md border border-blue-100 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-8 h-8 text-blue-500" />
-                    <div>
-                      <p className="text-sm font-semibold text-blue-900">Submitted Files</p>
-                      <p className="text-xs text-blue-700">submission_{selectedSubmission.studentName.replace(' ', '_')}.pdf</p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" className="bg-white"><FileDown className="w-4 h-4 mr-2" /> Download</Button>
-                </div>
-
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="marks" className="text-right font-medium">Marks</Label>
-                  <div className="col-span-3 flex items-center gap-2">
-                    <Input id="marks" type="number" className="w-24 text-center font-bold" min="0" max={selectedAssignment.maxMarks} value={gradeData.marks} onChange={e => setGradeData({ ...gradeData, marks: Number(e.target.value) })} />
-                    <span className="text-gray-500">/ {selectedAssignment.maxMarks}</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-4 gap-4">
-                  <Label htmlFor="feedback" className="text-right font-medium pt-2">Feedback</Label>
-                  <Textarea id="feedback" className="col-span-3" rows={4} placeholder="Constructive feedback for the student..." value={gradeData.feedback} onChange={e => setGradeData({ ...gradeData, feedback: e.target.value })} />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsGradeOpen(false)} disabled={loading}>Cancel</Button>
-                <Button className="bg-green-600 hover:bg-green-700 text-white" disabled={loading} onClick={handleSaveGrade}>
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle className="w-4 h-4 mr-2" />} Submit Grade
-                </Button>
-              </DialogFooter>
-            </>
-          )}
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>Grade Submission</DialogTitle>
+            <DialogDescription>
+              {selectedSubmission ? `Student: ${selectedSubmission.studentName}` : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Score (0-100)</Label>
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                value={gradeData.score}
+                onChange={(e) => setGradeData((prev) => ({ ...prev, score: e.target.value }))}
+                placeholder="e.g. 85"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Feedback</Label>
+              <Textarea
+                rows={4}
+                value={gradeData.feedback}
+                onChange={(e) => setGradeData((prev) => ({ ...prev, feedback: e.target.value }))}
+                placeholder="Add feedback for the student"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsGradeOpen(false)} disabled={loading}>Cancel</Button>
+            <Button onClick={handleSaveGrade} disabled={loading} className="bg-[#000080] hover:bg-[#000060] text-white">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Save Grade
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -7,9 +7,14 @@ import { PlayCircle, Clock, BookOpen, ChevronRight, Loader2 } from "lucide-react
 import axiosInstance from "@/api/axiosInstance";
 import { DetailedCourse } from "@/data/detailedCourses";
 
+interface EnrolledCourse extends DetailedCourse {
+    enrollment_progress?: number;
+    is_enrolled?: boolean;
+}
+
 const StudentDashboard = () => {
     const navigate = useNavigate();
-    const [courses, setCourses] = useState<DetailedCourse[]>([]);
+    const [courses, setCourses] = useState<EnrolledCourse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [username, setUsername] = useState("");
     const [role, setRole] = useState("");
@@ -29,10 +34,36 @@ const StudentDashboard = () => {
         const fetchCourses = async () => {
             try {
                 setIsLoading(true);
-                const response = await axiosInstance.get("/api/courses/");
-                setCourses(response.data);
+                // Fetch enrolled courses
+                const enrollmentsRes = await axiosInstance.get("/api/enrollments/my-enrollments/").catch(() => ({ data: [] }));
+                const enrollments = Array.isArray(enrollmentsRes.data) ? enrollmentsRes.data : enrollmentsRes.data.results || [];
+                
+                // Fetch all courses
+                const coursesRes = await axiosInstance.get("/api/courses/").catch(() => ({ data: [] }));
+                const allCourses = Array.isArray(coursesRes.data) ? coursesRes.data : coursesRes.data.results || [];
+                
+                // Enrich courses with enrollment data
+                const enrichedCourses = allCourses.map((course: DetailedCourse) => {
+                    const enrollment = enrollments.find((e: any) => e.course === course.id || e.course_id === course.id);
+                    return {
+                        ...course,
+                        enrollment_progress: enrollment?.progress || 0,
+                        is_enrolled: !!enrollment
+                    };
+                });
+                
+                // Filter to show only enrolled courses
+                const enrolledCourses = enrichedCourses.filter((c: EnrolledCourse) => c.is_enrolled);
+                setCourses(enrolledCourses);
             } catch (error) {
                 console.error("Error fetching courses:", error);
+                // Fallback: try to fetch from basic courses endpoint
+                try {
+                    const response = await axiosInstance.get("/api/courses/");
+                    setCourses(response.data);
+                } catch (fallbackError) {
+                    console.error("Fallback failed:", fallbackError);
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -94,10 +125,10 @@ const StudentDashboard = () => {
                                     <div className="space-y-3">
                                         <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-400">
                                             <span>Course Progress</span>
-                                            <span className="text-[#000080]">0%</span>
+                                            <span className="text-[#000080]">{course.enrollment_progress || 0}%</span>
                                         </div>
                                         <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-gradient-to-r from-[#000080] to-secondary w-0 transition-all duration-1000"></div>
+                                            <div className="h-full bg-gradient-to-r from-[#000080] to-secondary transition-all duration-1000" style={{ width: `${course.enrollment_progress || 0}%` }}></div>
                                         </div>
                                     </div>
                                 </CardContent>

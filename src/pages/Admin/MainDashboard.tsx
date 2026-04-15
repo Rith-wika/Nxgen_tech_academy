@@ -13,22 +13,40 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
+import axiosInstance from "@/api/axiosInstance";
 import { toast } from "sonner";
 
 const MainDashboard = () => {
     const [enrollments, setEnrollments] = useState<EnrollmentData[]>([]);
     const [loading, setLoading] = useState(true);
+    const [instructorCount, setInstructorCount] = useState(0);
+    const [courseCount, setCourseCount] = useState(0);
+    const [statsLoading, setStatsLoading] = useState(true);
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                setLoading(true);
-                const data = await enrollmentService.getAllEnrollments();
-                setEnrollments(Array.isArray(data) ? data : data.results || []);
+                setStatsLoading(true);
+                const [enrollData, instructorRes, courseRes] = await Promise.all([
+                    enrollmentService.getAllEnrollments(),
+                    axiosInstance.get("/api/instructors/").catch(() => ({ data: [] })),
+                    axiosInstance.get("/api/courses/courses/").catch(() => ({ data: [] }))
+                ]);
+                
+                setEnrollments(Array.isArray(enrollData) ? enrollData : enrollData.results || []);
+                
+                const instructorList = instructorRes.data;
+                const instructors = Array.isArray(instructorList) ? instructorList : instructorList.results || [];
+                setInstructorCount(instructors.length);
+                
+                const courseList = courseRes.data;
+                const courses = Array.isArray(courseList) ? courseList : courseList.results || [];
+                setCourseCount(courses.length);
             } catch (error) {
                 console.error("Failed to fetch dashboard stats", error);
             } finally {
                 setLoading(false);
+                setStatsLoading(false);
             }
         };
         fetchStats();
@@ -45,9 +63,9 @@ const MainDashboard = () => {
 
     const stats = [
         { title: "Student Enrollments", value: loading ? "..." : enrollments.length.toLocaleString(), change: "+100%", icon: Users, color: "text-blue-600" },
-        { title: "Total Instructors", value: "48", change: "+4%", icon: Users, color: "text-green-600" },
-        { title: "Total Courses", value: "32", change: "+8%", icon: LayoutDashboard, color: "text-purple-600" },
-        { title: "Recent Queries", value: "156", change: "+24%", icon: Settings, color: "text-orange-600" },
+        { title: "Total Instructors", value: statsLoading ? "..." : instructorCount.toLocaleString(), change: "+4%", icon: Users, color: "text-green-600" },
+        { title: "Total Courses", value: statsLoading ? "..." : courseCount.toLocaleString(), change: "+8%", icon: LayoutDashboard, color: "text-purple-600" },
+        { title: "Active Enrollments", value: statsLoading ? "..." : enrollments.filter((e: any) => e.status === "approved").length.toLocaleString(), change: "+24%", icon: Settings, color: "text-orange-600" },
     ];
 
     const recentEnrollments = enrollments.slice(0, 5);

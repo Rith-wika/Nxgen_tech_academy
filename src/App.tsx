@@ -46,6 +46,7 @@ import AdminCourses from "./pages/Admin/AdminCourses";
 import InstructorTopics from "./pages/Instructor/InstructorTopics";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import StudentCourses from "./pages/Student/StudentCourses";
+import StudentAssignments from "./pages/Student/StudentAssignments";
 import StudentProgress from "./pages/Student/StudentProgress";
 import StudentCertificates from "./pages/Student/StudentCertificates";
 import StudentProfile from "./pages/Student/StudentProfile";
@@ -180,6 +181,7 @@ const AppContent = () => {
                 <Route path="/" element={<StudentDashboard />} />
                 <Route path="dashboard" element={<StudentDashboard />} />
                 <Route path="courses" element={<StudentCourses />} />
+                <Route path="assignments" element={<StudentAssignments />} />
                 <Route path="progress" element={<StudentProgress />} />
                 <Route path="certificates" element={<StudentCertificates />} />
                 <Route path="profile" element={<StudentProfile />} />

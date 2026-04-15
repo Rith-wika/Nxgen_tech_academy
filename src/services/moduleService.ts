@@ -653,18 +653,23 @@ export const moduleService = {
 
   upsertLessonAssignment: async (payload: UpsertAssignmentPayload): Promise<Assignment> => {
     const formattedDueDate = payload.dueDate ? new Date(payload.dueDate).toISOString() : null;
-    
-    const data = await axiosInstance.post(`/api/courses/lessons/${payload.lessonId}/assignment/`, {
-      title: payload.title,
-      description: payload.description,
-      ...(formattedDueDate ? { due_date: formattedDueDate } : {}),
-    });
+
+    const data = await axiosInstance.post(
+      `/api/courses/modules/${payload.moduleId}/lessons/${payload.lessonId}/assignment/`,
+      {
+        assignment_title: payload.title,
+        assignment_description: payload.description,
+        assignment_due_date: formattedDueDate,
+      }
+    );
+
+    const raw = data.data || {};
 
     return {
-      id: data.data?.id,
-      title: data.data?.title || payload.title,
-      description: data.data?.description || payload.description,
-      dueDate: data.data?.due_date || payload.dueDate,
+      id: raw.id ?? payload.lessonId,
+      title: raw.assignment_title ?? payload.title,
+      description: raw.assignment_description ?? payload.description,
+      dueDate: raw.assignment_due_date ?? payload.dueDate,
     };
   },
 };

@@ -91,6 +91,7 @@ export interface UpdateLessonPayload {
 }
 
 export interface UpsertAssignmentPayload {
+  moduleId: EntityId;
   lessonId: EntityId;
   title: string;
   description: string;

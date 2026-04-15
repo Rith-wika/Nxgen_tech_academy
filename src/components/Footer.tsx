@@ -49,11 +49,11 @@ export const Footer = () => {
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Contact Us
                 </Link>
               </li>
-              {/* <li>
+              <li>
                 <Link to="/blogs" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Blogs
                 </Link>
-              </li> */}
+              </li>
             </ul>
           </div>
 

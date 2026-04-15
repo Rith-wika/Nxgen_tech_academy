@@ -6,16 +6,46 @@ export interface BlogPost {
     slug: string;
     content: string;
     excerpt: string;
-    category: string;
+    category: string | number;
+    category_id?: number;
     tags: string;
+    tag_ids?: number[];
     status: string; // 'Published' | 'Draft' or 'Schedule'
     image_url?: string;
     video_url?: string;
+    featured_image?: string;
+    video?: string;
     created_at?: string;
     author_name?: string;
     scheduled_date?: string;
     scheduled_time?: string;
 }
+
+export interface BlogCategoryOption {
+    id: number;
+    name: string;
+    slug: string;
+}
+
+export interface BlogTagOption {
+    id: number;
+    name: string;
+}
+
+const normalizeBlog = (raw: any): BlogPost => {
+    const categoryObj = raw?.category;
+    const tags = Array.isArray(raw?.tags) ? raw.tags : [];
+
+    return {
+        ...raw,
+        category: categoryObj?.value || categoryObj?.name || raw?.category || "",
+        category_id: categoryObj?.id,
+        tags: tags.map((t: any) => t?.value || t?.name || t).filter(Boolean).join(", "),
+        tag_ids: tags.map((t: any) => t?.id).filter((id: any) => typeof id === "number"),
+        image_url: raw?.featured_image || raw?.image_url || "",
+        video_url: raw?.video || raw?.video_url || "",
+    };
+};
 
 const getHeaders = (isMultipart = false) => {
     const token = localStorage.getItem("access_token");
@@ -33,6 +63,17 @@ export const blogService = {
         try {
             const authConfig = getHeaders();
             const res = await axiosInstance.get('/api/blogs/admin/blogs/', { params, ...authConfig });
+            if (Array.isArray(res.data?.results)) {
+                return {
+                    ...res.data,
+                    results: res.data.results.map(normalizeBlog),
+                };
+            }
+
+            if (Array.isArray(res.data)) {
+                return res.data.map(normalizeBlog);
+            }
+
             return res.data;
         } catch (error) {
             console.error("Error fetching blogs", error);
@@ -40,10 +81,20 @@ export const blogService = {
         }
     },
 
+    getPublicBlogs: async () => {
+        try {
+            const res = await axiosInstance.get('/api/blogs/');
+            return Array.isArray(res.data) ? res.data.map(normalizeBlog) : [];
+        } catch (error) {
+            console.error("Error fetching public blogs", error);
+            throw error;
+        }
+    },
+
     getBlogById: async (id: string | number) => {
         try {
             const res = await axiosInstance.get(`/api/blogs/admin/blogs/${id}/`);
-            return res.data;
+            return normalizeBlog(res.data);
         } catch (error) {
             console.error("Error fetching blog", error);
             throw error;
@@ -52,10 +103,23 @@ export const blogService = {
 
     getBlogBySlug: async (slug: string) => {
         try {
-            const res = await axiosInstance.get(`/api/blogs/admin/blogs/${slug}/`);
-            return res.data;
+            const res = await axiosInstance.get(`/api/blogs/${slug}/`);
+            return normalizeBlog(res.data);
         } catch (error) {
             console.error("Error fetching blog by slug", error);
+            throw error;
+        }
+    },
+
+    getMeta: async (): Promise<{ categories: BlogCategoryOption[]; tags: BlogTagOption[] }> => {
+        try {
+            const res = await axiosInstance.get('/api/blogs/admin/meta/', getHeaders());
+            return {
+                categories: res.data?.categories || [],
+                tags: res.data?.tags || [],
+            };
+        } catch (error) {
+            console.error("Error fetching blog meta", error);
             throw error;
         }
     },

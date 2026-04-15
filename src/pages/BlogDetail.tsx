@@ -129,7 +129,7 @@ export default function BlogDetail() {
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6 py-8">
                     <div className="flex flex-wrap gap-2 items-center">
                         <span className="font-semibold text-slate-800 mr-2">Tags:</span>
-                        {blog.tags?.split(',').map((tag, idx) => (
+                        {blog.tags?.split(',').filter(Boolean).map((tag, idx) => (
                             <span key={idx} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm hover:bg-slate-200 transition-colors cursor-pointer">
                                 #{tag.trim()}
                             </span>

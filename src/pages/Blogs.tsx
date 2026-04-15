@@ -4,41 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, User, Clock, ChevronRight, Eye, Share2, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHero } from '@/components/PageHero';
-import { blogService, BlogPost } from '@/services/blogService';
-import { toast } from 'sonner';
-
-const defaultBlogPosts = [
-    {
-        id: 1,
-        title: "SAS Certification Course in Canada (North America)",
-        slug: "sas-certification-course-in-canada-north-america",
-        excerpt: "Explore the opportunities of SAS certification in the North American market and how it can boost your data career.",
-        created_at: "2025-12-12",
-        author_name: "Admin",
-        category: "SAS",
-        image_url: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-        id: 2,
-        title: "Get Certified and Advance Your Career with SAS Data & AI Programs",
-        slug: "get-certified-and-advance-your-career-with-sas-data-ai-programs",
-        excerpt: "Learn how SAS Data & AI programs are shaping the future of analytics and why you should get certified now.",
-        created_at: "2025-10-06",
-        author_name: "Admin",
-        category: "Career",
-        image_url: "https://images.unsplash.com/photo-1599658880436-e252446958d5?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-        id: 3,
-        title: "What is Data Analytics? Types and Benefits Explained",
-        slug: "what-is-data-analytics-types-and-benefits-explained",
-        excerpt: "A comprehensive guide to understanding Data Analytics, its different types, and how it benefits modern businesses.",
-        created_at: "2025-10-06",
-        author_name: "Admin",
-        category: "Data Analytics",
-        image_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop",
-    }
-];
+import { blogService } from '@/services/blogService';
 
 const Blogs = () => {
     const [blogs, setBlogs] = useState<any[]>([]);
@@ -51,16 +17,11 @@ const Blogs = () => {
     const fetchBlogs = async () => {
         try {
             setLoading(true);
-            const data = await blogService.getAllBlogs();
-            const fetched = data?.results || data || [];
-
-            // Only show published blogs
-            const published = fetched.filter((b: any) => b.status === "Published" || !b.status);
-            setBlogs(published.length > 0 ? published : defaultBlogPosts);
+            const fetched = await blogService.getPublicBlogs();
+            setBlogs(fetched);
         } catch (error) {
             console.error("Failed to fetch blogs from API:", error);
-            // Fallback to default blogs
-            setBlogs(defaultBlogPosts);
+            setBlogs([]);
         } finally {
             setLoading(false);
         }
