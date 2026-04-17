@@ -562,7 +562,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
                                 </section>
 
                                 {content.faqs && content.faqs.length > 0 && (
-                                    <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-[600ms]">
+                                    <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-shadow hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 delay-&lsqb;600ms&rsqb;">
                                         <h3 className="text-3xl font-bold text-[#000080] mb-8 flex items-center justify-start gap-3">
                                             <Award className="w-8 h-8 text-blue-600" /> Frequently Asked Questions
                                         </h3>

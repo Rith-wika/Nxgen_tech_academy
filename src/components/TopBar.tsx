@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Facebook, Instagram, Linkedin, Youtube, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowRight, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -45,20 +45,20 @@ export const CourseCarousel: React.FC<CarouselProps> = ({
     // Auto-play logic
     const autoplayRef = useRef<number | null>(null);
 
-    const startAutoplay = () => {
+    const stopAutoplay = useCallback(() => {
+        if (autoplayRef.current) {
+            window.clearInterval(autoplayRef.current);
+            autoplayRef.current = null;
+        }
+    }, []);
+
+    const startAutoplay = useCallback(() => {
         if (!autoplay) return;
         stopAutoplay();
         autoplayRef.current = window.setInterval(() => {
             if (emblaApi) emblaApi.scrollNext();
         }, interval);
-    };
-
-    const stopAutoplay = () => {
-        if (autoplayRef.current) {
-            window.clearInterval(autoplayRef.current);
-            autoplayRef.current = null;
-        }
-    };
+    }, [autoplay, emblaApi, interval, stopAutoplay]);
 
     useEffect(() => {
         if (!emblaApi) return;
@@ -67,7 +67,7 @@ export const CourseCarousel: React.FC<CarouselProps> = ({
         emblaApi.on('pointerDown', stopAutoplay);
 
         return () => stopAutoplay();
-    }, [emblaApi, autoplay, interval]);
+    }, [emblaApi, startAutoplay, stopAutoplay]);
 
 
     // Navigation

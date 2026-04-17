@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
     LayoutDashboard,
@@ -55,13 +55,7 @@ const InstructorTopics = () => {
         is_published: true
     });
 
-    useEffect(() => {
-        if (lessonId) {
-            fetchTopics();
-        }
-    }, [lessonId]);
-
-    const fetchTopics = async () => {
+    const fetchTopics = useCallback(async () => {
         try {
             setLoading(true);
             const data = await lessonService.getLessonTopics(parseInt(lessonId!));
@@ -71,7 +65,13 @@ const InstructorTopics = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [lessonId]);
+
+    useEffect(() => {
+        if (lessonId) {
+            fetchTopics();
+        }
+    }, [lessonId, fetchTopics]);
 
     const handleAddTopic = () => {
         setEditingTopic(null);
@@ -99,9 +99,12 @@ const InstructorTopics = () => {
         if (!formData.title) return;
 
         try {
-            const payload = { ...formData, lesson: parseInt(lessonId!) };
-            if (videoFile) (payload as any).video_file = videoFile;
-            if (docFile) (payload as any).document = docFile;
+            const payload: Partial<Topic> & { lesson: number; video_file?: File; document?: File } = {
+                ...formData,
+                lesson: parseInt(lessonId!),
+            };
+            if (videoFile) payload.video_file = videoFile;
+            if (docFile) payload.document = docFile;
 
             if (editingTopic) {
                 await lessonService.updateTopic(editingTopic.id!, payload);

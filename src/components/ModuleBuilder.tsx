@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   X,
   Loader2,
@@ -78,18 +78,12 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
     moduleType: "training",
   });
 
-  const updateModulesState = (nextModules: Module[]) => {
+  const updateModulesState = useCallback((nextModules: Module[]) => {
     setModules(nextModules);
     onModulesChange?.(nextModules);
-  };
+  }, [onModulesChange]);
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchModules();
-    }
-  }, [isOpen, courseId]);
-
-  const fetchModules = async () => {
+  const fetchModules = useCallback(async () => {
     try {
       setLoading(true);
       console.log("Fetching modules for courseId:", courseId);
@@ -126,7 +120,13 @@ export const ModuleBuilder: React.FC<ModuleBuilderProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId, updateModulesState]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchModules();
+    }
+  }, [isOpen, fetchModules]);
 
   const startModuleEdit = (module: Module) => {
     setEditingModuleId(module.id ?? null);

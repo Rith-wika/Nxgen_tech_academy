@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 import { PageHero } from '@/components/PageHero';
@@ -25,11 +25,7 @@ export default function BlogDetail() {
     const [blog, setBlog] = useState<BlogPost | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchBlog();
-    }, [slug]);
-
-    const fetchBlog = async () => {
+    const fetchBlog = useCallback(async () => {
         try {
             setLoading(true);
             const data = await blogService.getBlogBySlug(slug!);
@@ -41,7 +37,11 @@ export default function BlogDetail() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [slug]);
+
+    useEffect(() => {
+        fetchBlog();
+    }, [fetchBlog]);
 
     const shareUrl = window.location.href;
 

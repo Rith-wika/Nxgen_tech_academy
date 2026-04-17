@@ -62,33 +62,32 @@ const trendingCourses = [
   },
 ];
 
+const HERO_IMAGES = [
+  { src: '/hero-bg-4.png', link: 'https://docs.google.com/forms/d/e/1FAIpQLSdXT8Mx2S5-wBwOrevQ_09OYcvV0oYFFHznNrYg_5RQQ9OBrw/viewform?usp=publish-editor' },
+  { src: '/hero-bg-3.png' },
+  { src: '/hero-bg-1.jpeg' },
+  { src: '/hero-bg-2.jpeg' },
+  { src: '/hero-image.jpg' }
+];
+
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
-  // Array of hero images
-  const heroImages = [
-    { src: '/hero-bg-4.png', link: 'https://docs.google.com/forms/d/e/1FAIpQLSdXT8Mx2S5-wBwOrevQ_09OYcvV0oYFFHznNrYg_5RQQ9OBrw/viewform?usp=publish-editor' },
-    { src: '/hero-bg-3.png' },
-    { src: '/hero-bg-1.jpeg' },
-    { src: '/hero-bg-2.jpeg' },
-    { src: '/hero-image.jpg' }
-  ];
-
   // Auto-advance carousel every 5 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+      setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
     }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+    setCurrentSlide((prev) => (prev - 1 + HERO_IMAGES.length) % HERO_IMAGES.length);
   };
 
   const goToSlide = (index: number) => {
@@ -219,7 +218,7 @@ const Home = () => {
             {/* Carousel Container */}
             <div className="relative w-full max-w-[600px] h-[300px] sm:h-[400px] lg:h-[600px] mx-auto lg:mx-0">
               {/* Images */}
-              {heroImages.map((image, index) => {
+              {HERO_IMAGES.map((image, index) => {
                 const imgElement = (
                   <img
                     src={image.src}
@@ -261,7 +260,7 @@ const Home = () => {
 
               {/* Carousel Indicators */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-                {heroImages.map((_, index) => (
+                {HERO_IMAGES.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => goToSlide(index)}

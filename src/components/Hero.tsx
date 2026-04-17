@@ -5,31 +5,30 @@ import { FaWhatsapp } from "react-icons/fa";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 
+const HERO_IMAGES = [
+  { src: '/hero-bg-4.png', link: 'https://docs.google.com/forms/d/e/1FAIpQLSdXT8Mx2S5-wBwOrevQ_09OYcvV0oYFFHznNrYg_5RQQ9OBrw/viewform?usp=publish-editor' },
+  { src: '/hero-bg-3.png' },
+  { src: '/hero-bg-1.jpeg' },
+  { src: '/hero-bg-2.jpeg' }
+];
+
 export const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Array of hero images
-  const heroImages = [
-    { src: '/hero-bg-4.png', link: 'https://docs.google.com/forms/d/e/1FAIpQLSdXT8Mx2S5-wBwOrevQ_09OYcvV0oYFFHznNrYg_5RQQ9OBrw/viewform?usp=publish-editor' },
-    { src: '/hero-bg-3.png' },
-    { src: '/hero-bg-1.jpeg' },
-    { src: '/hero-bg-2.jpeg' }
-  ];
 
   // Auto-advance carousel every 5 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+      setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
     }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+    setCurrentSlide((prev) => (prev - 1 + HERO_IMAGES.length) % HERO_IMAGES.length);
   };
 
   const goToSlide = (index: number) => {
@@ -41,7 +40,7 @@ export const Hero = () => {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Carousel Images */}
         <div className="absolute inset-0 -z-10">
-          {heroImages.map((image, index) => {
+          {HERO_IMAGES.map((image, index) => {
             const content = (
               <div
                 className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
@@ -88,7 +87,7 @@ export const Hero = () => {
 
         {/* Carousel Indicators */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-          {heroImages.map((_, index) => (
+          {HERO_IMAGES.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}

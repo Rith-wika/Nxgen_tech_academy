@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axiosInstance from "@/api/axiosInstance";
 import { Button } from "@/components/ui/button";
@@ -17,15 +17,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const storedRole = localStorage.getItem("role");
-        const storedFirstLogin = localStorage.getItem("is_first_login") === "true";
-        if (storedRole) {
-            redirectBasedOnRole(storedRole, storedFirstLogin);
-        }
-    }, [navigate]);
-
-    const redirectBasedOnRole = (role: string, isFirstLogin: boolean = false) => {
+    const redirectBasedOnRole = useCallback((role: string, isFirstLogin: boolean = false) => {
         console.log("Redirecting...", { role, isFirstLogin });
         if (isFirstLogin && (role === "instructor" || role === "student")) {
             navigate(`/${role}/change-password`);
@@ -48,7 +40,15 @@ const Login = () => {
             default:
                 navigate("/");
         }
-    };
+    }, [navigate]);
+
+    useEffect(() => {
+        const storedRole = localStorage.getItem("role");
+        const storedFirstLogin = localStorage.getItem("is_first_login") === "true";
+        if (storedRole) {
+            redirectBasedOnRole(storedRole, storedFirstLogin);
+        }
+    }, [redirectBasedOnRole]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -93,9 +93,21 @@ const Login = () => {
 
             toast.success("Login successful! Welcome back.");
             redirectBasedOnRole(normalizedRole, isFirstLogin);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Login Error:", error);
-            toast.error(error.response?.data?.error || error.response?.data?.message || "Login failed. Check your credentials.");
+            const message =
+                typeof error === "object" &&
+                error !== null &&
+                "response" in error &&
+                typeof (error as { response?: { data?: { error?: string; message?: string } } }).response?.data?.error === "string"
+                    ? (error as { response?: { data?: { error?: string; message?: string } } }).response?.data?.error
+                    : typeof error === "object" &&
+                      error !== null &&
+                      "response" in error &&
+                      typeof (error as { response?: { data?: { error?: string; message?: string } } }).response?.data?.message === "string"
+                    ? (error as { response?: { data?: { error?: string; message?: string } } }).response?.data?.message
+                    : "Login failed. Check your credentials.";
+            toast.error(message);
         } finally {
             setIsLoading(false);
         }

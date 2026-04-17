@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 type Slide = {
   id?: string | number;
@@ -54,7 +54,9 @@ export const GroupedCarousel: React.FC<CarouselProps> = ({
     return () => {
       try {
         emblaApi.off('select', onSelect as any);
-      } catch {}
+      } catch {
+        // Ignore listener cleanup failures during fast unmount/remount.
+      }
     };
   }, [emblaApi]);
 
@@ -64,7 +66,9 @@ export const GroupedCarousel: React.FC<CarouselProps> = ({
     const play = () => {
       try {
         emblaApi.scrollNext();
-      } catch {}
+      } catch {
+        // Ignore autoplay edge-case failures when carousel is not ready.
+      }
     };
 
     autoplayRef.current = window.setInterval(play, interval);
