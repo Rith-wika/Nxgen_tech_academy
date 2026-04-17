@@ -100,26 +100,18 @@ export const Navbar = () => {
     }
   };
 
-  const role = localStorage.getItem("role");
-  const dashboardPath =
-    role === "admin" ? "/admin/dashboard" :
-    role === "instructor" ? "/instructor/dashboard" :
-    role === "student" ? "/student/dashboard" :
-    role === "blog_admin" ? "/blog-admin" :
-    "/";
   const isAuthPage = [
     "/student-login",
     "/instructor-login",
     "/register",
     "/login",
   ].includes(location.pathname);
-  const isSpecialAccount = role === "student" || role === "instructor";
 
   // Helper to find active items
   const activeItems =
     courseCategories.find((c) => c.category === activeCategory)?.items || [];
 
-  if (isSpecialAccount || isAuthPage) {
+  if (isAuthPage) {
     return (
       <nav className="sticky top-0 z-50 bg-white shadow-sm border-b pb-4 pt-4">
         <div className="container mx-auto px-4">
@@ -133,21 +125,6 @@ export const Navbar = () => {
               />
             </Link>
 
-            {/* Logout Button - Only show if logged in */}
-            {isSpecialAccount && (
-              <Button
-                variant="outline"
-                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-medium px-6"
-                onClick={() => {
-                  localStorage.removeItem("username");
-                  localStorage.removeItem("access_token");
-                  localStorage.removeItem("role");
-                  window.location.href = "/";
-                }}
-              >
-                Logout
-              </Button>
-            )}
           </div>
         </div>
       </nav>

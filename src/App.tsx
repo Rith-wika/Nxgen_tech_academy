@@ -103,8 +103,8 @@ const AppContent = () => {
     }
   }, [isAdminRoute]);
 
-  // Hide TopBar, Navbar, and Footer for auth pages OR when logged in on any dashboard
-  const hideComponents = isAuthPage || (isUserLoggedIn && isDashboardPage);
+  // Hide TopBar, Navbar, and Footer for auth pages and all dashboard routes.
+  const hideComponents = isAuthPage || isDashboardPage;
 
   return (
     <>

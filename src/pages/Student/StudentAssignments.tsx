@@ -129,12 +129,7 @@ const StudentAssignments = () => {
 
       await axiosInstance.post(
         `/api/courses/modules/${selectedAssignment.moduleId}/lessons/${selectedAssignment.lessonId}/assignment/submit/`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        formData
       );
 
       toast.success("Assignment submitted successfully.");

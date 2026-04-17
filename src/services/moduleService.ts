@@ -611,11 +611,7 @@ export const moduleService = {
       const data = await withDummyFallback(
         async () =>
           (
-            await axiosInstance.post("/api/lesson-files/", formData, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            })
+            await axiosInstance.post("/api/lesson-files/", formData)
           ).data,
         () => dummyDbApi.uploadLessonFile(payload),
         "uploadLessonFile"
