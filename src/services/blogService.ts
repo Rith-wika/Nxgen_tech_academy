@@ -41,6 +41,17 @@ export interface BlogCategoryCreateResponse {
 const normalizeBlog = (raw: any): BlogPost => {
     const categoryObj = raw?.category;
     const tags = Array.isArray(raw?.tags) ? raw.tags : [];
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+
+    const getFullImageUrl = (path?: string) => {
+        if (!path) return "";
+        if (path.startsWith("http")) return path;
+        // Ensure that path starts with / if we're joining it with baseUrl
+        const cleanPath = path.startsWith('/') ? path : `/${path}`;
+        // Ensure baseUrl doesn't have duplicate slashes (it often has a trailing slash)
+        const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+        return `${cleanBase}${cleanPath}`;
+    };
 
     return {
         ...raw,
@@ -48,7 +59,7 @@ const normalizeBlog = (raw: any): BlogPost => {
         category_id: categoryObj?.id,
         tags: tags.map((t: any) => t?.value || t?.name || t).filter(Boolean).join(", "),
         tag_ids: tags.map((t: any) => t?.id).filter((id: any) => typeof id === "number"),
-        image_url: raw?.featured_image || raw?.image_url || "",
+        image_url: getFullImageUrl(raw?.featured_image || raw?.image_url),
         video_url: raw?.video || raw?.video_url || "",
     };
 };
@@ -178,6 +189,15 @@ export const blogService = {
             return res.data;
         } catch (error) {
             console.error("Error deleting blog", error);
+            throw error;
+        }
+    },
+    getLatestBlogs: async () => {
+        try {
+            const res = await axiosInstance.get('/api/home/latest-blogs/');
+            return Array.isArray(res.data) ? res.data.map(normalizeBlog) : [];
+        } catch (error) {
+            console.error("Error fetching latest blogs", error);
             throw error;
         }
     }

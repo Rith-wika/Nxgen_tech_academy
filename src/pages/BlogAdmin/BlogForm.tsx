@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { BlogCategoryOption, BlogPost, BlogTagOption, blogService } from "@/services/blogService";
+import { BlogCategoryOption, BlogPost, blogService } from "@/services/blogService";
 import { useNavigate } from "react-router-dom";
 
 interface BlogFormProps {
@@ -24,7 +24,6 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [categoryOptions, setCategoryOptions] = useState<BlogCategoryOption[]>([]);
-    const [tagOptions, setTagOptions] = useState<BlogTagOption[]>([]);
 
     const [formData, setFormData] = useState<BlogPost>({
         title: "",
@@ -32,7 +31,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         excerpt: "",
         content: "",
         category: "",
-        tags: "",
+        tags: "", // Kept for interface compatibility but hidden from UI
         status: "draft",
         scheduled_date: "",
         scheduled_time: "",
@@ -45,9 +44,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             setMetaLoading(true);
             const meta = await blogService.getMeta();
             setCategoryOptions(meta.categories || []);
-            setTagOptions(meta.tags || []);
         } catch {
-            // Fallback category call keeps category dropdown usable even if tags/meta call fails.
             try {
                 const categories = await blogService.getCategories();
                 setCategoryOptions(categories);
@@ -66,28 +63,25 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
 
     useEffect(() => {
         if (initialData) {
-            // Helper to get string value from potential object (DRF choice fields)
             const getVal = (v: any) => (v && typeof v === 'object') ? (v.value || v.name || v.id) : v;
 
             setFormData({
                 ...initialData,
                 category: initialData.category_id || getVal(initialData.category) || "",
                 status: getVal(initialData.status)?.toString().toLowerCase() || "draft",
-                tags: initialData.tag_ids?.join(",") || "",
-                // Ensure other fields are strings to avoid object-as-child errors if any
+                tags: initialData.tags || "",
                 title: getVal(initialData.title) || "",
                 slug: getVal(initialData.slug) || "",
             });
         }
     }, [initialData]);
 
-    // Handle auto-generating slug
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const title = e.target.value;
         const slug = title.toLowerCase()
             .trim()
             .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)+/g, ''); // Auto generate slug
+            .replace(/(^-|-$)+/g, '');
         setFormData({ ...formData, title, slug });
     };
 
@@ -118,14 +112,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         setLoading(true);
         try {
             const submitData = new FormData();
-
             const normalizedStatus = formData.status === "schedule" ? "scheduled" : formData.status;
-            const tagsAsIds = (formData.tags || "")
-                .split(",")
-                .map((tag) => tag.trim())
-                .filter(Boolean)
-                .map((tag) => Number(tag))
-                .filter((tagId) => !Number.isNaN(tagId));
 
             const payload: Record<string, string> = {
                 title: formData.title,
@@ -145,25 +132,8 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                 }
             });
 
-            tagsAsIds.forEach((tagId) => submitData.append("tags", String(tagId)));
-
-            // If tags is a comma-separated list of IDs, we send them individually for many-to-many fields
-            // if (formData.tags) {
-            //     const tagList = formData.tags.split(',').map(tag => tag.trim());
-            //     // Depending on your backend, you may need to map strings back to IDs if your DRF serializers expect Primary Keys. 
-            //     // Currently, appending as a list so DRF can read `request.data.getlist('tags')`.
-            //     tagList.forEach(tag => {
-            //         submitData.append('tags', tag);
-            //     });
-            // }
-
-            if (imageFile) {
-                submitData.append('featured_image', imageFile);
-            }
-
-            if (videoFile) {
-                submitData.append('video', videoFile);
-            }
+            if (imageFile) submitData.append('featured_image', imageFile);
+            if (videoFile) submitData.append('video', videoFile);
 
             if (isEdit && initialData?.id) {
                 await blogService.updateBlog(initialData.id, submitData);
@@ -175,7 +145,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             navigate("/blog-admin/blogs");
         } catch (error: any) {
             console.error("API Error detailed:", error.response?.data || error.message);
-            toast.error(error.response?.data?.detail || error.message || "Failed to save blog post. Please check your network and API endpoint.");
+            toast.error(error.response?.data?.detail || error.message || "Failed to save blog post.");
         } finally {
             setLoading(false);
         }
@@ -187,21 +157,6 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             toast.error("Please enter a category name.");
             return;
         }
-        if (name.length > 150) {
-            toast.error("Category name cannot exceed 150 characters.");
-            return;
-        }
-
-        const duplicate = categoryOptions.find(
-            (c) => c.name.trim().toLowerCase() === name.toLowerCase()
-        );
-        if (duplicate) {
-            setFormData((prev) => ({ ...prev, category: duplicate.id }));
-            setNewCategoryName("");
-            toast.info("Category already exists. Selected existing category.");
-            return;
-        }
-
         try {
             setCreatingCategory(true);
             const result = await blogService.createCategory(name);
@@ -211,41 +166,16 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             if (category?.id) {
                 setFormData((prev) => ({ ...prev, category: category.id }));
             }
-            if (result?.created) {
-                toast.success(result.detail || "Category added successfully.");
-            } else {
-                toast.info(result?.detail || "Category already exists. Selected existing category.");
-            }
+            toast.success(result?.detail || "Category processed.");
         } catch (error: any) {
-            const status = error?.response?.status;
-            const detail = error?.response?.data?.detail;
-            if (status === 400) {
-                toast.error(detail || "Invalid category data.");
-            } else if (status === 401 || status === 403) {
-                toast.error("You are not authorized to add categories.");
-            } else if (!error?.response) {
-                toast.error("Network error. Please check your connection.");
-            } else {
-                toast.error(detail || "Failed to create category. Please try again.");
-            }
+            toast.error(error?.response?.data?.detail || "Failed to create category.");
         } finally {
             setCreatingCategory(false);
         }
     };
 
-    const handleUndo = () => {
-        const editor = quillRef.current?.getEditor();
-        if (editor) {
-            editor.history.undo();
-        }
-    };
-
-    const handleRedo = () => {
-        const editor = quillRef.current?.getEditor();
-        if (editor) {
-            editor.history.redo();
-        }
-    };
+    const handleUndo = () => quillRef.current?.getEditor().history.undo();
+    const handleRedo = () => quillRef.current?.getEditor().history.redo();
 
     const modules = React.useMemo(() => ({
         toolbar: [
@@ -259,21 +189,11 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
             ['code-block'],
             ['clean']
         ],
-        history: {
-            delay: 1000,
-            maxStack: 100,
-            userOnly: true
-        }
+        history: { delay: 1000, maxStack: 100, userOnly: true }
     }), []);
 
     const normalizedCategoryName = newCategoryName.replace(/\s+/g, " ").trim();
-    const isCategoryNameEmpty = normalizedCategoryName.length === 0;
-    const isCategoryNameTooLong = normalizedCategoryName.length > 150;
-    const matchingCategory = categoryOptions.find(
-        (category) => category.name.trim().toLowerCase() === normalizedCategoryName.toLowerCase()
-    );
-    const isCategoryDuplicate = Boolean(matchingCategory);
-    const canSubmitCategory = !creatingCategory && !isCategoryNameEmpty && !isCategoryNameTooLong;
+    const canSubmitCategory = !creatingCategory && normalizedCategoryName.length > 0 && normalizedCategoryName.length <= 150;
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 bg-white max-w-5xl w-full mx-auto md:p-6 p-4 border rounded-xl shadow-sm">
@@ -285,7 +205,6 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                 <div className="space-y-3">
                     <Label htmlFor="slug" className="text-sm font-semibold text-slate-700">Blog Slug (URL)</Label>
                     <Input id="slug" name="slug" value={formData.slug} onChange={handleInputChange} required className="h-12 bg-slate-100 border-slate-200 text-slate-600 block read-only:" />
-                    <p className="text-xs text-slate-400 mt-1">This is auto-generated based on the title.</p>
                 </div>
                 <div className="space-y-3">
                     <Label htmlFor="category" className="text-sm font-semibold text-slate-700">Category <span className="text-red-500">*</span></Label>
@@ -299,14 +218,9 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                     >
                         <option value="">{metaLoading ? "Loading categories..." : "Select Category..."}</option>
                         {categoryOptions.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.name}
-                            </option>
+                            <option key={category.id} value={category.id}>{category.name}</option>
                         ))}
                     </select>
-                    {categoryOptions.length === 0 && !metaLoading && (
-                        <p className="text-xs text-amber-700">No categories found. Add one below to continue.</p>
-                    )}
                     <div className="flex gap-2">
                         <Input
                             value={newCategoryName}
@@ -314,27 +228,10 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                             placeholder="Add new category"
                             className="h-10 bg-slate-50 border-slate-200"
                         />
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="h-10"
-                            onClick={handleCreateCategory}
-                            disabled={!canSubmitCategory}
-                        >
+                        <Button type="button" variant="outline" className="h-10" onClick={handleCreateCategory} disabled={!canSubmitCategory}>
                             {creatingCategory ? "Adding..." : "Add"}
                         </Button>
                     </div>
-                    {!isCategoryNameEmpty && isCategoryNameTooLong && (
-                        <p className="text-xs text-red-600">Category name must be 150 characters or less.</p>
-                    )}
-                    {!isCategoryNameEmpty && !isCategoryNameTooLong && isCategoryDuplicate && (
-                        <p className="text-xs text-amber-700">
-                            Category already exists. Clicking Add will auto-select "{matchingCategory?.name}".
-                        </p>
-                    )}
-                    {!isCategoryNameEmpty && !isCategoryNameTooLong && !isCategoryDuplicate && (
-                        <p className="text-xs text-slate-500">Click Add to create this category and auto-select it.</p>
-                    )}
                 </div>
                 <div className="space-y-3">
                     <Label htmlFor="status" className="text-sm font-semibold text-slate-700">Publish Status</Label>
@@ -346,7 +243,6 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
                         className="w-full h-12 border border-slate-200 bg-slate-50 rounded-lg px-4 focus:outline-none focus:ring-2 focus:ring-[#000080]"
                     >
                         <option value="draft">Draft (Save for later)</option>
-
                         <option value="published">Published (Live instantly)</option>
                         <option value="schedule">Schedule</option>
                     </select>
@@ -354,29 +250,13 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
 
                 {formData.status === "schedule" && (
                     <>
-                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="space-y-3">
                             <Label htmlFor="scheduled_date" className="text-sm font-semibold text-slate-700">Schedule Date <span className="text-red-500">*</span></Label>
-                            <Input
-                                id="scheduled_date"
-                                name="scheduled_date"
-                                type="date"
-                                value={formData.scheduled_date}
-                                onChange={handleInputChange}
-                                required
-                                className="h-12 bg-slate-50 border-slate-200 focus:ring-[#000080]"
-                            />
+                            <Input id="scheduled_date" name="scheduled_date" type="date" value={formData.scheduled_date} onChange={handleInputChange} required className="h-12 bg-slate-50 border-slate-200 focus:ring-[#000080]" />
                         </div>
-                        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="space-y-3">
                             <Label htmlFor="scheduled_time" className="text-sm font-semibold text-slate-700">Schedule Time <span className="text-red-500">*</span></Label>
-                            <Input
-                                id="scheduled_time"
-                                name="scheduled_time"
-                                type="time"
-                                value={formData.scheduled_time}
-                                onChange={handleInputChange}
-                                required
-                                className="h-12 bg-slate-50 border-slate-200 focus:ring-[#000080]"
-                            />
+                            <Input id="scheduled_time" name="scheduled_time" type="time" value={formData.scheduled_time} onChange={handleInputChange} required className="h-12 bg-slate-50 border-slate-200 focus:ring-[#000080]" />
                         </div>
                     </>
                 )}
@@ -384,20 +264,16 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-200 pt-8 mt-8">
                 <div className="space-y-3">
-                    <Label htmlFor="tags" className="text-sm font-semibold text-slate-700">Tags (comma separated IDs)</Label>
-                    <Input id="tags" name="tags" value={formData.tags} onChange={handleInputChange} className="h-12 bg-slate-50 border-slate-200" placeholder={tagOptions.length ? `Available IDs: ${tagOptions.map((tag) => `${tag.id}:${tag.name}`).join(" | ")}` : "e.g. 1, 2, 3"} />
-                </div>
-                <div className="space-y-3">
                     <Label htmlFor="imageFile" className="text-sm font-semibold text-slate-700">Upload Featured Image</Label>
                     <Input id="imageFile" name="imageFile" type="file" accept="image/*" onChange={handleFileChange} className="h-12 bg-slate-50 border-slate-200 pt-3 cursor-pointer" />
-                    {isEdit && formData.image_url && <p className="text-xs text-slate-500 mt-1">Current image: {formData.image_url}</p>}
+                    {isEdit && formData.image_url && <p className="text-xs text-slate-500 mt-1 truncate">Current: {formData.image_url}</p>}
                 </div>
                 <div className="space-y-3">
                     <Label htmlFor="videoFile" className="text-sm font-semibold text-slate-700">Upload Video (Optional)</Label>
                     <Input id="videoFile" name="videoFile" type="file" accept="video/*" onChange={handleFileChange} className="h-12 bg-slate-50 border-slate-200 pt-3 cursor-pointer" />
-                    {isEdit && formData.video_url && <p className="text-xs text-slate-500 mt-1">Current video: {formData.video_url}</p>}
+                    {isEdit && formData.video_url && <p className="text-xs text-slate-500 mt-1 truncate">Current: {formData.video_url}</p>}
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 md:col-span-2">
                     <Label htmlFor="excerpt" className="text-sm font-semibold text-slate-700">Short Description / Excerpt</Label>
                     <Input id="excerpt" name="excerpt" value={formData.excerpt} onChange={handleInputChange} className="h-12 bg-slate-50 border-slate-200" placeholder="A brief 1-2 sentence summary of this post." />
                 </div>
@@ -405,32 +281,26 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
 
             <div className="space-y-3 border-t border-slate-200 pt-8 mt-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
-                    <Label className="text-sm font-semibold text-slate-700 sm:text-lg">Blog Content (Rich Text Editor) <span className="text-red-500">*</span></Label>
-
-                    {/* Custom Undo Redo actions to satisfy requirements explicitly */}
+                    <Label className="text-sm font-semibold text-slate-700 sm:text-lg">Blog Content <span className="text-red-500">*</span></Label>
                     <div className="flex gap-2 bg-slate-100 rounded-md p-1 border">
-                        <button type="button" onClick={handleUndo} className="px-3 py-1 bg-white hover:bg-slate-200 rounded text-sm font-medium shadow-sm transition-all" title="Undo (Ctrl+Z)">Undo</button>
-                        <button type="button" onClick={handleRedo} className="px-3 py-1 bg-white hover:bg-slate-200 rounded text-sm font-medium shadow-sm transition-all" title="Redo (Ctrl+Y)">Redo</button>
+                        <button type="button" onClick={handleUndo} className="px-3 py-1 bg-white hover:bg-slate-200 rounded text-sm font-medium shadow-sm transition-all">Undo</button>
+                        <button type="button" onClick={handleRedo} className="px-3 py-1 bg-white hover:bg-slate-200 rounded text-sm font-medium shadow-sm transition-all">Redo</button>
                     </div>
                 </div>
-
-                <div className="bg-white rounded-lg ring-1 ring-slate-200 overflow-hidden min-h-[500px] flex flex-col">
+                <div className="bg-white rounded-lg ring-1 ring-slate-200 overflow-hidden min-h-[400px]">
                     <ReactQuill
                         ref={quillRef}
                         theme="snow"
                         value={formData.content}
                         onChange={handleEditorChange}
                         modules={modules}
-                        className="flex-1 flex flex-col h-full bg-white text-base"
-                        style={{ minHeight: '400px' }}
+                        style={{ minHeight: '350px' }}
                     />
                 </div>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-end pt-8 gap-4 border-t border-slate-200">
-                <Button type="button" variant="outline" onClick={() => navigate("/blog-admin/blogs")} className="w-full sm:w-auto h-12 px-8 font-medium">
-                    Cancel
-                </Button>
+                <Button type="button" variant="outline" onClick={() => navigate("/blog-admin/blogs")} className="w-full sm:w-auto h-12 px-8 font-medium">Cancel</Button>
                 <Button type="submit" className="w-full sm:w-auto bg-[#000080] hover:bg-[#000080]/90 text-white h-12 px-8 font-medium shadow-md" disabled={loading}>
                     {loading ? "Submitting..." : "Submit Blog"}
                 </Button>

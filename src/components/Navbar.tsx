@@ -59,6 +59,14 @@ export const Navbar = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const role = localStorage.getItem("role");
+  const dashboardPath = role === "admin"
+    ? "/admin/dashboard"
+    : role === "instructor"
+      ? "/instructor/dashboard"
+      : role === "blog_admin"
+        ? "/blog-admin"
+        : "/student/dashboard";
 
   // Close search when clicking outside
   useEffect(() => {

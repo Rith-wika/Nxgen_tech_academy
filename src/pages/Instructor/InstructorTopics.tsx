@@ -16,8 +16,10 @@ import {
     GripVertical,
     Play,
     Settings,
-    MoreVertical
+    MoreVertical,
+    Lock
 } from "lucide-react";
+import { instructorSidebarItems } from "./instructorSidebarItems";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -131,13 +133,7 @@ const InstructorTopics = () => {
         }
     };
 
-    const sidebarItems = [
-        { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
-        { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
-        { label: "Students",    icon: Users,           path: "/instructor/students" },
-        { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
-        { label: "Profile",     icon: User,            path: "/instructor/profile" },
-    ];
+    const sidebarItems = instructorSidebarItems;
 
     if (loading) {
         return (

@@ -17,7 +17,9 @@ import {
   Layers,
   GraduationCap,
   FileText,
+  Lock,
 } from "lucide-react";
+import { instructorSidebarItems } from "./instructorSidebarItems";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 type LocationState = {
@@ -46,16 +48,7 @@ const InstructorModuleLessons = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const sidebarItems = useMemo(
-    () => [
-      { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
-      { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
-      { label: "Students",    icon: Users,           path: "/instructor/students" },
-      { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
-      { label: "Profile",     icon: User,            path: "/instructor/profile" },
-    ],
-    []
-  );
+  const sidebarItems = instructorSidebarItems;
 
   useEffect(() => {
     const loadModuleLessons = async () => {

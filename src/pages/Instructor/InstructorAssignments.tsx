@@ -14,7 +14,10 @@ import {
   CheckCircle,
   ListChecks,
   Loader2,
+  Lock,
+  Download,
 } from "lucide-react";
+import { instructorSidebarItems } from "./instructorSidebarItems";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +29,7 @@ import { toast } from "sonner";
 import axiosInstance from "@/api/axiosInstance";
 import { moduleService } from "@/services/moduleService";
 import { instructorService } from "@/services/instructorService";
+import { courseService } from "@/services/courseService";
 
 type AssignmentStatus = "Draft" | "Active" | "Closed";
 
@@ -41,6 +45,7 @@ interface AssignmentItem {
   assignmentDueDate: string | null;
   submissionsCount: number;
   status: AssignmentStatus;
+  fileUrl?: string | null;
 }
 
 interface SubmissionItem {
@@ -63,6 +68,7 @@ interface AssignmentApiItem {
     assignment_title?: string;
     assignment_description?: string;
     assignment_due_date?: string | null;
+    file?: string | null;
   };
   course: {
     id: number;
@@ -103,15 +109,10 @@ type FormState = {
   title: string;
   description: string;
   dueDate: string;
+  file: File | null;
 };
 
-const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/instructor/dashboard" },
-  { label: "Courses", icon: BookOpen, path: "/instructor/courses" },
-  { label: "Students", icon: Users, path: "/instructor/students" },
-  { label: "Assignments", icon: FileText, path: "/instructor/assignments" },
-  { label: "Profile", icon: User, path: "/instructor/profile" },
-];
+const sidebarItems = instructorSidebarItems;
 const initialFormState: FormState = {
   courseId: "",
   moduleId: "",
@@ -119,6 +120,7 @@ const initialFormState: FormState = {
   title: "",
   description: "",
   dueDate: "",
+  file: null,
 };
 
 const deriveStatus = (dueDate: string | null): AssignmentStatus => {
@@ -182,6 +184,7 @@ const InstructorAssignments = () => {
         assignmentDueDate: item.assignment?.assignment_due_date || null,
         submissionsCount: item.submissions_count || 0,
         status: deriveStatus(item.assignment?.assignment_due_date || null),
+        fileUrl: item.assignment?.file || null,
       }));
       setAssignments(mapped);
     } catch (error) {
@@ -263,6 +266,7 @@ const InstructorAssignments = () => {
         moduleId: String(assignment.moduleId),
         lessonId: String(assignment.lessonId),
         dueDate: toDatetimeLocal(assignment.assignmentDueDate),
+        file: null,
       });
       setSelectedAssignment(assignment);
     } else {
@@ -290,6 +294,7 @@ const InstructorAssignments = () => {
         title: formData.title,
         description: formData.description,
         dueDate: formData.dueDate,
+        file: formData.file,
       });
 
       await fetchAssignments();
@@ -307,13 +312,7 @@ const InstructorAssignments = () => {
     if (window.confirm("Are you sure you want to delete this assignment?")) {
       try {
         setLoading(true);
-        await moduleService.upsertLessonAssignment({
-          moduleId: assignment.moduleId,
-          lessonId: assignment.lessonId,
-          title: "",
-          description: "",
-          dueDate: undefined,
-        });
+        await moduleService.deleteLessonAssignment(assignment.moduleId, assignment.lessonId);
         await fetchAssignments();
         toast.success("Assignment deleted.");
       } catch (error) {
@@ -421,6 +420,35 @@ const InstructorAssignments = () => {
       toast.error("Failed to save grade.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleView = async (id: number | string, type: string = 'lesson') => {
+    try {
+      const signedUrl = await courseService.getFileAccessUrl(type, id);
+      window.open(signedUrl, '_blank');
+    } catch (error) {
+      console.error("View failed", error);
+      toast.error("Failed to open file.");
+    }
+  };
+
+  const handleDownload = async (id: number | string, filename: string, type: string = 'lesson') => {
+    try {
+      const signedUrl = await courseService.getFileAccessUrl(type, id);
+      const response = await fetch(signedUrl);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename || 'assignment-file';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed", error);
+      toast.error("Failed to download file.");
     }
   };
 
@@ -595,10 +623,18 @@ const InstructorAssignments = () => {
               <Label>Due Date & Time <span className="text-red-500">*</span></Label>
               <Input type="datetime-local" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} />
             </div>
+            <div className="sm:col-span-2 space-y-2">
+              <Label>Upload Assignment File <span className="text-red-500">*</span></Label>
+              <Input type="file" onChange={e => setFormData({ ...formData, file: e.target.files?.[0] || null })} />
+              <p className="text-[10px] text-gray-500">Max size: 10MB. Allowed: .pdf, .docx, .png, .jpg, .jpeg</p>
+              {selectedAssignment?.fileUrl && !formData.file && (
+                <p className="text-xs text-blue-600">Current file: <a href={selectedAssignment.fileUrl} target="_blank" rel="noreferrer" className="underline">View</a></p>
+              )}
+            </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0 mt-4">
             <Button variant="outline" onClick={() => setIsFormOpen(false)} disabled={loading}>Cancel</Button>
-            <Button onClick={handleSaveAssignment} disabled={loading || !formData.title || !formData.courseId || !formData.moduleId || !formData.lessonId || !formData.dueDate} className="bg-[#000080] hover:bg-[#000060] text-white">
+            <Button onClick={handleSaveAssignment} disabled={loading || !formData.title || !formData.courseId || !formData.moduleId || !formData.lessonId || !formData.dueDate || (!selectedAssignment && !formData.file)} className="bg-[#000080] hover:bg-[#000060] text-white">
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Save Assignment
             </Button>
           </DialogFooter>
@@ -629,6 +665,31 @@ const InstructorAssignments = () => {
                   <div><span className="text-gray-500">Lesson:</span> <span className="font-medium">{selectedAssignment.lessonTitle}</span></div>
                   <div><span className="text-gray-500">Due Date:</span> <span className="font-medium">{selectedAssignment.assignmentDueDate ? new Date(selectedAssignment.assignmentDueDate).toLocaleString() : "No due date"}</span></div>
                   <div><span className="text-gray-500">Submissions:</span> <span className="font-medium">{selectedAssignment.submissionsCount}</span></div>
+                  <div className="col-span-2">
+                    <span className="text-gray-500">Assignment File:</span>{" "}
+                    {selectedAssignment.fileUrl ? (
+                      <div className="flex gap-2 mt-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-blue-600 border-blue-200 hover:bg-blue-50"
+                          onClick={() => handleView(selectedAssignment.lessonId)}
+                        >
+                          <Eye className="w-3.5 h-3.5 mr-1.5" /> View
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-green-600 border-green-200 hover:bg-green-50"
+                          onClick={() => handleDownload(selectedAssignment.lessonId, selectedAssignment.assignmentTitle)}
+                        >
+                          <Download className="w-3.5 h-3.5 mr-1.5" /> Download
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-red-500 italic">No file uploaded</span>
+                    )}
+                  </div>
                 </div>
               </div>
               <DialogFooter className="gap-2 sm:gap-0">
@@ -695,10 +756,27 @@ const InstructorAssignments = () => {
                           )}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          {sub.fileUrl ? (
-                            <a href={sub.fileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium hover:bg-slate-50">
-                              Open File
-                            </a>
+                          {sub.fileUrl && sub.submissionId ? (
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                                title="View Submission"
+                                onClick={() => handleView(sub.submissionId!, 'submission')}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-green-600 hover:bg-green-50"
+                                title="Download Submission"
+                                onClick={() => handleDownload(sub.submissionId!, `submission-${sub.studentName}`, 'submission')}
+                              >
+                                <Download className="w-4 h-4" />
+                              </Button>
+                            </div>
                           ) : (
                             <span className="text-xs text-slate-400">No file</span>
                           )}

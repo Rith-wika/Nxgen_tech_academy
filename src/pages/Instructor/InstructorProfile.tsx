@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { LayoutDashboard, BookOpen, Users, User, Phone, Mail, BadgeCheck, Landmark, FileText, Loader2 } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, User, Phone, Mail, BadgeCheck, Landmark, FileText, Loader2, Lock } from "lucide-react";
+import { instructorSidebarItems } from "./instructorSidebarItems";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { instructorService } from "@/services/instructorService";
 
-const sidebarItems = [
-    { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
-    { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
-    { label: "Students",    icon: Users,           path: "/instructor/students" },
-    { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
-    { label: "Profile",     icon: User,            path: "/instructor/profile" },
-];
+const sidebarItems = instructorSidebarItems;
 
 const InstructorProfile = () => {
     interface InstructorProfileData {

@@ -23,7 +23,9 @@ import {
   X,
   Trash2,
   FileText,
+  Lock,
 } from "lucide-react";
+import { instructorSidebarItems } from "./instructorSidebarItems";
 import { useNavigate, useParams } from "react-router-dom";
 
 type ModuleTrack = "training" | "industryReady";
@@ -39,16 +41,7 @@ const InstructorLessons = () => {
   const [editingModuleTitle, setEditingModuleTitle] = useState("");
   const [moduleSaving, setModuleSaving] = useState(false);
 
-  const sidebarItems = useMemo(
-    () => [
-      { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
-      { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
-      { label: "Students",    icon: Users,           path: "/instructor/students" },
-      { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
-      { label: "Profile",     icon: User,            path: "/instructor/profile" },
-    ],
-    []
-  );
+  const sidebarItems = instructorSidebarItems;
 
   useEffect(() => {
     const loadModules = async () => {
@@ -99,9 +92,9 @@ const InstructorLessons = () => {
           prevModules.map((moduleItem) =>
             String(moduleItem.id) === moduleKey
               ? {
-                  ...moduleItem,
-                  lessons,
-                }
+                ...moduleItem,
+                lessons,
+              }
               : moduleItem
           )
         );
@@ -171,9 +164,9 @@ const InstructorLessons = () => {
         prev.map((item) =>
           String(item.id) === String(moduleItem.id)
             ? {
-                ...item,
-                title: updated.title,
-              }
+              ...item,
+              title: updated.title,
+            }
             : item
         )
       );

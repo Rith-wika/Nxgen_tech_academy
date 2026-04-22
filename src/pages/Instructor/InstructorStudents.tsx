@@ -1,23 +1,27 @@
 import React, { useEffect, useState, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { 
+import {
   LayoutDashboard, BookOpen, Users, User, ArrowLeft, Loader2, Mail, Phone, FileText,
   ChevronDown, ChevronRight, CheckCircle, Clock, ExternalLink, GraduationCap,
-  Layers, ChevronRightSquare
+  Layers, ChevronRightSquare, Lock
 } from "lucide-react";
+import { instructorSidebarItems } from "./instructorSidebarItems";
 import { batchService, Batch } from "@/services/batchService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "@/api/axiosInstance";
+import { courseService } from "@/services/courseService";
 
 interface AssignmentProgressItem {
   status: string;
   submitted_at?: string | null;
   submission_data?: {
     file_upload?: string;
+    submission_id?: number | string;
   };
   assignment: {
+    id?: number | string;
     title?: string;
     assignment_title?: string;
   };
@@ -40,10 +44,10 @@ const InstructorStudents = () => {
   const navigate = useNavigate();
   const [batches, setBatches] = useState<Batch[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Tab State
   const [activeCourseId, setActiveCourseId] = useState<number | null>(null);
-  
+
   // Live Class States
   const [liveLinks, setLiveLinks] = useState<{ [batchId: number]: string }>({});
   const [startingClassFor, setStartingClassFor] = useState<number | null>(null);
@@ -53,16 +57,7 @@ const InstructorStudents = () => {
   const [studentAssignments, setStudentAssignments] = useState<Record<number, AssignmentProgressItem[]>>({});
   const [subLoading, setSubLoading] = useState<number | null>(null);
 
-  const sidebarItems = useMemo(
-    () => [
-      { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
-      { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
-      { label: "Students",    icon: Users,           path: "/instructor/students" },
-      { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
-      { label: "Profile",     icon: User,            path: "/instructor/profile" },
-    ],
-    []
-  );
+  const sidebarItems = instructorSidebarItems;
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -109,7 +104,7 @@ const InstructorStudents = () => {
       }
       const response = await batchService.manageLiveClass(batchId, start ? 'start' : 'end', link);
       toast.success(response.message);
-      
+
       // Update local state
       setBatches(prev => prev.map(b => b.id === batchId ? { ...b, is_live_class_active: start, live_link: start ? link : "" } : b));
       if (!start) {
@@ -128,7 +123,7 @@ const InstructorStudents = () => {
       setExpandedStudent(null);
       return;
     }
-    
+
     setExpandedStudent(studentId);
     if (studentAssignments[studentId]) return;
 
@@ -140,6 +135,16 @@ const InstructorStudents = () => {
       toast.error("Failed to load student assignment progress.");
     } finally {
       setSubLoading(null);
+    }
+  };
+
+  const handleView = async (id: number | string, type: string = 'submission') => {
+    try {
+      const signed_url = await courseService.getFileAccessUrl(type, id);
+      window.open(signed_url, '_blank');
+    } catch (error) {
+      console.error("View failed", error);
+      toast.error("Failed to open file.");
     }
   };
 
@@ -156,7 +161,7 @@ const InstructorStudents = () => {
   return (
     <DashboardLayout role="instructor" sidebarItems={sidebarItems} title="My Batches & Students">
       <div className="w-full max-w-7xl mx-auto px-4 md:px-6 pb-8 space-y-6">
-        
+
         {/* Header Section */}
         <div className="mt-6 p-6 bg-white border border-gray-100 rounded-xl shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -195,11 +200,10 @@ const InstructorStudents = () => {
                 <button
                   key={course.id}
                   onClick={() => setActiveCourseId(course.id)}
-                  className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap flex items-center gap-2 ${
-                    activeCourseId === course.id
-                      ? "bg-[#000080] text-white"
-                      : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
-                  }`}
+                  className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap flex items-center gap-2 ${activeCourseId === course.id
+                    ? "bg-[#000080] text-white"
+                    : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
+                    }`}
                 >
                   <BookOpen className={`w-4 h-4 ${activeCourseId === course.id ? "text-blue-300" : "text-slate-400"}`} />
                   {course.title}
@@ -225,42 +229,42 @@ const InstructorStudents = () => {
                             </CardDescription>
                           </div>
                         </div>
-                          <div className="flex items-center gap-4">
-                            {!batch.is_live_class_active ? (
-                              <div className="flex bg-white items-center p-1 rounded-md border border-slate-200">
-                                <input 
-                                  value={liveLinks[batch.id] || ""}
-                                  onChange={(e) => setLiveLinks(p => ({ ...p, [batch.id]: e.target.value }))}
-                                  placeholder="Teams/Zoom Link"
-                                  className="text-sm px-2 py-1 outline-none min-w-[200px]"
-                                />
-                                <button
-                                  onClick={() => handleLiveClassToggle(batch.id, true)}
-                                  disabled={startingClassFor === batch.id}
-                                  className="bg-[#000080] text-white text-xs px-3 py-1.5 rounded disabled:opacity-50"
-                                >
-                                  {startingClassFor === batch.id ? "Starting..." : "Start Class"}
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center bg-red-50 p-1 px-3 rounded-md border border-red-200 gap-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-                                  <span className="text-red-700 text-xs font-bold">Class Live</span>
-                                </div>
-                                <button
-                                  onClick={() => handleLiveClassToggle(batch.id, false)}
-                                  disabled={startingClassFor === batch.id}
-                                  className="bg-red-600 text-white text-xs px-3 py-1 rounded disabled:opacity-50"
-                                >
-                                  {startingClassFor === batch.id ? "Ending..." : "End Class"}
-                                </button>
-                              </div>
-                            )}
-
-                            <div className="bg-blue-100 text-[#000080] text-xs px-4 py-1.5 rounded-full font-semibold">
-                              {batch.students.length} Enrolled Students
+                        <div className="flex items-center gap-4">
+                          {!batch.is_live_class_active ? (
+                            <div className="flex bg-white items-center p-1 rounded-md border border-slate-200">
+                              <input
+                                value={liveLinks[batch.id] || ""}
+                                onChange={(e) => setLiveLinks(p => ({ ...p, [batch.id]: e.target.value }))}
+                                placeholder="Teams/Zoom Link"
+                                className="text-sm px-2 py-1 outline-none min-w-[200px]"
+                              />
+                              <button
+                                onClick={() => handleLiveClassToggle(batch.id, true)}
+                                disabled={startingClassFor === batch.id}
+                                className="bg-[#000080] text-white text-xs px-3 py-1.5 rounded disabled:opacity-50"
+                              >
+                                {startingClassFor === batch.id ? "Starting..." : "Start Class"}
+                              </button>
                             </div>
+                          ) : (
+                            <div className="flex items-center bg-red-50 p-1 px-3 rounded-md border border-red-200 gap-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                                <span className="text-red-700 text-xs font-bold">Class Live</span>
+                              </div>
+                              <button
+                                onClick={() => handleLiveClassToggle(batch.id, false)}
+                                disabled={startingClassFor === batch.id}
+                                className="bg-red-600 text-white text-xs px-3 py-1 rounded disabled:opacity-50"
+                              >
+                                {startingClassFor === batch.id ? "Ending..." : "End Class"}
+                              </button>
+                            </div>
+                          )}
+
+                          <div className="bg-blue-100 text-[#000080] text-xs px-4 py-1.5 rounded-full font-semibold">
+                            {batch.students.length} Enrolled Students
+                          </div>
                         </div>
                       </div>
                     </CardHeader>
@@ -324,11 +328,10 @@ const InstructorStudents = () => {
                                       <td className="px-6 py-4 text-right">
                                         <button
                                           onClick={() => toggleStudentAssignments(student.id)}
-                                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-                                            isExpanded 
-                                              ? "bg-[#000080] text-white" 
-                                              : "bg-[#000080]/5 text-[#000080] hover:bg-[#000080] hover:text-white"
-                                          }`}
+                                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${isExpanded
+                                            ? "bg-[#000080] text-white"
+                                            : "bg-[#000080]/5 text-[#000080] hover:bg-[#000080] hover:text-white"
+                                            }`}
                                         >
                                           <FileText className="w-3.5 h-3.5" />
                                           {isExpanded ? "Close Overview" : "Analyze Progress"}
@@ -342,7 +345,7 @@ const InstructorStudents = () => {
                                       <tr>
                                         <td colSpan={3} className="px-6 py-8 bg-slate-50/50 border-y border-slate-100 relative">
                                           <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-200 to-indigo-100 opacity-50" />
-                                          
+
                                           <div className="max-w-4xl mx-auto space-y-6">
                                             <div className="flex items-center justify-between">
                                               <h4 className="font-bold text-slate-800 text-lg flex items-center gap-2">
@@ -373,28 +376,26 @@ const InstructorStudents = () => {
                                                 {assignments.map((item, idx: number) => (
                                                   <Card key={idx} className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden bg-white border-l-4 border-l-indigo-100">
                                                     <div className="p-4 flex items-start gap-4">
-                                                      <div className={`mt-0.5 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                                                        item.status === 'Submitted' 
-                                                          ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                                                          : 'bg-amber-50 text-amber-600 border border-amber-100'
-                                                      }`}>
+                                                      <div className={`mt-0.5 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${item.status === 'Submitted'
+                                                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                                        : 'bg-amber-50 text-amber-600 border border-amber-100'
+                                                        }`}>
                                                         {item.status === 'Submitted' ? <CheckCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                                                       </div>
                                                       <div className="flex-1 min-w-0">
-                                                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.15em] mb-1 truncate">
-                                                            {item.course?.title || "No Course"} — {item.module?.title || "No Module"}
-                                                         </p>
+                                                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.15em] mb-1 truncate">
+                                                          {item.course?.title || "No Course"} — {item.module?.title || "No Module"}
+                                                        </p>
                                                         <h5 className="font-bold text-slate-800 text-sm truncate mb-3" title={item.assignment.assignment_title}>
                                                           {item.assignment.assignment_title || item.assignment.title}
                                                         </h5>
-                                                        
+
                                                         <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-                                                          <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                                                            item.status === 'Submitted' ? 'text-emerald-500' : 'text-amber-500'
-                                                          }`}>
+                                                          <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${item.status === 'Submitted' ? 'text-emerald-500' : 'text-amber-500'
+                                                            }`}>
                                                             {item.status}
                                                           </span>
-                                                          
+
                                                           {item.submitted_at ? (
                                                             <span className="text-[10px] text-slate-400 font-medium">
                                                               {new Date(item.submitted_at).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' })}
@@ -402,16 +403,17 @@ const InstructorStudents = () => {
                                                           ) : (
                                                             <span className="text-[10px] text-red-300 font-bold uppercase">Overdue</span>
                                                           )}
-                                                          
+
                                                           {item.submission_data?.file_upload && (
-                                                            <a 
-                                                              href={item.submission_data.file_upload} 
-                                                              target="_blank" 
-                                                              rel="noreferrer"
-                                                              className="text-[10px] text-blue-600 hover:text-blue-800 font-black flex items-center gap-1 bg-blue-50 px-2 py-1 rounded"
+                                                            <button
+                                                              onClick={() => {
+                                                                const viewId = item.submission_data?.submission_id || item.assignment.id;
+                                                                if (viewId) handleView(viewId, 'submission');
+                                                              }}
+                                                              className="text-[10px] text-blue-600 hover:text-blue-800 font-black flex items-center gap-1 bg-blue-50 px-2 py-1 rounded cursor-pointer"
                                                             >
                                                               <ExternalLink className="w-3 h-3" /> REVIEW
-                                                            </a>
+                                                            </button>
                                                           )}
                                                         </div>
                                                       </div>

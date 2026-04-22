@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet-async';
 import { CourseCarousel } from "@/components/CourseCarousel";
 import { DemoModal } from "@/components/DemoModal";
 import { coursesData } from "@/data/categoryCourses";
+import { blogService, BlogPost } from "@/services/blogService";
 
 const sapCategories = [
   { title: "SAP Technical & Development", hours: "Advanced coding, configuration, and technical architecture modules.", link: "/courses/sap-technical" },
@@ -73,6 +74,8 @@ const HERO_IMAGES = [
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [latestBlogs, setLatestBlogs] = useState<BlogPost[]>([]);
+  const [isLoadingBlogs, setIsLoadingBlogs] = useState(false);
 
   // Auto-advance carousel every 5 seconds
   useEffect(() => {
@@ -80,6 +83,21 @@ const Home = () => {
       setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
     }, 5000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchLatestBlogs = async () => {
+      try {
+        setIsLoadingBlogs(true);
+        const data = await blogService.getLatestBlogs();
+        setLatestBlogs(data.slice(0, 3)); // Display only 3 latest blogs
+      } catch (error) {
+        console.error("Failed to fetch latest blogs", error);
+      } finally {
+        setIsLoadingBlogs(false);
+      }
+    };
+    fetchLatestBlogs();
   }, []);
 
   const nextSlide = () => {
@@ -432,23 +450,40 @@ const Home = () => {
         <div className="w-full px-4 md:px-10 lg:px-20 mx-auto">
           <h2 className="text-3xl font-bold mb-10 text-center text-primary">Recent Articles</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { title: "SAS Certification Course in Canada (North America)", date: "2025-12-12", views: "725" },
-              { title: "Get Certified and Advance Your Career with SAS Data & AI Programs", date: "2025-10-06", views: "479" },
-              { title: "What is Data Analytics? Types and Benefits Explained", date: "2025-10-06", views: "920" }
-            ].map((article, i) => (
-              <div key={i} className="group cursor-pointer">
-                <div className="bg-gray-200 h-48 rounded-lg mb-4 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/0 transition-colors"></div>
-                  {/* Placeholder for blog image */}
-                  <div className="absolute bottom-2 right-2 bg-white/90 px-2 py-1 text-xs rounded shadow">
-                    {article.views} Views
-                  </div>
-                </div>
-                <p className="text-xs text-secondary font-bold mb-1">{article.date}</p>
-                <h3 className="font-bold text-lg leading-snug group-hover:text-primary transition-colors">{article.title}</h3>
+            {isLoadingBlogs ? (
+              <div className="col-span-3 text-center py-10">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
+                <p className="mt-4 text-gray-500">Loading recent articles...</p>
               </div>
-            ))}
+            ) : latestBlogs.length > 0 ? (
+              latestBlogs.map((blog, i) => (
+                <Link to={`/blogs/${blog.slug}`} key={blog.id || i} className="group cursor-pointer block">
+                  <div className="bg-gray-200 h-48 rounded-lg mb-4 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/0 transition-colors"></div>
+                    {blog.image_url ? (
+                      <img
+                        src={blog.image_url}
+                        alt={blog.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => { (e.target as any).src = "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=800&auto=format&fit=crop"; }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                        <Sparkles className="w-10 h-10 text-slate-300" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-secondary font-bold mb-1">
+                    {blog.created_at ? new Date(blog.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ""}
+                  </p>
+                  <h3 className="font-bold text-lg leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                    {blog.title}
+                  </h3>
+                </Link>
+              ))
+            ) : (
+              <p className="col-span-3 text-center text-gray-500 py-10">No recent articles found.</p>
+            )}
           </div>
         </div>
       </section>

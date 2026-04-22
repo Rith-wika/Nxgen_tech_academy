@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
-    LayoutDashboard,
     BookOpen,
     Users,
     User,
     Loader2,
-    ExternalLink,
     Plus,
     ChevronRight,
     PlayCircle,
     FileText
 } from "lucide-react";
+import { instructorSidebarItems } from "./instructorSidebarItems";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { instructorService } from "@/services/instructorService";
@@ -104,13 +103,7 @@ const InstructorCourses = () => {
         }
     };
 
-    const sidebarItems = [
-        { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
-        { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
-        { label: "Students",    icon: Users,           path: "/instructor/students" },
-        { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
-        { label: "Profile",     icon: User,            path: "/instructor/profile" },
-    ];
+    const sidebarItems = instructorSidebarItems;
 
     if (loading) {
         return (
@@ -142,7 +135,7 @@ const InstructorCourses = () => {
                             <h1 className="text-2xl font-bold text-gray-800">My Courses</h1>
                             <p className="text-gray-500">Manage modules, lessons and resources for your assigned courses</p>
                         </div>
-                
+
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -9,8 +9,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Search, Upload, Loader2 } from "lucide-react";
+import { Search, Upload, Loader2, Download, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { courseService } from "@/services/courseService";
 
 interface AssignmentApiItem {
   assignment: {
@@ -20,6 +21,8 @@ interface AssignmentApiItem {
     assignment_title: string;
     assignment_description: string;
     assignment_due_date?: string | null;
+    assignment_file?: string | null;
+    file?: string | null;
   };
   course: {
     id: number;
@@ -39,6 +42,7 @@ interface AssignmentItem {
   courseTitle: string;
   status: "Not Submitted" | "Submitted" | "Graded";
   submittedAt: string | null;
+  instructorFileUrl?: string | null;
 }
 
 const normalizeStatus = (value: string | undefined): AssignmentItem["status"] => {
@@ -80,6 +84,7 @@ const StudentAssignments = () => {
         courseTitle: item.course.title,
         status: normalizeStatus(item.status),
         submittedAt: item.submitted_at || null,
+        instructorFileUrl: item.assignment.file || item.assignment.assignment_file || null,
       }));
 
       setAssignments(mapped);
@@ -114,8 +119,12 @@ const StudentAssignments = () => {
   const handleSubmitAssignment = async () => {
     if (!selectedAssignment) return;
 
-    if (!answerText.trim() && !answerFile) {
-      toast.error("Please provide either a text answer or upload a file.");
+    if (!answerFile) {
+      toast.error("Please upload a file for your assignment.");
+      return;
+    }
+    if (!answerText.trim()) {
+      toast.error("Please provide a text answer.");
       return;
     }
 
@@ -140,6 +149,35 @@ const StudentAssignments = () => {
       toast.error("Failed to submit assignment.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDownload = async (id: number, filename: string, type: string = 'lesson') => {
+    try {
+      const signedUrl = await courseService.getFileAccessUrl(type, id);
+      const response = await fetch(signedUrl);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename || 'assignment-file';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed", error);
+      toast.error("Failed to download file.");
+    }
+  };
+
+  const handleView = async (id: number, type: string = 'lesson') => {
+    try {
+      const signedUrl = await courseService.getFileAccessUrl(type, id);
+      window.open(signedUrl, '_blank');
+    } catch (error) {
+      console.error("View failed", error);
+      toast.error("Failed to open file.");
     }
   };
 
@@ -217,6 +255,27 @@ const StudentAssignments = () => {
                     ) : null}
                   </p>
                   <p>Submitted: {item.submittedAt ? new Date(item.submittedAt).toLocaleString() : "Not yet"}</p>
+                  {item.instructorFileUrl && (
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm font-medium text-gray-700">Instructor material:</p>
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => handleView(item.lessonId)}
+                          className="flex items-center gap-1.5 text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span className="text-sm font-semibold underline">View</span>
+                        </button>
+                        <button
+                          onClick={() => handleDownload(item.lessonId, item.assignmentTitle + (item.instructorFileUrl?.split('.').pop() ? '.' + item.instructorFileUrl.split('.').pop() : ''))}
+                          className="flex items-center gap-1.5 text-green-600 hover:text-green-800 transition-colors cursor-pointer"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span className="text-sm font-semibold underline">Download</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Button
@@ -244,7 +303,16 @@ const StudentAssignments = () => {
 
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label>Text Answer</Label>
+              <Label>Upload File <span className="text-red-500">*</span></Label>
+              <Input
+                type="file"
+                onChange={(e) => setAnswerFile(e.target.files?.[0] || null)}
+              />
+              <p className="text-[10px] text-gray-500">Max size: 10MB. Allowed: .pdf, .docx, .png, .jpg, .jpeg</p>
+              {answerFile ? <p className="text-xs text-gray-500">Selected: {answerFile.name}</p> : null}
+            </div>
+            <div className="space-y-2">
+              <Label>Text Answer <span className="text-red-500">*</span></Label>
               <Textarea
                 rows={6}
                 value={answerText}
@@ -252,19 +320,11 @@ const StudentAssignments = () => {
                 placeholder="Write your assignment answer"
               />
             </div>
-            <div className="space-y-2">
-              <Label>Upload File (Optional)</Label>
-              <Input
-                type="file"
-                onChange={(e) => setAnswerFile(e.target.files?.[0] || null)}
-              />
-              {answerFile ? <p className="text-xs text-gray-500">Selected: {answerFile.name}</p> : null}
-            </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsSubmitOpen(false)} disabled={submitting}>Cancel</Button>
-            <Button onClick={handleSubmitAssignment} disabled={submitting} className="bg-[#000080] hover:bg-[#000060] text-white">
+            <Button onClick={handleSubmitAssignment} disabled={submitting || !answerFile || !answerText.trim()} className="bg-[#000080] hover:bg-[#000060] text-white">
               {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Submit
             </Button>

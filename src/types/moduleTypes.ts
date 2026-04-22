@@ -31,6 +31,7 @@ export interface Assignment {
   title: string;
   description: string;
   dueDate?: string;
+  fileUrl?: string;
 }
 
 export interface SectionType {
@@ -96,6 +97,7 @@ export interface UpsertAssignmentPayload {
   title: string;
   description: string;
   dueDate?: string;
+  file?: File | null;
 }
 
 export interface CreateLessonFilePayload {

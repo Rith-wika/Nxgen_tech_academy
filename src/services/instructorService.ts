@@ -44,12 +44,13 @@ export const instructorService = {
             // Use FormData for file uploads
             const formData = new FormData();
             Object.keys(data).forEach(key => {
-                if (key === 'assigned_courses' && Array.isArray(data[key])) {
-                    data[key].forEach((id: number) => formData.append('assigned_courses', id.toString()));
-                } else if (key === 'documents' && data[key]) {
-                    formData.append('documents', data[key]);
-                } else {
-                    formData.append(key, data[key]);
+                const value = data[key];
+                if (key === 'assigned_courses' && Array.isArray(value)) {
+                    value.forEach((id) => formData.append('assigned_courses', String(id)));
+                } else if (value instanceof File || value instanceof Blob) {
+                    formData.append(key, value);
+                } else if (value !== null && value !== undefined) {
+                    formData.append(key, String(value));
                 }
             });
 
@@ -93,10 +94,11 @@ export const instructorService = {
         try {
             const formData = new FormData();
             Object.keys(data).forEach(key => {
-                if (key === 'documents' && data[key] instanceof File) {
-                    formData.append('documents', data[key]);
-                } else {
-                    formData.append(key, data[key]);
+                const value = data[key];
+                if (value instanceof File || value instanceof Blob) {
+                    formData.append(key, value);
+                } else if (value !== null && value !== undefined) {
+                    formData.append(key, String(value));
                 }
             });
             const res = await axiosInstance.put('/api/instructors/profile/', formData, getHeaders());

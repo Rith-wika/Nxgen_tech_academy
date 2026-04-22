@@ -188,11 +188,11 @@ const normalizeLesson = (raw: any): Lesson => {
     links,
     assignment: raw.assignment_title
       ? {
-          id: raw.id,
-          title: raw.assignment_title || "",
-          description: raw.assignment_description || "",
-          dueDate: raw.assignment_due_date || "",
-        }
+        id: raw.id,
+        title: raw.assignment_title || "",
+        description: raw.assignment_description || "",
+        dueDate: raw.assignment_due_date || "",
+      }
       : null,
   };
 };
@@ -552,11 +552,11 @@ export const moduleService = {
             if (data.resourceLink !== undefined) formData.append("resource_link", data.resourceLink);
             if (data.order !== undefined) formData.append("order", String(data.order));
             formData.append("file", data.file);
-            
+
             if (data.assignmentTitle !== undefined) formData.append("assignment_title", data.assignmentTitle);
             if (data.assignmentDescription !== undefined) formData.append("assignment_description", data.assignmentDescription);
             if (data.assignmentDueDate !== undefined) formData.append("assignment_due_date", data.assignmentDueDate);
-            
+
             return (
               await axiosInstance.patch(`/api/courses/modules/${data.moduleId}/lessons/${lessonId}/`, formData)
             ).data;
@@ -646,12 +646,19 @@ export const moduleService = {
   upsertLessonAssignment: async (payload: UpsertAssignmentPayload): Promise<Assignment> => {
     const formattedDueDate = payload.dueDate ? new Date(payload.dueDate).toISOString() : null;
 
+    const formData = new FormData();
+    formData.append("assignment_title", payload.title);
+    formData.append("assignment_description", payload.description);
+    if (formattedDueDate) formData.append("assignment_due_date", formattedDueDate);
+    if (payload.file) formData.append("file", payload.file);
+
     const data = await axiosInstance.post(
       `/api/courses/modules/${payload.moduleId}/lessons/${payload.lessonId}/assignment/`,
+      formData,
       {
-        assignment_title: payload.title,
-        assignment_description: payload.description,
-        assignment_due_date: formattedDueDate,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       }
     );
 
@@ -662,6 +669,16 @@ export const moduleService = {
       title: raw.assignment_title ?? payload.title,
       description: raw.assignment_description ?? payload.description,
       dueDate: raw.assignment_due_date ?? payload.dueDate,
+      fileUrl: raw.file || raw.assignment_file || null,
     };
+  },
+
+  deleteLessonAssignment: async (moduleId: EntityId, lessonId: EntityId): Promise<void> => {
+    try {
+      await axiosInstance.delete(`/api/courses/modules/${moduleId}/lessons/${lessonId}/assignment/`);
+    } catch (error) {
+      console.error("Error deleting assignment:", error);
+      throw error;
+    }
   },
 };

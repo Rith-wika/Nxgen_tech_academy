@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { LayoutDashboard, BookOpen, Upload, Users, User, FileText, Loader2 } from "lucide-react";
+import { LayoutDashboard, BookOpen, Upload, Users, User, FileText, Loader2, Lock } from "lucide-react";
+import { instructorSidebarItems } from "./instructorSidebarItems";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -26,13 +27,7 @@ const InstructorDashboard = () => {
     const [batches, setBatches] = useState<Batch[]>([]);
     const [assignments, setAssignments] = useState<AssignmentEntry[]>([]);
 
-    const sidebarItems = [
-        { label: "Dashboard",   icon: LayoutDashboard, path: "/instructor/dashboard" },
-        { label: "Courses",     icon: BookOpen,        path: "/instructor/courses" },
-        { label: "Students",    icon: Users,           path: "/instructor/students" },
-        { label: "Assignments", icon: FileText,        path: "/instructor/assignments" },
-        { label: "Profile",     icon: User,            path: "/instructor/profile" },
-    ];
+    const sidebarItems = instructorSidebarItems;
 
     useEffect(() => {
         const loadDashboard = async () => {

@@ -8,7 +8,7 @@ export const courseService = {
             console.log("Attempting to fetch courses from API...");
             const res = await axiosInstance.get('/api/courses/courses');
             console.log("API courses response:", res.data);
-            
+
             // Normalize response - handle both array and paginated format
             const data = Array.isArray(res.data) ? res.data : (res.data.results || []);
             const normalizedCourses = data.map((course: any) => ({
@@ -20,12 +20,12 @@ export const courseService = {
                 category: course.category,
                 instructor: course.instructor,
             }));
-            
+
             if (!Array.isArray(normalizedCourses) || normalizedCourses.length === 0) {
                 console.warn("API returned empty or invalid data, falling back to mock data");
                 return courses;
             }
-            
+
             return normalizedCourses;
         } catch (error: any) {
             console.error("Error fetching courses from API:", {
@@ -35,10 +35,22 @@ export const courseService = {
                 url: error?.config?.url,
                 errorData: error?.response?.data
             });
-            
+
             // Fallback to mock data on any error
             console.warn("Using fallback mock course data");
             return courses;
+        }
+    },
+    // Get secure temporary access URL for files
+    getFileAccessUrl: async (type: string, id: number | string) => {
+        try {
+            const res = await axiosInstance.get('/api/courses/files/access/', {
+                params: { type, id }
+            });
+            return res.data.signed_url;
+        } catch (error) {
+            console.error("Error fetching file access URL", error);
+            throw error;
         }
     }
 };
