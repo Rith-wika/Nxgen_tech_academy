@@ -260,14 +260,14 @@ const StudentAssignments = () => {
                       <p className="text-sm font-medium text-gray-700">Instructor material:</p>
                       <div className="flex items-center gap-4">
                         <button
-                          onClick={() => handleView(item.lessonId)}
+                          onClick={() => handleView(item.lessonId, 'assignment')}
                           className="flex items-center gap-1.5 text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
                         >
                           <Eye className="w-4 h-4" />
                           <span className="text-sm font-semibold underline">View</span>
                         </button>
                         <button
-                          onClick={() => handleDownload(item.lessonId, item.assignmentTitle + (item.instructorFileUrl?.split('.').pop() ? '.' + item.instructorFileUrl.split('.').pop() : ''))}
+                          onClick={() => handleDownload(item.lessonId, item.assignmentTitle + (item.instructorFileUrl?.split('.').pop() ? '.' + item.instructorFileUrl.split('.').pop() : ''), 'assignment')}
                           className="flex items-center gap-1.5 text-green-600 hover:text-green-800 transition-colors cursor-pointer"
                         >
                           <Download className="w-4 h-4" />

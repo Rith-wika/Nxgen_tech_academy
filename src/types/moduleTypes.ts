@@ -93,8 +93,7 @@ export interface UpdateLessonPayload {
 
 export interface UpsertAssignmentPayload {
   moduleId: EntityId;
-  lessonId: EntityId;
-  title: string;
+  lessonId: EntityId;  batch?: number;  title: string;
   description: string;
   dueDate?: string;
   file?: File | null;

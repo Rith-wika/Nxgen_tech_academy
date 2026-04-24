@@ -649,6 +649,7 @@ export const moduleService = {
     const formData = new FormData();
     formData.append("assignment_title", payload.title);
     formData.append("assignment_description", payload.description);
+    if (payload.batch) formData.append("batch", payload.batch.toString());
     if (formattedDueDate) formData.append("assignment_due_date", formattedDueDate);
     if (payload.file) formData.append("file", payload.file);
 

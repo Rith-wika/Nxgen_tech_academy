@@ -30,6 +30,7 @@ import axiosInstance from "@/api/axiosInstance";
 import { moduleService } from "@/services/moduleService";
 import { instructorService } from "@/services/instructorService";
 import { courseService } from "@/services/courseService";
+import { batchService, Batch } from "@/services/batchService";
 
 type AssignmentStatus = "Draft" | "Active" | "Closed";
 
@@ -40,6 +41,7 @@ interface AssignmentItem {
   courseId: number;
   courseTitle: string;
   lessonTitle: string;
+  batch?: number;
   assignmentTitle: string;
   assignmentDescription: string;
   assignmentDueDate: string | null;
@@ -69,6 +71,7 @@ interface AssignmentApiItem {
     assignment_description?: string;
     assignment_due_date?: string | null;
     file?: string | null;
+    batch?: number;
   };
   course: {
     id: number;
@@ -106,6 +109,7 @@ type FormState = {
   courseId: string;
   moduleId: string;
   lessonId: string;
+  batchId: string;
   title: string;
   description: string;
   dueDate: string;
@@ -117,6 +121,7 @@ const initialFormState: FormState = {
   courseId: "",
   moduleId: "",
   lessonId: "",
+  batchId: "",
   title: "",
   description: "",
   dueDate: "",
@@ -145,7 +150,6 @@ const toDatetimeLocal = (iso?: string | null) => {
 const InstructorAssignments = () => {
   const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
   const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
-  const [courses, setCourses] = useState<Array<{ id: number; title: string }>>([]);
   const [modules, setModules] = useState<Array<{ id: number; title: string }>>([]);
   const [lessons, setLessons] = useState<Array<{ id: number; title: string }>>([]);
   const [loading, setLoading] = useState(false);
@@ -165,6 +169,7 @@ const InstructorAssignments = () => {
   // Selected State
   const [selectedAssignment, setSelectedAssignment] = useState<AssignmentItem | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionItem | null>(null);
+  const [batches, setBatches] = useState<Batch[]>([]);
   const [formData, setFormData] = useState(initialFormState);
   const [gradeData, setGradeData] = useState({ score: "", feedback: "" });
 
@@ -179,6 +184,7 @@ const InstructorAssignments = () => {
         courseId: item.course.id,
         courseTitle: item.course.title,
         lessonTitle: item.lesson.title,
+        batch: item.assignment?.batch || undefined,
         assignmentTitle: item.assignment?.assignment_title || item.lesson.title,
         assignmentDescription: item.assignment?.assignment_description || "",
         assignmentDueDate: item.assignment?.assignment_due_date || null,
@@ -197,11 +203,13 @@ const InstructorAssignments = () => {
     const boot = async () => {
       try {
         setInitialLoading(true);
-        const [courseData] = await Promise.all([
-          instructorService.getMyCourses(),
+        const [batchesData] = await Promise.all([
+          batchService.getInstructorBatches(),
           fetchAssignments(),
         ]);
-        setCourses(Array.isArray(courseData) ? courseData : []);
+        setBatches(Array.isArray(batchesData) ? batchesData : []);
+      } catch (err) {
+        console.error("Failed to boot instructor assignments", err);
       } finally {
         setInitialLoading(false);
       }
@@ -209,6 +217,17 @@ const InstructorAssignments = () => {
 
     boot();
   }, []);
+
+  const courses = useMemo(() => {
+    const map = new Map<number, string>();
+    batches.forEach((b) => map.set(b.course_id, b.course_title));
+    return Array.from(map.entries()).map(([id, title]) => ({ id, title }));
+  }, [batches]);
+
+  const filteredBatchesForForm = useMemo(() => {
+    if (!formData.courseId) return [];
+    return batches.filter((b) => String(b.course_id) === formData.courseId);
+  }, [batches, formData.courseId]);
 
   useEffect(() => {
     const loadModules = async () => {
@@ -257,7 +276,7 @@ const InstructorAssignments = () => {
   // HANDLERS
   // ========================
 
-  const handleOpenForm = (assignment?: AssignmentItem) => {
+  const handleOpenForm = (assignment?: AssignmentItem & { batch?: number }) => {
     if (assignment) {
       setFormData({
         title: assignment.assignmentTitle,
@@ -265,6 +284,7 @@ const InstructorAssignments = () => {
         courseId: String(assignment.courseId),
         moduleId: String(assignment.moduleId),
         lessonId: String(assignment.lessonId),
+        batchId: assignment.batch ? String(assignment.batch) : "",
         dueDate: toDatetimeLocal(assignment.assignmentDueDate),
         file: null,
       });
@@ -277,8 +297,8 @@ const InstructorAssignments = () => {
   };
 
   const handleSaveAssignment = async () => {
-    if (!formData.courseId || !formData.moduleId || !formData.lessonId || !formData.title || !formData.description || !formData.dueDate) {
-      toast.error("Please fill in all required fields.");
+    if (!formData.courseId || !formData.moduleId || !formData.lessonId || !formData.batchId || !formData.title || !formData.description || !formData.dueDate) {
+      toast.error("Please fill in all required fields (including batch).");
       return;
     }
     if (new Date(formData.dueDate) < new Date()) {
@@ -291,6 +311,7 @@ const InstructorAssignments = () => {
       await moduleService.upsertLessonAssignment({
         moduleId: Number(formData.moduleId),
         lessonId: Number(formData.lessonId),
+        batch: Number(formData.batchId),
         title: formData.title,
         description: formData.description,
         dueDate: formData.dueDate,
@@ -600,7 +621,7 @@ const InstructorAssignments = () => {
             </div>
             <div className="space-y-2">
               <Label>Course <span className="text-red-500">*</span></Label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.courseId} onChange={e => setFormData({ ...formData, courseId: e.target.value, moduleId: "", lessonId: "" })}>
+              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.courseId} onChange={e => setFormData({ ...formData, courseId: e.target.value, moduleId: "", lessonId: "", batchId: "" })}>
                 <option value="" disabled>Select Course</option>
                 {courses.map((c) => <option key={c.id} value={String(c.id)}>{c.title}</option>)}
               </select>
@@ -620,6 +641,13 @@ const InstructorAssignments = () => {
               </select>
             </div>
             <div className="space-y-2">
+              <Label>Batch <span className="text-red-500">*</span></Label>
+              <select className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors" value={formData.batchId} onChange={e => setFormData({ ...formData, batchId: e.target.value })}>
+                <option value="" disabled>Select Batch</option>
+                {filteredBatchesForForm.map((b) => <option key={b.id} value={String(b.id)}>{b.name}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
               <Label>Due Date & Time <span className="text-red-500">*</span></Label>
               <Input type="datetime-local" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} />
             </div>
@@ -634,7 +662,7 @@ const InstructorAssignments = () => {
           </div>
           <DialogFooter className="gap-2 sm:gap-0 mt-4">
             <Button variant="outline" onClick={() => setIsFormOpen(false)} disabled={loading}>Cancel</Button>
-            <Button onClick={handleSaveAssignment} disabled={loading || !formData.title || !formData.courseId || !formData.moduleId || !formData.lessonId || !formData.dueDate || (!selectedAssignment && !formData.file)} className="bg-[#000080] hover:bg-[#000060] text-white">
+            <Button onClick={handleSaveAssignment} disabled={loading || !formData.title || !formData.courseId || !formData.moduleId || !formData.lessonId || !formData.batchId || !formData.dueDate || (!selectedAssignment && !formData.file)} className="bg-[#000080] hover:bg-[#000060] text-white">
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Save Assignment
             </Button>
           </DialogFooter>
@@ -673,7 +701,7 @@ const InstructorAssignments = () => {
                           size="sm"
                           variant="outline"
                           className="h-8 text-blue-600 border-blue-200 hover:bg-blue-50"
-                          onClick={() => handleView(selectedAssignment.lessonId)}
+                          onClick={() => handleView(selectedAssignment.lessonId, 'assignment')}
                         >
                           <Eye className="w-3.5 h-3.5 mr-1.5" /> View
                         </Button>
@@ -681,7 +709,7 @@ const InstructorAssignments = () => {
                           size="sm"
                           variant="outline"
                           className="h-8 text-green-600 border-green-200 hover:bg-green-50"
-                          onClick={() => handleDownload(selectedAssignment.lessonId, selectedAssignment.assignmentTitle)}
+                          onClick={() => handleDownload(selectedAssignment.lessonId, selectedAssignment.assignmentTitle, 'assignment')}
                         >
                           <Download className="w-3.5 h-3.5 mr-1.5" /> Download
                         </Button>
