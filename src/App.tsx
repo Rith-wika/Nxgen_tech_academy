@@ -43,6 +43,7 @@ import InstructorStudents from "./pages/Instructor/InstructorStudents";
 import InstructorAssignments from "./pages/Instructor/InstructorAssignments";
 import AdminBatches from "./pages/Admin/AdminBatches";
 import AdminCourses from "./pages/Admin/AdminCourses";
+import AdminAssignments from "./pages/Admin/AdminAssignments";
 import InstructorTopics from "./pages/Instructor/InstructorTopics";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import StudentCourses from "./pages/Student/StudentCourses";
@@ -154,6 +155,7 @@ const AppContent = () => {
                 <Route path="instructors/add" element={<AddInstructor />} />
                 <Route path="courses" element={<AdminCourses />} />
                 <Route path="batches" element={<AdminBatches />} />
+                <Route path="assignments" element={<AdminAssignments />} />
               </Routes>
             </ProtectedRoute>
           } />

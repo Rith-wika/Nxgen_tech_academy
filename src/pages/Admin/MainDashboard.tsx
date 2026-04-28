@@ -10,7 +10,7 @@ import {
     Activity,
     UsersRound,
     UserCheck,
-} from "lucide-react";
+    FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
 import axiosInstance from "@/api/axiosInstance";
@@ -58,6 +58,7 @@ const MainDashboard = () => {
         { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
         { label: "Courses", icon: BookOpen, path: "/admin/courses" },
         { label: "Batches", icon: UsersRound, path: "/admin/batches" },
+  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
         // { label: "Settings", icon: Settings, path: "/admin/settings" },
     ];
 

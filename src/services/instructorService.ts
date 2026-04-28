@@ -133,5 +133,16 @@ export const instructorService = {
             console.error("Error fetching instructor courses", error);
             throw error;
         }
+    },
+
+    // Admin/Instructor: Get assignments with filtration
+    getInstructorAssignments: async (params: { instructor_id?: string; course_id?: string; batch_id?: string; status?: string }) => {
+        try {
+            const res = await axiosInstance.get('/api/courses/instructor-assignments/', { params });
+            return res.data;
+        } catch (error) {
+            console.error("Error fetching instructor assignments", error);
+            throw error;
+        }
     }
 };

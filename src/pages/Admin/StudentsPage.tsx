@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   LayoutDashboard, Users, UserCheck, Plus, Search,
-  CheckCircle, XCircle, Loader2, UsersRound, ChevronDown, ChevronUp, BookOpen,
-} from "lucide-react";
+  CheckCircle, XCircle, Loader2, UsersRound, ChevronDown, ChevronUp, BookOpen, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +21,7 @@ const sidebarItems = [
   { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
   { label: "Courses", icon: BookOpen, path: "/admin/courses" },
   { label: "Batches", icon: UsersRound, path: "/admin/batches" },
+  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
   // { label: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 
@@ -155,8 +155,8 @@ const StudentsPage = () => {
             key={s}
             onClick={() => setFilterStatus(s)}
             className={`px-4 py-1.5 rounded-full text-sm font-semibold capitalize transition-colors ${filterStatus === s
-                ? "bg-[#000080] text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              ? "bg-[#000080] text-white"
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
           >
             {s} ({counts[s]})

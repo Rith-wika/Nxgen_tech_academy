@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
-import { LayoutDashboard, Users, UserCheck, Plus, Search, Edit2, Loader2, UsersRound, X, Save, BookOpen } from "lucide-react";
+import { LayoutDashboard, Users, UserCheck, Plus, Search, Edit2, Loader2, UsersRound, X, Save, BookOpen , FileText } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ const sidebarItems = [
   { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
   { label: "Courses", icon: BookOpen, path: "/admin/courses" },
   { label: "Batches", icon: UsersRound, path: "/admin/batches" },
+  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
   // { label: "Settings", icon: Settings, path: "/admin/settings" },
 ];
 

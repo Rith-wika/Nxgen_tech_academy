@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { instructorService } from "@/services/instructorService";
 import { courseService } from "@/services/courseService";
-import { Loader2, Upload, X, ArrowLeft, LayoutDashboard, Users, UserCheck, Check, ChevronsUpDown, UsersRound, BookOpen } from "lucide-react";
+import { Loader2, Upload, X, ArrowLeft, LayoutDashboard, Users, UserCheck, Check, ChevronsUpDown, UsersRound, BookOpen , FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -26,6 +26,7 @@ const sidebarItems = [
     { label: "Instructors", icon: UserCheck,       path: "/admin/instructors" },
     { label: "Courses",     icon: BookOpen,        path: "/admin/courses" },
     { label: "Batches",     icon: UsersRound,      path: "/admin/batches" },
+  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
     // { label: "Settings",    icon: Settings,        path: "/admin/settings" },
 ];
 
