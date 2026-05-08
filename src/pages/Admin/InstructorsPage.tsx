@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
-import { LayoutDashboard, Users, UserCheck, Plus, Search, Edit2, Loader2, UsersRound, X, Save, BookOpen , FileText } from "lucide-react";
+import { LayoutDashboard, Users, UserCheck, Plus, Search, Edit2, Loader2, UsersRound, X, Save, BookOpen , FileText, Target } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,16 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { instructorService } from "@/services/instructorService";
 import axiosInstance from "@/api/axiosInstance";
 import { toast } from "sonner";
-
-const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-  { label: "Students", icon: Users, path: "/admin/students" },
-  { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
-  { label: "Courses", icon: BookOpen, path: "/admin/courses" },
-  { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
-  // { label: "Settings", icon: Settings, path: "/admin/settings" },
-];
+import { adminSidebarItems } from "./adminSidebarItems";
 
 interface EditForm {
   full_name: string;
@@ -136,7 +127,7 @@ const InstructorsPage = () => {
   );
 
   return (
-    <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
+    <DashboardLayout role="admin" sidebarItems={adminSidebarItems} title="NxGen Admin">
       {/* Header */}
       <div className="rounded-2xl mb-6 p-6 bg-gradient-to-r from-[#0f172a] via-[#1d2a7a] to-[#0b5fa6] text-white shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

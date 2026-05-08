@@ -4,23 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LayoutDashboard, Users, UserCheck, Plus, UsersRound, BookOpen, FileText } from "lucide-react";
+import { LayoutDashboard, Users, UserCheck, Plus, UsersRound, BookOpen, FileText, Target } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { batchService } from "@/services/batchService";
 import { courseService } from "@/services/courseService";
-import { instructorService } from "@/services/instructorService";
 import { enrollmentService } from "@/services/enrollmentService";
-
-const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-  { label: "Students", icon: Users, path: "/admin/students" },
-  { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
-  { label: "Courses", icon: BookOpen, path: "/admin/courses" },
-  { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
-  // { label: "Settings", icon: Settings, path: "/admin/settings" },
-];
+import { instructorService } from "@/services/instructorService";
+import { adminSidebarItems } from "./adminSidebarItems";
 
 const AdminBatches = () => {
   const [batches, setBatches] = useState<any[]>([]);
@@ -219,7 +210,7 @@ const AdminBatches = () => {
   }, [enrollments, selectedBatch, studentSearch]);
 
   return (
-    <DashboardLayout role="admin" sidebarItems={sidebarItems} title="Manage Batches">
+    <DashboardLayout role="admin" sidebarItems={adminSidebarItems} title="Manage Batches">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Batch Management</h1>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>

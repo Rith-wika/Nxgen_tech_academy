@@ -10,11 +10,13 @@ import {
     Activity,
     UsersRound,
     UserCheck,
-    FileText } from "lucide-react";
+    FileText,
+    Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
 import axiosInstance from "@/api/axiosInstance";
 import { toast } from "sonner";
+import { adminSidebarItems } from "./adminSidebarItems";
 
 const MainDashboard = () => {
     const [enrollments, setEnrollments] = useState<EnrollmentData[]>([]);
@@ -52,16 +54,6 @@ const MainDashboard = () => {
         fetchStats();
     }, []);
 
-    const sidebarItems = [
-        { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-        { label: "Students", icon: Users, path: "/admin/students" },
-        { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
-        { label: "Courses", icon: BookOpen, path: "/admin/courses" },
-        { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
-        // { label: "Settings", icon: Settings, path: "/admin/settings" },
-    ];
-
     const stats = [
         { title: "Student Enrollments", value: loading ? "..." : enrollments.length.toLocaleString(), change: "+100%", icon: Users, color: "text-blue-600" },
         { title: "Total Instructors", value: statsLoading ? "..." : instructorCount.toLocaleString(), change: "+4%", icon: Users, color: "text-green-600" },
@@ -72,7 +64,7 @@ const MainDashboard = () => {
     const recentEnrollments = enrollments.slice(0, 5);
 
     return (
-        <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
+        <DashboardLayout role="admin" sidebarItems={adminSidebarItems} title="NxGen Admin">
             <h1 className="text-2xl font-bold text-gray-800 mb-6">Admin Overview</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

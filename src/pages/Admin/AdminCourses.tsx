@@ -3,7 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import {
   LayoutDashboard, Users, UserCheck, Plus, Search,
   Edit2, Trash2, BookOpen, UsersRound, Loader2, X, Save, ChevronDown, ChevronUp,
- FileText } from "lucide-react";
+ FileText, Target } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,17 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import axiosInstance from "@/api/axiosInstance";
 import { toast } from "sonner";
+import { adminSidebarItems } from "./adminSidebarItems";
 
-const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-  { label: "Students", icon: Users, path: "/admin/students" },
-  { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
-  { label: "Courses", icon: BookOpen, path: "/admin/courses" },
-  { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
-  // { label: "Settings", icon: Settings, path: "/admin/settings" },
-];
-       
 interface Category { id: number; name: string; slug: string; is_active: boolean; }
 interface Course { id: number; title: string; description: string; price: string; is_active: boolean; category: number; }
 
@@ -150,7 +141,7 @@ const AdminCourses = () => {
   const filteredCats = categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
+    <DashboardLayout role="admin" sidebarItems={adminSidebarItems} title="NxGen Admin">
       {/* Header */}
       <div className="rounded-2xl mb-6 p-6 bg-gradient-to-r from-[#0f172a] via-[#1d2a7a] to-[#0b5fa6] text-white shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

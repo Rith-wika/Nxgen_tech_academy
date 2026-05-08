@@ -13,22 +13,13 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { instructorService } from "@/services/instructorService";
 import { courseService } from "@/services/courseService";
-import { Loader2, Upload, X, ArrowLeft, LayoutDashboard, Users, UserCheck, Check, ChevronsUpDown, UsersRound, BookOpen , FileText } from "lucide-react";
+import { adminSidebarItems } from "./adminSidebarItems";
+import { Loader2, Upload, X, ArrowLeft, LayoutDashboard, Users, UserCheck, Check, ChevronsUpDown, UsersRound, BookOpen , FileText, Target } from "lucide-react";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
-const sidebarItems = [
-    { label: "Dashboard",   icon: LayoutDashboard, path: "/admin/dashboard" },
-    { label: "Students",    icon: Users,           path: "/admin/students" },
-    { label: "Instructors", icon: UserCheck,       path: "/admin/instructors" },
-    { label: "Courses",     icon: BookOpen,        path: "/admin/courses" },
-    { label: "Batches",     icon: UsersRound,      path: "/admin/batches" },
-  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
-    // { label: "Settings",    icon: Settings,        path: "/admin/settings" },
-];
 
 const instructorSchema = z.object({
     full_name: z.string().min(2, "Name is required"),
@@ -122,7 +113,7 @@ const AddInstructor = () => {
     };
 
     return (
-        <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
+        <DashboardLayout role="admin" sidebarItems={adminSidebarItems} title="NxGen Admin">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

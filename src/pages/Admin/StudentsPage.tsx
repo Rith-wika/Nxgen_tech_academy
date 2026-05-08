@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   LayoutDashboard, Users, UserCheck, Plus, Search,
-  CheckCircle, XCircle, Loader2, UsersRound, ChevronDown, ChevronUp, BookOpen, FileText } from "lucide-react";
+  CheckCircle, XCircle, Loader2, UsersRound, ChevronDown, ChevronUp, BookOpen, FileText, Target } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,18 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
 import axiosInstance from "@/api/axiosInstance";
-import { toast } from "sonner";
 import EnrollmentForm from "@/components/EnrollmentForm";
-
-const sidebarItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-  { label: "Students", icon: Users, path: "/admin/students" },
-  { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
-  { label: "Courses", icon: BookOpen, path: "/admin/courses" },
-  { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-  { label: "Assignments", icon: FileText, path: "/admin/assignments" },
-  // { label: "Settings", icon: Settings, path: "/admin/settings" },
-];
+import { adminSidebarItems } from "./adminSidebarItems";
+import { toast } from "sonner";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -124,7 +115,7 @@ const StudentsPage = () => {
   };
 
   return (
-    <DashboardLayout role="admin" sidebarItems={sidebarItems} title="NxGen Admin">
+    <DashboardLayout role="admin" sidebarItems={adminSidebarItems} title="NxGen Admin">
       {/* Header */}
       <div className="rounded-2xl mb-6 p-6 bg-gradient-to-r from-[#0f172a] via-[#1d2a7a] to-[#0b5fa6] text-white shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

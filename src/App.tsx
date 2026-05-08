@@ -44,6 +44,7 @@ import InstructorAssignments from "./pages/Instructor/InstructorAssignments";
 import AdminBatches from "./pages/Admin/AdminBatches";
 import AdminCourses from "./pages/Admin/AdminCourses";
 import AdminAssignments from "./pages/Admin/AdminAssignments";
+import Preface from "./pages/Admin/Preface";
 import InstructorTopics from "./pages/Instructor/InstructorTopics";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import StudentCourses from "./pages/Student/StudentCourses";
@@ -149,6 +150,7 @@ const AppContent = () => {
             <ProtectedRoute allowedRoles={["admin"]}>
               <Routes>
                 <Route path="/" element={<MainDashboard />} />
+                <Route path="preface" element={<Preface />} />
                 <Route path="dashboard" element={<MainDashboard />} />
                 <Route path="students" element={<StudentsPage />} />
                 <Route path="instructors" element={<InstructorsPage />} />
