@@ -158,6 +158,14 @@ const Preface = () => {
     const [selectedDemo, setSelectedDemo] = useState<any>(null);
     const [reschedulingParticipants, setReschedulingParticipants] = useState<any[]>([]);
 
+    const campaignDemos = selectedCampaign
+        ? demos.filter(d =>
+            d.campaign === selectedCampaign.name ||
+            d.campaign === selectedCampaign.id ||
+            d.campaign === String(selectedCampaign.id)
+        )
+        : demos;
+
     // Dialog open states
     const [campaignOpen, setCampaignOpen] = useState(false);
     const [leadOpen, setLeadOpen] = useState(false);
@@ -936,7 +944,7 @@ const Preface = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y">
-                                                {demos.map(d => (
+                                                {campaignDemos.map(d => (
                                                     <tr key={d.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => handleViewDemo(d)}>
                                                         <td className="px-4 py-3 font-semibold">{d.campaign}</td>
                                                         <td className="px-4 py-3">{d.instructor}</td>
