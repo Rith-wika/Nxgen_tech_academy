@@ -408,6 +408,7 @@ const Preface = () => {
         const demoToReschedule = demos.find(d => d.id === demoId);
         if (!demoToReschedule) return;
 
+        setSelectedDemo(demoToReschedule);
         setReschedulingParticipants(absentParticipants);
         setNewDemo({
             instructor: demoToReschedule.instructor,
