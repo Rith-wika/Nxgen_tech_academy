@@ -23,6 +23,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { adminSidebarItems } from "./adminSidebarItems";
 import { campaignService, Campaign } from "@/services/campaignService";
 import { leadService } from "@/services/leadService";
+import { courseService } from "@/services/courseService";
+import { enrollService, LeadEnrollmentData } from "@/services/enrollService";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { Search } from "lucide-react";
@@ -65,6 +67,18 @@ const Preface = () => {
 
     const [leads, setLeads] = useState<any[]>([]);
     const [leadStatuses, setLeadStatuses] = useState<any[]>([]);
+    const [courses, setCourses] = useState<any[]>([]);
+    const [enrollments, setEnrollments] = useState<any[]>([]);
+    const [enrollLoading, setEnrollLoading] = useState(false);
+    const [editingEnrollment, setEditingEnrollment] = useState<any>(null);
+    const [enrollForm, setEnrollForm] = useState<LeadEnrollmentData>({
+        lead: "",
+        course: "",
+        enrollment_date: "",
+        fee_status: "Pending",
+        status: "pending",
+        notes: "",
+    });
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -74,11 +88,20 @@ const Preface = () => {
         fetchLeadStatuses();
         fetchInstructors();
         fetchDemos();
+        fetchCourses();
     }, []);
+
+    useEffect(() => {
+        if (selectedCampaign) {
+            fetchEnrollments(selectedCampaign.id);
+        } else {
+            setEnrollments([]);
+        }
+    }, [selectedCampaign]);
 
     const fetchDemos = async () => {
         try {
-            const data = await demoService.getAllDemos();
+            const data: any = await demoService.getAllDemos();
             const rawDemos = Array.isArray(data) ? data : (data.results || []);
             const mappedDemos = rawDemos.map((d: any) => {
                 if (d.scheduled_at) {
@@ -101,10 +124,33 @@ const Preface = () => {
 
     const fetchInstructors = async () => {
         try {
-            const data = await instructorService.getAllInstructors();
+            const data: any = await instructorService.getAllInstructors();
             setInstructors(Array.isArray(data) ? data : (data.results || []));
         } catch (error) {
             console.error("Failed to load instructors", error);
+        }
+    };
+
+    const fetchCourses = async () => {
+        try {
+            const data: any = await courseService.getAllCourses();
+            const normalized = Array.isArray(data) ? data : (data.results || []);
+            setCourses(normalized.map((course: any) => ({ id: course.id, title: course.title || course.name || "Untitled Course" })));
+        } catch (error) {
+            console.error("Failed to load courses", error);
+        }
+    };
+
+    const fetchEnrollments = async (campaignId?: number | string) => {
+        setEnrollLoading(true);
+        try {
+            const data: any = await enrollService.getEnrollments(campaignId);
+            setEnrollments(Array.isArray(data) ? data : (data.results || []));
+        } catch (error) {
+            console.error("Failed to load enrollments", error);
+            toast.error("Failed to load enrollments.");
+        } finally {
+            setEnrollLoading(false);
         }
     };
 
@@ -466,10 +512,78 @@ const Preface = () => {
         }
     };
 
-    const handleEnroll = (e: React.FormEvent) => {
+    const handleEnrollInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setEnrollForm(prev => ({
+            ...prev,
+            [name]: value,
+        } as LeadEnrollmentData));
+    };
+
+    const resetEnrollForm = () => {
+        setEditingEnrollment(null);
+        setEnrollForm({
+            lead: "",
+            course: "",
+            enrollment_date: "",
+            fee_status: "Pending",
+            status: "pending",
+            notes: "",
+        });
+    };
+
+    const handleEnroll = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Enrolling lead just simulates moving them forward
-        setEnrollOpen(false);
+
+        if (!enrollForm.lead || !enrollForm.course || !enrollForm.enrollment_date) {
+            toast.error("Please select a lead, course, and date for enrollment.");
+            return;
+        }
+
+        try {
+            if (editingEnrollment) {
+                await enrollService.updateEnrollment(editingEnrollment.id, enrollForm);
+                toast.success("Enrollment updated successfully.");
+            } else {
+                await enrollService.createEnrollment(enrollForm);
+                toast.success("Enrollment created successfully.");
+            }
+            setEnrollOpen(false);
+            resetEnrollForm();
+            if (selectedCampaign) {
+                fetchEnrollments(selectedCampaign.id);
+            }
+        } catch (error) {
+            console.error("Enrollment error", error);
+            toast.error("Failed to save enrollment. Please try again.");
+        }
+    };
+
+    const handleEditEnrollment = (enrollment: any) => {
+        setEditingEnrollment(enrollment);
+        setEnrollForm({
+            lead: enrollment.lead,
+            course: enrollment.course,
+            enrollment_date: enrollment.enrollment_date,
+            fee_status: enrollment.fee_status,
+            status: enrollment.status,
+            notes: enrollment.notes || "",
+        });
+        setEnrollOpen(true);
+    };
+
+    const handleDeleteEnrollment = async (id: number) => {
+        if (!window.confirm("Are you sure you want to delete this enrollment?")) return;
+        try {
+            await enrollService.deleteEnrollment(id);
+            toast.success("Enrollment deleted successfully.");
+            if (selectedCampaign) {
+                fetchEnrollments(selectedCampaign.id);
+            }
+        } catch (error) {
+            console.error("Failed to delete enrollment", error);
+            toast.error("Failed to delete enrollment.");
+        }
     };
 
     return (
@@ -1000,43 +1114,117 @@ const Preface = () => {
                                             <form onSubmit={handleEnroll} className="space-y-4 pt-4">
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium">Select Lead</label>
-                                                    <select required className="w-full border rounded-md p-2 text-sm bg-white">
+                                                    <select
+                                                        name="lead"
+                                                        value={enrollForm.lead}
+                                                        onChange={handleEnrollInputChange}
+                                                        required
+                                                        className="w-full border rounded-md p-2 text-sm bg-white"
+                                                    >
                                                         <option value="">Choose a lead...</option>
-                                                        {leads.filter(l => l.campaign == selectedCampaign.id || l.campaign_name === selectedCampaign.name || l.campaign === selectedCampaign.name).map(l => <option key={l.id} value={l.fullname || l.name}>{l.fullname || l.name}</option>)}
+                                                        {leads
+                                                            .filter(l => l.campaign == selectedCampaign?.id || l.campaign_name === selectedCampaign?.name || l.campaign === selectedCampaign?.name)
+                                                            .map(l => (
+                                                                <option key={l.id} value={l.id}>
+                                                                    {l.fullname || l.name}
+                                                                </option>
+                                                            ))}
                                                     </select>
                                                 </div>
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium">Select Course</label>
-                                                    <select required className="w-full border rounded-md p-2 text-sm bg-white">
+                                                    <select
+                                                        name="course"
+                                                        value={enrollForm.course}
+                                                        onChange={handleEnrollInputChange}
+                                                        required
+                                                        className="w-full border rounded-md p-2 text-sm bg-white"
+                                                    >
                                                         <option value="">Choose a course...</option>
-                                                        <option value="Full Stack Web Development">Full Stack Web Development</option>
-                                                        <option value="Data Science & AI">Data Science & AI</option>
-                                                        <option value="Cloud Computing">Cloud Computing</option>
+                                                        {courses.map((course) => (
+                                                            <option key={course.id} value={course.id}>
+                                                                {course.title}
+                                                            </option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium">Enrollment Date</label>
-                                                    <Input required type="date" />
+                                                    <Input
+                                                        name="enrollment_date"
+                                                        value={enrollForm.enrollment_date}
+                                                        onChange={handleEnrollInputChange}
+                                                        required
+                                                        type="date"
+                                                    />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium">Fee Status</label>
-                                                    <select required className="w-full border rounded-md p-2 text-sm bg-white">
+                                                    <select
+                                                        name="fee_status"
+                                                        value={enrollForm.fee_status}
+                                                        onChange={handleEnrollInputChange}
+                                                        required
+                                                        className="w-full border rounded-md p-2 text-sm bg-white"
+                                                    >
                                                         <option value="Pending">Pending</option>
                                                         <option value="Partially Paid">Partially Paid</option>
                                                         <option value="Fully Paid">Fully Paid</option>
                                                     </select>
                                                 </div>
-                                                <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">Confirm Enrollment</Button>
+                                                <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
+                                                    {editingEnrollment ? "Update Enrollment" : "Confirm Enrollment"}
+                                                </Button>
                                             </form>
                                         </DialogContent>
                                     </Dialog>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="py-12 flex flex-col items-center justify-center text-slate-500 text-center">
-                                        <CheckCircle2 className="w-12 h-12 text-slate-200 mb-4" />
-                                        <p className="font-medium text-lg">Ready to enroll students</p>
-                                        <p className="text-sm mt-1 max-w-md">Click the "Enroll Student" button above to convert an interested lead into an active student.</p>
-                                    </div>
+                                    {enrollLoading ? (
+                                        <div className="py-12 text-center text-slate-500">
+                                            Loading enrollments...
+                                        </div>
+                                    ) : enrollments.length > 0 ? (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-sm text-left">
+                                                <thead className="bg-slate-50 text-slate-600 font-medium">
+                                                    <tr>
+                                                        <th className="px-4 py-3">Lead</th>
+                                                        <th className="px-4 py-3">Course</th>
+                                                        <th className="px-4 py-3">Enrollment Date</th>
+                                                        <th className="px-4 py-3">Fee Status</th>
+                                                        <th className="px-4 py-3">Status</th>
+                                                        <th className="px-4 py-3 text-right">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y">
+                                                    {enrollments.map((enrollment) => (
+                                                        <tr key={enrollment.id} className="hover:bg-slate-50">
+                                                            <td className="px-4 py-3">{enrollment.lead_name}</td>
+                                                            <td className="px-4 py-3">{enrollment.course_title}</td>
+                                                            <td className="px-4 py-3 text-slate-600">{enrollment.enrollment_date}</td>
+                                                            <td className="px-4 py-3">{enrollment.fee_status}</td>
+                                                            <td className="px-4 py-3 capitalize">{enrollment.status}</td>
+                                                            <td className="px-4 py-3 text-right flex justify-end gap-2">
+                                                                <Button variant="ghost" size="sm" onClick={() => handleEditEnrollment(enrollment)}>
+                                                                    Edit
+                                                                </Button>
+                                                                <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDeleteEnrollment(enrollment.id)}>
+                                                                    Delete
+                                                                </Button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <div className="py-12 flex flex-col items-center justify-center text-slate-500 text-center">
+                                            <CheckCircle2 className="w-12 h-12 text-slate-200 mb-4" />
+                                            <p className="font-medium text-lg">Ready to enroll students</p>
+                                            <p className="text-sm mt-1 max-w-md">Click the "Enroll Student" button above to convert an interested lead into an active student.</p>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         )}
