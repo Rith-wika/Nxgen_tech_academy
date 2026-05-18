@@ -1,7 +1,7 @@
-import { 
-    LayoutDashboard, 
-    Users, 
-    BookOpen, 
+import {
+    LayoutDashboard,
+    Users,
+    BookOpen,
     UsersRound,
     UserCheck,
     FileText,
@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 export const adminSidebarItems = [
-    { label: "Preface", icon: Target, path: "/admin/preface" },
+    { label: "Presales", icon: Target, path: "/admin/Presales" },
     { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
     { label: "Students", icon: Users, path: "/admin/students" },
     { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },

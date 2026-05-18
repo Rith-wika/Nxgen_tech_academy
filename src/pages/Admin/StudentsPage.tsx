@@ -247,7 +247,7 @@ const StudentsPage = () => {
                               <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Qualification</p><p className="text-slate-800 font-semibold mt-0.5">{student.qualification || "—"}</p></div>
                               <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Current Status</p><p className="text-slate-800 font-semibold mt-0.5">{student.current_status || "—"}</p></div>
                               <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Experience Level</p><p className="text-slate-800 font-semibold mt-0.5">{student.experience_level || "—"}</p></div>
-                              <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Preferred Timing</p><p className="text-slate-800 font-semibold mt-0.5">{student.preferred_timing || "—"}</p></div>
+                              <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Preferred Timing</p><p className="text-slate-800 font-semibold mt-0.5">{student.preferred_batch_timing || "—"}</p></div>
                             </div>
                           </td>
                         </tr>

@@ -14,8 +14,28 @@ import {
     Phone,
     Plus,
     Upload,
-    CheckCircle2
+    CheckCircle2,
+    TrendingUp,
+    TrendingDown,
+    ArrowUpRight,
+    ArrowDownRight
 } from "lucide-react";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    LineChart,
+    Line,
+    AreaChart,
+    Area,
+    Cell,
+    PieChart,
+    Pie
+} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,10 +50,12 @@ import { Trash2 } from "lucide-react";
 import { Search } from "lucide-react";
 import { instructorService } from "@/services/instructorService";
 import { demoService } from "@/services/demoService";
+import dashboardService, { DashboardStats } from "@/services/dashboardService";
 import DemoDetailsDialog from "./components/DemoDetailsDialog";
 import ScheduleDemoDialog from "./components/ScheduleDemoDialog";
 import { AddLeadDialog, EditLeadDialog, DeleteLeadDialog } from "./components/LeadDialogs";
 import { AddCampaignDialog, EditCampaignDialog, DeleteCampaignDialog } from "./components/CampaignDialogs";
+import EnrollmentForm from "@/components/EnrollmentForm";
 
 const initialDemos = [
     {
@@ -52,10 +74,41 @@ const initialDemos = [
     },
 ];
 
-const Preface = () => {
-    const [activeTab, setActiveTab] = useState("overview");
-    const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
-    const [campaignDetailTab, setCampaignDetailTab] = useState("leads");
+const Presales = () => {
+    const [activeTab, setActiveTab] = useState(() => {
+        return sessionStorage.getItem("presales_active_tab") || "overview";
+    });
+    const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(() => {
+        const saved = sessionStorage.getItem("presales_selected_campaign");
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    });
+    const [campaignDetailTab, setCampaignDetailTab] = useState(() => {
+        return sessionStorage.getItem("presales_campaign_detail_tab") || "leads";
+    });
+
+    // Sync navigation state to sessionStorage to survive page refreshes
+    useEffect(() => {
+        sessionStorage.setItem("presales_active_tab", activeTab);
+    }, [activeTab]);
+
+    useEffect(() => {
+        if (selectedCampaign) {
+            sessionStorage.setItem("presales_selected_campaign", JSON.stringify(selectedCampaign));
+        } else {
+            sessionStorage.removeItem("presales_selected_campaign");
+        }
+    }, [selectedCampaign]);
+
+    useEffect(() => {
+        sessionStorage.setItem("presales_campaign_detail_tab", campaignDetailTab);
+    }, [campaignDetailTab]);
 
 
     // State for lists
@@ -69,19 +122,37 @@ const Preface = () => {
     const [leadStatuses, setLeadStatuses] = useState<any[]>([]);
     const [courses, setCourses] = useState<any[]>([]);
     const [enrollments, setEnrollments] = useState<any[]>([]);
+    const [allEnrollments, setAllEnrollments] = useState<any[]>([]);
     const [enrollLoading, setEnrollLoading] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
     const [editingEnrollment, setEditingEnrollment] = useState<any>(null);
     const [enrollForm, setEnrollForm] = useState<LeadEnrollmentData>({
         lead: "",
         course: "",
         enrollment_date: "",
         fee_status: "Pending",
+        qualification: "",
+        current_status: "",
+        preferred_mode: "",
+        preferred_batch_timing: "",
+        experience_level: "",
         status: "pending",
         notes: "",
     });
+    const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
+    const fetchDashboardStats = async () => {
+        try {
+            const data = await dashboardService.getStats();
+            setDashboardStats(data);
+        } catch (error) {
+            console.error("Failed to fetch dashboard stats", error);
+        }
+    };
+
+    const refreshData = () => {
+        fetchDashboardStats();
         fetchCampaigns();
         fetchStatuses();
         fetchLeads();
@@ -89,6 +160,13 @@ const Preface = () => {
         fetchInstructors();
         fetchDemos();
         fetchCourses();
+        fetchAllEnrollments();
+        setLastUpdated(new Date().toLocaleTimeString());
+        toast.success("Dashboard data refreshed!");
+    };
+
+    useEffect(() => {
+        refreshData();
     }, []);
 
     useEffect(() => {
@@ -138,6 +216,15 @@ const Preface = () => {
             setCourses(normalized.map((course: any) => ({ id: course.id, title: course.title || course.name || "Untitled Course" })));
         } catch (error) {
             console.error("Failed to load courses", error);
+        }
+    };
+
+    const fetchAllEnrollments = async () => {
+        try {
+            const data: any = await enrollService.getEnrollments();
+            setAllEnrollments(Array.isArray(data) ? data : (data.results || []));
+        } catch (error) {
+            console.error("Failed to load all enrollments", error);
         }
     };
 
@@ -198,19 +285,32 @@ const Preface = () => {
     const [demos, setDemos] = useState<any[]>([]);
 
     // Form state
-    const [newCampaign, setNewCampaign] = useState({ name: "", startDate: "", endDate: "", desc: "", status: "active" });
+    const [newCampaign, setNewCampaign] = useState({ name: "", startDate: "", endDate: "", desc: "", status: "active", course: "" });
     const [newLead, setNewLead] = useState({ fullname: "", email: "", phone_number: "", campaign: "", status: "New" });
     const [newDemo, setNewDemo] = useState({ instructor: "", date: "", time: "", link: "" });
     const [selectedDemo, setSelectedDemo] = useState<any>(null);
     const [reschedulingParticipants, setReschedulingParticipants] = useState<any[]>([]);
 
     const campaignDemos = selectedCampaign
-        ? demos.filter(d =>
-            d.campaign === selectedCampaign.name ||
-            d.campaign === selectedCampaign.id ||
-            d.campaign === String(selectedCampaign.id)
-        )
-        : demos;
+        ? demos.filter(d => {
+            const dCampaign = d.campaign;
+            const dCampaignId = (d as any).campaign_id;
+
+            if (!dCampaign && !dCampaignId) return false;
+
+            const matchesId = (id: any) => id && String(id) === String(selectedCampaign.id);
+            const matchesName = (name: any) => name && typeof name === 'string' && name.toLowerCase() === selectedCampaign.name.toLowerCase();
+
+            if (matchesId(dCampaign) || matchesId(dCampaignId) || matchesName(dCampaign)) return true;
+
+            if (typeof dCampaign === 'object' && dCampaign !== null) {
+                if (matchesId((dCampaign as any).id) || matchesName((dCampaign as any).name)) return true;
+            }
+
+            return false;
+        })
+        : [];
+    const currentDemoId = campaignDemos[0]?.id;
 
     // Dialog open states
     const [campaignOpen, setCampaignOpen] = useState(false);
@@ -249,8 +349,9 @@ const Preface = () => {
                 start_date: editingCampaign.startDate,
                 end_date: editingCampaign.endDate,
                 description: editingCampaign.desc,
-                status: editingCampaign.status
-            });
+                status: editingCampaign.status,
+                course: editingCampaign.course
+            } as any);
             toast.success("Campaign updated successfully!");
             setEditCampaignOpen(false);
             setEditingCampaign(null);
@@ -287,10 +388,11 @@ const Preface = () => {
                 start_date: newCampaign.startDate,
                 end_date: newCampaign.endDate,
                 description: newCampaign.desc,
-                status: newCampaign.status
-            });
+                status: newCampaign.status,
+                course: (newCampaign as any).course
+            } as any);
             toast.success("Campaign created successfully!");
-            setNewCampaign({ name: "", startDate: "", endDate: "", desc: "", status: "Active" });
+            setNewCampaign({ name: "", startDate: "", endDate: "", desc: "", status: "Active", course: "" });
             setCampaignOpen(false);
             fetchCampaigns();
         } catch (error) {
@@ -527,6 +629,11 @@ const Preface = () => {
             course: "",
             enrollment_date: "",
             fee_status: "Pending",
+            qualification: "",
+            current_status: "",
+            preferred_mode: "",
+            preferred_batch_timing: "",
+            experience_level: "",
             status: "pending",
             notes: "",
         });
@@ -566,6 +673,11 @@ const Preface = () => {
             course: enrollment.course,
             enrollment_date: enrollment.enrollment_date,
             fee_status: enrollment.fee_status,
+            qualification: enrollment.qualification || "",
+            current_status: enrollment.current_status || "",
+            preferred_mode: enrollment.preferred_mode || "",
+            preferred_batch_timing: enrollment.preferred_batch_timing || "",
+            experience_level: enrollment.experience_level || "",
             status: enrollment.status,
             notes: enrollment.notes || "",
         });
@@ -586,13 +698,88 @@ const Preface = () => {
         }
     };
 
+    // --- Dynamic Calculations for Overview ---
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    const campaignsThisMonth = campaigns.filter(c => {
+        if (!c.start_date) return false;
+        const d = new Date(c.start_date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+
+    const leadsThisMonth = leads.filter(l => {
+        const dateStr = l.created_at || l.date || (l.id ? null : new Date().toISOString());
+        if (!dateStr) return false;
+        const d = new Date(dateStr);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+
+    const demosThisMonth = demos.filter(d => {
+        if (!d.date) return false;
+        const dt = new Date(d.date);
+        return dt.getMonth() === currentMonth && dt.getFullYear() === currentYear;
+    });
+
+    const enrollmentsThisMonth = allEnrollments.filter(e => {
+        if (!e.enrollment_date) return false;
+        const d = new Date(e.enrollment_date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+
+    // Calculate Conversion Rate
+    const conversionRate = leads.length > 0
+        ? ((allEnrollments.length / leads.length) * 100).toFixed(1)
+        : "0";
+
+    // Chart Data: Funnel
+    const funnelData = [
+        { name: "Leads", value: leads.length, color: "#3b82f6" },
+        { name: "Demos", value: demos.length, color: "#f59e0b" },
+        { name: "Enrollments", value: allEnrollments.length, color: "#10b981" }
+    ];
+
+    // Chart Data: Campaign Performance (More stable than daily trends)
+    const campaignPerformanceData = campaigns.slice(0, 6).map(c => {
+        const cLeads = leads.filter(l => l.campaign == c.id || l.campaign_name === c.name || l.campaign === c.name).length;
+        // Find enrollments for leads in this campaign
+        const cEnrollments = allEnrollments.filter(e => {
+            const lead = leads.find(l => l.id == e.lead);
+            return lead && (lead.campaign == c.id || lead.campaign_name === c.name || lead.campaign === c.name);
+        }).length;
+
+        return {
+            name: c.name.length > 12 ? c.name.substring(0, 10) + '..' : c.name,
+            Leads: cLeads,
+            Enrollments: cEnrollments,
+            fullName: c.name
+        };
+    });
+
+    // If no campaigns, show some empty state data for the chart
+    const chartData = campaignPerformanceData.length > 0 ? campaignPerformanceData : [
+        { name: "No Data", Leads: 0, Enrollments: 0 }
+    ];
+
     return (
         <DashboardLayout role="admin" sidebarItems={adminSidebarItems} title="NxGen Admin">
             <div className="rounded-2xl mb-6 p-6 bg-gradient-to-r from-[#0f172a] via-[#1d2a7a] to-[#0b5fa6] text-white shadow-lg">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold">Preface & Campaign Management</h1>
+                        <h1 className="text-2xl md:text-3xl font-bold">Presales & Campaign Management</h1>
                         <p className="text-blue-100 text-sm mt-1">Manage all your campaigns, leads, demos, and enrollments in one place.</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm"
+                            onClick={refreshData}
+                        >
+                            <TrendingUp className="w-4 h-4 mr-2" />
+                            Refresh Data
+                        </Button>
+                        <p className="text-[10px] text-blue-200">Last updated: {lastUpdated}</p>
                     </div>
                 </div>
             </div>
@@ -624,68 +811,157 @@ const Preface = () => {
 
                 {/* OVERVIEW TAB */}
                 {activeTab === "overview" && (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="space-y-8">
+                        {/* Top Section: Summary Cards (1x4 Grid) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
-                                { title: "Total Campaigns", value: "12", change: "+2 this month", color: "text-purple-600" },
-                                { title: "Total Leads", value: "1,240", change: "+145 this month", color: "text-blue-600" },
-                                { title: "Scheduled Demos", value: "48", change: "+12 this week", color: "text-orange-600" },
-                                { title: "Recent Enrollments", value: "320", change: "+8% conversion", color: "text-green-600" }
+                                {
+                                    title: "Total Campaigns",
+                                    value: dashboardStats?.total_campaigns ?? campaigns.length,
+                                    change: `${campaignsThisMonth.length} Increase`,
+                                    color: "bg-[#000080]",
+                                    progress: campaigns.length > 0 ? (campaignsThisMonth.length / campaigns.length) * 100 : 0
+                                },
+                                {
+                                    title: "Total Leads",
+                                    value: (dashboardStats?.total_leads ?? leads.length).toLocaleString(),
+                                    change: `${leadsThisMonth.length} Increase`,
+                                    color: "bg-[#000080]",
+                                    progress: leads.length > 0 ? (leadsThisMonth.length / leads.length) * 100 : 0
+                                },
+                                {
+                                    title: "Total Demos",
+                                    value: dashboardStats?.total_demos ?? demos.length,
+                                    change: `${demosThisMonth.length} This Month`,
+                                    color: "bg-[#000080]",
+                                    progress: 75
+                                },
+                                {
+                                    title: "Enrollments",
+                                    value: dashboardStats?.total_enrollments ?? allEnrollments.length,
+                                    change: `${conversionRate}% Conversion`,
+                                    color: "bg-[#f97316]",
+                                    progress: parseFloat(conversionRate)
+                                }
                             ].map((stat, idx) => (
-                                <Card key={idx} className="hover:shadow-md transition-shadow border-t-4 border-t-[#000080]">
-                                    <CardHeader className="pb-2">
-                                        <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-3xl font-bold text-slate-800">{stat.value}</div>
-                                        <p className="text-xs text-emerald-500 font-semibold mt-1">{stat.change}</p>
-                                    </CardContent>
+                                <Card key={idx} className="border-none shadow-md bg-white p-6 flex flex-col justify-between hover:translate-y-[-4px] transition-all duration-300">
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">{stat.title}</p>
+                                        <h3 className="text-4xl font-black text-[#000080] mb-4">{stat.value}</h3>
+                                        <div className="w-full h-2 bg-slate-100 rounded-full mb-3 overflow-hidden">
+                                            <div className={`h-full ${stat.color}`} style={{ width: `${stat.progress}%` }} />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs font-bold text-slate-500">{stat.change}</p>
                                 </Card>
                             ))}
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Active Campaigns</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        {campaigns.map(c => (
-                                            <div key={c.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border">
-                                                <div>
-                                                    <p className="font-semibold text-slate-800">{c.name}</p>
-                                                    <p className="text-xs text-slate-500">{c.leads || 0} leads generated</p>
-                                                </div>
-                                                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">{c.status}</span>
-                                            </div>
-                                        ))}
+                        {/* Middle Section: Main Performance Chart (Full Width) */}
+                        <Card className="border-none shadow-md bg-white overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 pb-6">
+                                <div>
+                                    <CardTitle className="text-xl font-black text-[#000080]">Campaign Performance Report</CardTitle>
+                                    <CardDescription className="text-slate-400 font-medium">Leads vs Enrollments per Campaign</CardDescription>
+                                </div>
+                                <div className="flex gap-6">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 bg-[#000080] rounded-sm" />
+                                        <span className="text-sm font-bold text-slate-600">Leads</span>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 bg-[#f97316] rounded-sm" />
+                                        <span className="text-sm font-bold text-slate-600">Enrollments</span>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="pt-10">
+                                <div className="h-[400px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis
+                                                dataKey="name"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 700 }}
+                                                dy={15}
+                                            />
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }}
+                                            />
+                                            <Tooltip
+                                                cursor={{ fill: '#f8fafc' }}
+                                                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+                                                labelStyle={{ fontWeight: '900', color: '#000080', marginBottom: '8px' }}
+                                            />
+                                            <Bar dataKey="Leads" fill="#000080" radius={[4, 4, 0, 0]} barSize={60} />
+                                            <Bar dataKey="Enrollments" fill="#f97316" radius={[4, 4, 0, 0]} barSize={60} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Upcoming Demos</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        {demos.map(d => (
-                                            <div key={d.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border">
-                                                <div>
-                                                    <p className="font-semibold text-slate-800">{d.campaign}</p>
-                                                    <p className="text-xs text-slate-500">Instructor: {d.instructor} | {d.date} at {d.time}</p>
-                                                </div>
-                                                <Button size="sm" variant="outline" onClick={() => {
-                                                    setSelectedDemo(d);
-                                                    setDemoDetailsOpen(true);
-                                                }}>View</Button>
-                                            </div>
+                        {/* Bottom Section: Recent Enrollments List (Full Width) */}
+                        <Card className="border-none shadow-md bg-white">
+                            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 pb-6">
+                                <div>
+                                    <CardTitle className="text-xl font-black text-[#000080]">Recent Enrollments</CardTitle>
+                                    <CardDescription className="text-slate-400 font-medium">Latest successful conversions</CardDescription>
+                                </div>
+                                <Button variant="outline" className="border-[#000080] text-[#000080] hover:bg-[#000080] hover:text-white font-bold rounded-xl" onClick={() => setActiveTab("campaign")}>
+                                    View All Enrollments
+                                </Button>
+                            </CardHeader>
+                            <CardContent className="p-0 overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="border-b border-slate-50 text-[12px] uppercase tracking-widest text-slate-400 font-black">
+                                            <th className="px-8 py-5">Student Name</th>
+                                            <th className="px-8 py-5">Course</th>
+                                            <th className="px-8 py-5">Date</th>
+                                            <th className="px-8 py-5">Fee Status</th>
+                                            <th className="px-8 py-5">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-sm">
+                                        {allEnrollments.slice(0, 8).map((enroll, idx) => (
+                                            <tr key={enroll.id || idx} className="border-b border-slate-50 hover:bg-blue-50/40 transition-colors group">
+                                                <td className="px-8 py-5">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 rounded-xl bg-[#000080]/5 flex items-center justify-center text-[#000080] font-black text-sm">
+                                                            {enroll.lead_name?.charAt(0) || "S"}
+                                                        </div>
+                                                        <span className="font-bold text-slate-700">{enroll.lead_name || "Unknown Student"}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <span className="font-bold text-slate-500">{enroll.course_title || "Course Not Set"}</span>
+                                                </td>
+                                                <td className="px-8 py-5 text-slate-400 font-bold">
+                                                    {enroll.enrollment_date ? new Date(enroll.enrollment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "May 14, 2026"}
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter ${enroll.fee_status === 'Fully Paid' ? 'bg-green-100 text-green-700' :
+                                                        enroll.fee_status === 'Partially Paid' ? 'bg-orange-100 text-orange-700' :
+                                                            'bg-red-100 text-red-700'
+                                                        }`}>{enroll.fee_status || "Pending"}</span>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-all border-[#000080] text-[#000080] hover:bg-[#000080] hover:text-white rounded-xl h-9 px-4 font-bold" onClick={() => handleEditEnrollment(enroll)}>Manage</Button>
+                                                </td>
+                                            </tr>
                                         ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
+                                    </tbody>
+                                </table>
+                                {allEnrollments.length === 0 && (
+                                    <div className="py-20 text-center text-slate-400 font-bold italic bg-slate-50/30">No enrollments recorded yet.</div>
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
                 )}
 
@@ -736,7 +1012,8 @@ const Preface = () => {
                                                         startDate: c.start_date,
                                                         endDate: c.end_date,
                                                         desc: c.description,
-                                                        status: c.status
+                                                        status: c.status,
+                                                        course: (c as any).course || ""
                                                     });
                                                     setEditCampaignOpen(true);
                                                 }}>Edit</Button>
@@ -766,6 +1043,7 @@ const Preface = () => {
                             editingCampaign={editingCampaign}
                             setEditingCampaign={setEditingCampaign}
                             campaignStatuses={campaignStatuses}
+                            courses={courses}
                             handleEditCampaignSubmit={handleEditCampaignSubmit}
                             handleDeleteCampaign={handleDeleteCampaign}
                         />
@@ -776,6 +1054,7 @@ const Preface = () => {
                             editingCampaign={editingCampaign}
                             setEditingCampaign={setEditingCampaign}
                             campaignStatuses={campaignStatuses}
+                            courses={courses}
                             handleEditCampaignSubmit={handleEditCampaignSubmit}
                             campaignOpen={campaignOpen}
                             setCampaignOpen={setCampaignOpen}
@@ -800,6 +1079,7 @@ const Preface = () => {
                             editingCampaign={editingCampaign}
                             setEditingCampaign={setEditingCampaign}
                             campaignStatuses={campaignStatuses}
+                            courses={courses}
                             handleAddCampaign={handleAddCampaign}
                             handleEditCampaignSubmit={handleEditCampaignSubmit}
                         />
@@ -1105,77 +1385,89 @@ const Preface = () => {
                                     </div>
                                     <Dialog open={enrollOpen} onOpenChange={setEnrollOpen}>
                                         <DialogTrigger asChild>
-                                            <Button className="bg-[#000080] hover:bg-blue-900"><CheckCircle2 className="w-4 h-4 mr-2" /> Enroll Student</Button>
+                                            <Button className="bg-[#000080] hover:bg-blue-900"><CheckCircle2 className="w-4 h-4 mr-2" />Enroll Lead</Button>
                                         </DialogTrigger>
-                                        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] sm:max-w-[425px]">
+                                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col pb-0">
                                             <DialogHeader>
                                                 <DialogTitle>Enroll Lead to Course</DialogTitle>
                                             </DialogHeader>
-                                            <form onSubmit={handleEnroll} className="space-y-4 pt-4">
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">Select Lead</label>
-                                                    <select
-                                                        name="lead"
-                                                        value={enrollForm.lead}
-                                                        onChange={handleEnrollInputChange}
-                                                        required
-                                                        className="w-full border rounded-md p-2 text-sm bg-white"
-                                                    >
-                                                        <option value="">Choose a lead...</option>
-                                                        {leads
-                                                            .filter(l => l.campaign == selectedCampaign?.id || l.campaign_name === selectedCampaign?.name || l.campaign === selectedCampaign?.name)
-                                                            .map(l => (
-                                                                <option key={l.id} value={l.id}>
-                                                                    {l.fullname || l.name}
-                                                                </option>
-                                                            ))}
-                                                    </select>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">Select Course</label>
-                                                    <select
-                                                        name="course"
-                                                        value={enrollForm.course}
-                                                        onChange={handleEnrollInputChange}
-                                                        required
-                                                        className="w-full border rounded-md p-2 text-sm bg-white"
-                                                    >
-                                                        <option value="">Choose a course...</option>
-                                                        {courses.map((course) => (
-                                                            <option key={course.id} value={course.id}>
-                                                                {course.title}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">Enrollment Date</label>
-                                                    <Input
-                                                        name="enrollment_date"
-                                                        value={enrollForm.enrollment_date}
-                                                        onChange={handleEnrollInputChange}
-                                                        required
-                                                        type="date"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">Fee Status</label>
-                                                    <select
-                                                        name="fee_status"
-                                                        value={enrollForm.fee_status}
-                                                        onChange={handleEnrollInputChange}
-                                                        required
-                                                        className="w-full border rounded-md p-2 text-sm bg-white"
-                                                    >
-                                                        <option value="Pending">Pending</option>
-                                                        <option value="Partially Paid">Partially Paid</option>
-                                                        <option value="Fully Paid">Fully Paid</option>
-                                                    </select>
-                                                </div>
-                                                <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
-                                                    {editingEnrollment ? "Update Enrollment" : "Confirm Enrollment"}
-                                                </Button>
-                                            </form>
+                                            <div className="p-6 space-y-4 flex-1 overflow-hidden flex flex-col">
+                                                {!enrollForm.lead && !currentDemoId ? (
+                                                    <div className="space-y-4">
+                                                        <label className="text-sm font-medium">Step 1: Select a Lead to Enroll</label>
+                                                        <div className="grid grid-cols-1 gap-4">
+                                                            {leads
+                                                                .filter(l => l.campaign == selectedCampaign?.id || l.campaign_name === selectedCampaign?.name || l.campaign === selectedCampaign?.name)
+                                                                .map(l => (
+                                                                    <button
+                                                                        key={l.id}
+                                                                        onClick={() => {
+                                                                            const leadName = l.fullname || l.name || "";
+                                                                            setEnrollForm({
+                                                                                ...enrollForm,
+                                                                                lead: l.id,
+                                                                                lead_name: leadName,
+                                                                                lead_email: l.email || ""
+                                                                            });
+                                                                        }}
+                                                                        className="flex items-center justify-between p-4 border rounded-xl hover:bg-slate-50 hover:border-[#000080] transition-all text-left group"
+                                                                    >
+                                                                        <div>
+                                                                            <p className="font-bold text-slate-800">{l.fullname || l.name}</p>
+                                                                            <p className="text-xs text-slate-500">{l.email || "No email"} • {l.phone_number || "No phone"}</p>
+                                                                        </div>
+                                                                        <Plus className="w-4 h-4 text-slate-300 group-hover:text-[#000080]" />
+                                                                    </button>
+                                                                ))}
+                                                            {leads.filter(l => l.campaign == selectedCampaign?.id || l.campaign_name === selectedCampaign?.name || l.campaign === selectedCampaign?.name).length === 0 && (
+                                                                <p className="text-center py-8 text-slate-500 italic">No leads available in this campaign.</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col flex-1 overflow-hidden">
+                                                        {enrollForm.lead && (
+                                                            <div className="flex items-center justify-between mb-4 bg-blue-50 p-3 rounded-lg">
+                                                                <div>
+                                                                    <p className="text-xs text-blue-600 font-bold uppercase tracking-wider">Enrolling Lead</p>
+                                                                    <p className="font-bold text-blue-900">{enrollForm.lead_name}</p>
+                                                                </div>
+                                                                <Button variant="ghost" size="sm" onClick={() => setEnrollForm({ ...enrollForm, lead: "" })} className="text-blue-600 hover:text-blue-800 hover:bg-blue-100">
+                                                                    Change Lead
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                        <EnrollmentForm
+                                                            demoId={currentDemoId}
+                                                            initialData={{
+                                                                name: enrollForm.lead_name,
+                                                                email: enrollForm.lead_email,
+                                                                phone: leads.find(l => l.id === enrollForm.lead)?.phone_number || "",
+                                                                course: enrollForm.course,
+                                                                lead: enrollForm.lead
+                                                            }}
+                                                            onSuccess={() => {
+                                                                setEnrollOpen(false);
+                                                                setEnrollForm({
+                                                                    lead: "",
+                                                                    course: "",
+                                                                    enrollment_date: "",
+                                                                    fee_status: "Pending",
+                                                                    qualification: "",
+                                                                    current_status: "",
+                                                                    preferred_mode: "",
+                                                                    preferred_batch_timing: "",
+                                                                    experience_level: "",
+                                                                    status: "pending",
+                                                                    notes: ""
+                                                                });
+                                                                fetchEnrollments(selectedCampaign?.id);
+                                                                fetchAllEnrollments();
+                                                            }}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </DialogContent>
                                     </Dialog>
                                 </CardHeader>
@@ -1193,18 +1485,16 @@ const Preface = () => {
                                                         <th className="px-4 py-3">Course</th>
                                                         <th className="px-4 py-3">Enrollment Date</th>
                                                         <th className="px-4 py-3">Fee Status</th>
-                                                        <th className="px-4 py-3">Status</th>
                                                         <th className="px-4 py-3 text-right">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y">
                                                     {enrollments.map((enrollment) => (
                                                         <tr key={enrollment.id} className="hover:bg-slate-50">
-                                                            <td className="px-4 py-3">{enrollment.lead_name}</td>
+                                                            <td className="px-4 py-3 font-semibold">{enrollment.full_name || enrollment.name || enrollment.lead_name}</td>
                                                             <td className="px-4 py-3">{enrollment.course_title}</td>
                                                             <td className="px-4 py-3 text-slate-600">{enrollment.enrollment_date}</td>
                                                             <td className="px-4 py-3">{enrollment.fee_status}</td>
-                                                            <td className="px-4 py-3 capitalize">{enrollment.status}</td>
                                                             <td className="px-4 py-3 text-right flex justify-end gap-2">
                                                                 <Button variant="ghost" size="sm" onClick={() => handleEditEnrollment(enrollment)}>
                                                                     Edit
@@ -1256,4 +1546,4 @@ const Preface = () => {
     );
 };
 
-export default Preface;
+export default Presales;

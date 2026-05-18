@@ -15,6 +15,7 @@ export interface EnrollmentData {
     experience_level: string;
     status?: "pending" | "approved" | "rejected";
     created_at?: string;
+    terms_accepted?: boolean;
 }
 
 const getHeaders = () => {
@@ -30,7 +31,7 @@ export const enrollmentService = {
     // For students to enroll
     enroll: async (data: EnrollmentData) => {
         try {
-            const res = await axiosInstance.post('/api/enrollments/enroll/', data);
+            const res = await axiosInstance.post('/api/enrollments/Student/', data);
             return res.data;
         } catch (error) {
             console.error("Error submitting enrollment", error);
@@ -41,7 +42,7 @@ export const enrollmentService = {
     // For admin to list all enrollments
     getAllEnrollments: async () => {
         try {
-            const res = await axiosInstance.get('/api/enrollments/admin/enrollments/', getHeaders());
+            const res = await axiosInstance.get('/api/enrollments/', getHeaders());
             return res.data;
         } catch (error) {
             console.error("Error fetching enrollments", error);
@@ -49,10 +50,10 @@ export const enrollmentService = {
         }
     },
 
-    // Admin: Approve enrollment (sends Celery email with login credentials)
+    // Admin: Approve enrollment
     approveEnrollment: async (id: number | string) => {
         try {
-            const res = await axiosInstance.post(`/api/enrollments/admin/enrollments/${id}/approve/`, {}, getHeaders());
+            const res = await axiosInstance.post(`/api/enrollments/${id}/approve/`, {}, getHeaders());
             return res.data;
         } catch (error) {
             console.error("Error approving enrollment", error);
@@ -60,10 +61,10 @@ export const enrollmentService = {
         }
     },
 
-    // Admin: Reject enrollment (sends Celery notification email)
+    // Admin: Reject enrollment
     rejectEnrollment: async (id: number | string) => {
         try {
-            const res = await axiosInstance.post(`/api/enrollments/admin/enrollments/${id}/reject/`, {}, getHeaders());
+            const res = await axiosInstance.post(`/api/enrollments/${id}/reject/`, {}, getHeaders());
             return res.data;
         } catch (error) {
             console.error("Error rejecting enrollment", error);
@@ -71,13 +72,35 @@ export const enrollmentService = {
         }
     },
 
-    // Optional: Get single enrollment details
+    // Get single student details
     getEnrollmentById: async (id: number | string) => {
         try {
-            const res = await axiosInstance.get(`/api/enrollments/admin/enrollments/${id}/`, getHeaders());
+            const res = await axiosInstance.get(`/api/enrollments/${id}/`, getHeaders());
             return res.data;
         } catch (error) {
             console.error("Error fetching enrollment detail", error);
+            throw error;
+        }
+    },
+
+    // Update student
+    updateEnrollment: async (id: number | string, data: Partial<EnrollmentData>) => {
+        try {
+            const res = await axiosInstance.put(`/api/enrollments/${id}/`, data, getHeaders());
+            return res.data;
+        } catch (error) {
+            console.error("Error updating enrollment", error);
+            throw error;
+        }
+    },
+
+    // Delete student
+    deleteEnrollment: async (id: number | string) => {
+        try {
+            const res = await axiosInstance.delete(`/api/enrollments/${id}/`, getHeaders());
+            return res.data;
+        } catch (error) {
+            console.error("Error deleting enrollment", error);
             throw error;
         }
     }

@@ -15,6 +15,7 @@ interface CampaignDialogsProps {
     editingCampaign: any;
     setEditingCampaign: (campaign: any) => void;
     campaignStatuses: any[];
+    courses: any[];
     handleAddCampaign: (e: React.FormEvent) => void;
     handleEditCampaignSubmit: (e: React.FormEvent) => void;
     handleDeleteCampaign: () => void;
@@ -25,6 +26,7 @@ export const AddCampaignDialog: React.FC<CampaignDialogsProps> = ({
     setCampaignOpen,
     newCampaign,
     setNewCampaign,
+    courses,
     handleAddCampaign
 }) => (
     <Dialog open={campaignOpen} onOpenChange={setCampaignOpen}>
@@ -51,6 +53,22 @@ export const AddCampaignDialog: React.FC<CampaignDialogsProps> = ({
                     <label className="text-sm font-medium">Description</label>
                     <Input placeholder="Brief overview of the campaign" value={newCampaign.desc} onChange={e => setNewCampaign({ ...newCampaign, desc: e.target.value })} />
                 </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Link to Course</label>
+                    <select
+                        required
+                        className="w-full border rounded-md p-2 text-sm bg-white"
+                        value={newCampaign.course}
+                        onChange={e => setNewCampaign({ ...newCampaign, course: e.target.value })}
+                    >
+                        <option value="">Select a Course</option>
+                        {(courses || []).map((course: any) => (
+                            <option key={course.id} value={course.id}>
+                                {course.title}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 <Button type="submit" className="w-full bg-[#000080]">Create Campaign</Button>
             </form>
         </DialogContent>
@@ -63,6 +81,7 @@ export const EditCampaignDialog: React.FC<CampaignDialogsProps> = ({
     editingCampaign,
     setEditingCampaign,
     campaignStatuses,
+    courses,
     handleEditCampaignSubmit
 }) => (
     <Dialog open={editCampaignOpen} onOpenChange={setEditCampaignOpen}>
@@ -90,6 +109,22 @@ export const EditCampaignDialog: React.FC<CampaignDialogsProps> = ({
                         <label className="text-sm font-medium">Status</label>
                         <select className="w-full border rounded-md p-2 text-sm bg-white" value={editingCampaign.status} onChange={e => setEditingCampaign({ ...editingCampaign, status: e.target.value })}>
                             {campaignStatuses.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Linked Course</label>
+                        <select
+                            required
+                            className="w-full border rounded-md p-2 text-sm bg-white"
+                            value={editingCampaign.course}
+                            onChange={e => setEditingCampaign({ ...editingCampaign, course: e.target.value })}
+                        >
+                            <option value="">Select a Course</option>
+                            {(courses || []).map((course: any) => (
+                                <option key={course.id} value={course.id}>
+                                    {course.title}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <Button type="submit" className="w-full bg-[#000080]">Save Changes</Button>
