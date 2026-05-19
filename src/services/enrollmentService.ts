@@ -16,6 +16,9 @@ export interface EnrollmentData {
     status?: "pending" | "approved" | "rejected";
     created_at?: string;
     terms_accepted?: boolean;
+    fee_amount?: number;
+    payment_paid?: number;
+    remaining_balance?: number;
 }
 
 const getHeaders = () => {
@@ -103,5 +106,50 @@ export const enrollmentService = {
             console.error("Error deleting enrollment", error);
             throw error;
         }
+    },
+
+    // Get payment details
+    getPaymentDetails: async (enrollmentId: number | string) => {
+        try {
+            const res = await axiosInstance.get(`/api/enrollments/${enrollmentId}/payment-details/`, getHeaders());
+            return res.data;
+        } catch (error: any) {
+            if (error.response?.status !== 404) {
+                console.error("Error fetching payment details", error);
+            }
+            throw error;
+        }
+    },
+
+    // Create payment details
+    createPaymentDetails: async (enrollmentId: number | string, data: { payment_paid: number; enrollment?: number | string }) => {
+        try {
+            const res = await axiosInstance.post(`/api/enrollments/${enrollmentId}/payment-details/`, data, getHeaders());
+            return res.data;
+        } catch (error) {
+            console.error("Error creating payment details", error);
+            throw error;
+        }
+    },
+
+    // Update payment details
+    updatePaymentDetails: async (enrollmentId: number | string, data: { payment_paid: number; enrollment?: number | string }) => {
+        try {
+            const res = await axiosInstance.put(`/api/enrollments/${enrollmentId}/payment-details/`, data, getHeaders());
+            return res.data;
+        } catch (error) {
+            console.error("Error updating payment details", error);
+            throw error;
+        }
     }
 };
+
+export interface PaymentDetails {
+    id?: number | string;
+    enrollment?: number | string;
+    course_name?: string;
+    fee_amount?: number;
+    payment_paid?: number;
+    remaining_balance?: number;
+}
+

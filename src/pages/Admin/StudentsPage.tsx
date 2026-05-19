@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   LayoutDashboard, Users, UserCheck, Plus, Search,
-  CheckCircle, XCircle, Loader2, UsersRound, ChevronDown, ChevronUp, BookOpen, FileText, Target } from "lucide-react";
+  CheckCircle, XCircle, Loader2, UsersRound, ChevronDown, ChevronUp, BookOpen, FileText, Target, CreditCard, Eye
+} from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,8 @@ import axiosInstance from "@/api/axiosInstance";
 import EnrollmentForm from "@/components/EnrollmentForm";
 import { adminSidebarItems } from "./adminSidebarItems";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import PaymentDialog from "@/components/PaymentDialog";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -30,6 +33,8 @@ const StudentsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [expandedId, setExpandedId] = useState<number | string | null>(null);
+  const [paymentStudent, setPaymentStudent] = useState<EnrollmentData | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEnrollments();
@@ -172,9 +177,7 @@ const StudentsPage = () => {
             <table className="w-full text-left text-sm">
               <thead className="border-b bg-slate-50">
                 <tr className="text-slate-500">
-                  <th className="px-4 py-3 font-semibold">Name</th>
-                  <th className="px-4 py-3 font-semibold">Email</th>
-                  <th className="px-4 py-3 font-semibold">Phone</th>
+                  <th className="px-4 py-3 font-semibold">Student Details</th>
                   <th className="px-4 py-3 font-semibold">Course</th>
                   <th className="px-4 py-3 font-semibold">Mode</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
@@ -183,38 +186,29 @@ const StudentsPage = () => {
               </thead>
               <tbody className="divide-y">
                 {loading ? (
-                  <tr><td colSpan={7} className="py-12 text-center text-gray-400"><Loader2 className="inline animate-spin mr-2 w-4 h-4" />Loading enrollments...</td></tr>
+                  <tr><td colSpan={5} className="py-12 text-center text-gray-400"><Loader2 className="inline animate-spin mr-2 w-4 h-4" />Loading enrollments...</td></tr>
                 ) : filtered.length === 0 ? (
-                  <tr><td colSpan={7} className="py-12 text-center text-gray-400">No enrollments found.</td></tr>
+                  <tr><td colSpan={5} className="py-12 text-center text-gray-400">No enrollments found.</td></tr>
                 ) : filtered.map((student) => {
                   const enrollmentStatus = (student as any).status || "pending";
                   const isExpanded = expandedId === student.id;
                   const isActioning = actionLoading === student.id;
                   return (
                     <React.Fragment key={student.id}>
-                      <tr className="hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3 font-semibold text-gray-800">{student.name}</td>
-                        <td className="px-4 py-3 text-gray-600">{student.email}</td>
-                        <td className="px-4 py-3 text-gray-600">{student.phone}</td>
-                        <td className="px-4 py-3 text-gray-600 max-w-[160px] truncate">{student.course}</td>
+                      <tr
+                        className="hover:bg-slate-50 transition-colors cursor-pointer"
+                        onClick={() => navigate(`/admin/students/${student.id}`)}
+                      >
                         <td className="px-4 py-3">
-                          <div className="flex flex-col text-xs">
-                            <span className="font-semibold text-blue-700">{student.course_type}</span>
-                            <span className="text-gray-400">{student.preferred_mode}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${STATUS_COLORS[enrollmentStatus] || "bg-gray-100 text-gray-700"}`}>
-                            {enrollmentStatus}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-end gap-1">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-semibold text-gray-900 text-base">{student.name}</span>
+                            <span className="text-xs text-gray-500">{student.email}</span>
+                            <span className="text-xs text-gray-500">{student.phone}</span>
                             {enrollmentStatus === "pending" && (
-                              <>
+                              <div className="flex items-center gap-2 mt-1.5" onClick={(e) => e.stopPropagation()}>
                                 <Button
                                   size="sm"
-                                  className="h-8 bg-green-600 hover:bg-green-700 text-white px-3"
+                                  className="h-7 bg-green-600 hover:bg-green-700 text-white px-2.5 text-xs"
                                   disabled={isActioning}
                                   onClick={() => handleApprove(student.id!)}
                                 >
@@ -223,31 +217,57 @@ const StudentsPage = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-8 border-red-300 text-red-600 hover:bg-red-50 px-3"
+                                  className="h-7 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 px-2.5 text-xs"
                                   disabled={isActioning}
                                   onClick={() => handleReject(student.id!)}
                                 >
                                   <XCircle className="w-3 h-3 mr-1" />Reject
                                 </Button>
-                              </>
+                              </div>
                             )}
-                            <button
-                              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
-                              onClick={() => setExpandedId(isExpanded ? null : (student.id ?? null))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600 font-medium">{student.course}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col text-xs">
+                            <span className="font-semibold text-blue-700">{student.course_type}</span>
+                            <span className="text-gray-400">{student.preferred_mode}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize ${STATUS_COLORS[enrollmentStatus] || "bg-gray-100 text-gray-700"}`}>
+                            {enrollmentStatus}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 border-blue-300 text-blue-600 hover:bg-blue-50 hover:text-blue-700 px-3"
+                              onClick={() => setPaymentStudent(student)}
                             >
-                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                            </button>
+                              <CreditCard className="w-3 h-3 mr-1" /> Payment Details
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 px-2 text-slate-500 hover:text-slate-900"
+                              onClick={() => navigate(`/admin/students/${student.id}`)}
+                            >
+                              <Eye className="w-4.5 h-4.5" />
+                            </Button>
                           </div>
                         </td>
                       </tr>
                       {isExpanded && (
                         <tr className="bg-slate-50">
-                          <td colSpan={7} className="px-6 py-4">
+                          <td colSpan={5} className="px-6 py-4">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Qualification</p><p className="text-slate-800 font-semibold mt-0.5">{student.qualification || "—"}</p></div>
                               <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Current Status</p><p className="text-slate-800 font-semibold mt-0.5">{student.current_status || "—"}</p></div>
                               <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Experience Level</p><p className="text-slate-800 font-semibold mt-0.5">{student.experience_level || "—"}</p></div>
-                              <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Preferred Timing</p><p className="text-slate-800 font-semibold mt-0.5">{student.preferred_batch_timing || "—"}</p></div>
+                              <div><p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Preferred Timing</p><p className="text-slate-800 font-semibold mt-0.5">{student.preferred_timing || "—"}</p></div>
                             </div>
                           </td>
                         </tr>
@@ -260,6 +280,15 @@ const StudentsPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {paymentStudent && (
+        <PaymentDialog
+          isOpen={!!paymentStudent}
+          onClose={() => setPaymentStudent(null)}
+          student={paymentStudent}
+          onSuccess={fetchEnrollments}
+        />
+      )}
     </DashboardLayout>
   );
 };

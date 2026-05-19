@@ -32,6 +32,7 @@ import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ChangePassword from "./pages/Auth/ChangePassword";
 import MainDashboard from "./pages/Admin/MainDashboard";
 import StudentsPage from "./pages/Admin/StudentsPage";
+import StudentDetailPage from "./pages/Admin/StudentDetailPage";
 import InstructorsPage from "./pages/Admin/InstructorsPage";
 import AddInstructor from "./pages/Admin/AddInstructor";
 import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
@@ -60,8 +61,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { useLocation, useParams } from "react-router-dom";
 
 const queryClient = new QueryClient();
-const TIDIO_SCRIPT_ID = "tidio-chat-script";
-const TIDIO_SCRIPT_SRC = "https://code.tidio.co/nzpfkqj2dsglfpfrh5hwuaiemsfurs49.js";
 
 const AppContent = () => {
   const location = useLocation();
@@ -69,7 +68,6 @@ const AppContent = () => {
   const isAuthPage = authPages.includes(location.pathname);
 
   const role = localStorage.getItem("role");
-  const isAdminRoute = location.pathname.startsWith("/admin");
   const isDashboardPage = location.pathname.startsWith("/admin") ||
     location.pathname.startsWith("/instructor") ||
     location.pathname.startsWith("/student") ||
@@ -77,33 +75,6 @@ const AppContent = () => {
 
   const token = localStorage.getItem("access_token");
   const isUserLoggedIn = !!token;
-
-  useEffect(() => {
-    const existingScript = document.getElementById(TIDIO_SCRIPT_ID);
-    const tidioApi = (window as Window & { tidioChatApi?: { hide?: () => void; show?: () => void } }).tidioChatApi;
-    const tidioWidget = document.getElementById("tidio-chat");
-
-    if (isAdminRoute) {
-      // Hide the already-rendered Tidio widget DOM element
-      if (tidioWidget) (tidioWidget as HTMLElement).style.display = "none";
-      // Also call API hide for cases where widget hasn't fully mounted yet
-      tidioApi?.hide?.();
-      return;
-    }
-
-    // On public pages: restore visibility
-    if (tidioWidget) (tidioWidget as HTMLElement).style.display = "";
-    tidioApi?.show?.();
-
-    // Load script on first visit to a public page if not yet loaded
-    if (!existingScript) {
-      const script = document.createElement("script");
-      script.id = TIDIO_SCRIPT_ID;
-      script.src = TIDIO_SCRIPT_SRC;
-      script.async = true;
-      document.body.appendChild(script);
-    }
-  }, [isAdminRoute]);
 
   // Hide TopBar, Navbar, and Footer for auth pages and all dashboard routes.
   const hideComponents = isAuthPage || isDashboardPage;
@@ -153,6 +124,7 @@ const AppContent = () => {
                 <Route path="Presales" element={<Presales />} />
                 <Route path="dashboard" element={<MainDashboard />} />
                 <Route path="students" element={<StudentsPage />} />
+                <Route path="students/:id" element={<StudentDetailPage />} />
                 <Route path="instructors" element={<InstructorsPage />} />
                 <Route path="instructors/add" element={<AddInstructor />} />
                 <Route path="courses" element={<AdminCourses />} />

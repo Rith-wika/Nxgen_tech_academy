@@ -446,7 +446,7 @@ const Home = () => {
       </section>
 
       {/* Recent Articles */}
-      <section className="py-20">
+      {/* <section className="py-20">
         <div className="w-full px-4 md:px-10 lg:px-20 mx-auto">
           <h2 className="text-3xl font-bold mb-10 text-center text-primary">Recent Articles</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -486,7 +486,7 @@ const Home = () => {
             )}
           </div>
         </div>
-      </section>
+      </section> */}
 
 
     </div>
