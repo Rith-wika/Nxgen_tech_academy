@@ -10,6 +10,9 @@ const axiosInstance = axios.create({
     },
 });
 
+
+
+
 // Request interceptor to attach the access token
 axiosInstance.interceptors.request.use(
     (config) => {
