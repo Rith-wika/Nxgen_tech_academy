@@ -350,13 +350,13 @@ const CourseViewer = () => {
                                         key={lesson.id}
                                         onClick={() => setActiveLesson(lesson)}
                                         className={`flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all duration-300 ${activeLesson?.id === lesson.id
-                                                ? "bg-blue-50 border border-blue-100 shadow-inner"
-                                                : "hover:bg-gray-50"
+                                            ? "bg-blue-50 border border-blue-100 shadow-inner"
+                                            : "hover:bg-gray-50"
                                             }`}
                                     >
                                         <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${activeLesson?.id === lesson.id
-                                                ? "bg-[#000080] text-white shadow-lg shadow-blue-200"
-                                                : "bg-gray-100 text-gray-500"
+                                            ? "bg-[#000080] text-white shadow-lg shadow-blue-200"
+                                            : "bg-gray-100 text-gray-500"
                                             }`}>
                                             {activeLesson?.id === lesson.id ? <PlayCircle className="w-4 h-4 animate-pulse" /> : index + 1}
                                         </div>

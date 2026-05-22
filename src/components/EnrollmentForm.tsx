@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -6,15 +6,7 @@ import { toast } from "sonner";
 import { enrollmentService } from "@/services/enrollmentService";
 import { enrollService } from "@/services/enrollService";
 import { courseService } from "@/services/courseService";
-import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Loader2, ChevronDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export interface EnrollmentFormData {
@@ -58,6 +50,63 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
     const [attendedLeads, setAttendedLeads] = useState<any[]>([]);
     const [isLoadingLeads, setIsLoadingLeads] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [selectedCourseIds, setSelectedCourseIds] = useState<number[]>([]);
+    const [courseDetails, setCourseDetails] = useState<Record<number, { course_type: string; preferred_mode: string; preferred_timing: string; fee_status: string }>>({});
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const handleCourseDetailChange = (courseId: number, field: string, value: string) => {
+        setCourseDetails(prev => ({
+            ...prev,
+            [courseId]: {
+                ...(prev[courseId] || {
+                    course_type: formData.course_type || defaultCourseType || "Training",
+                    preferred_mode: formData.preferred_mode || "",
+                    preferred_timing: formData.preferred_timing || "",
+                    fee_status: formData.fee_status || "Pending",
+                }),
+                [field]: value
+            }
+        }));
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const toggleCourse = (courseId: number) => {
+        setSelectedCourseIds(prev => {
+            if (prev.includes(courseId)) {
+                setCourseDetails(prevDetails => {
+                    const newDetails = { ...prevDetails };
+                    delete newDetails[courseId];
+                    return newDetails;
+                });
+                return prev.filter(id => id !== courseId);
+            } else {
+                setCourseDetails(prevDetails => ({
+                    ...prevDetails,
+                    [courseId]: {
+                        course_type: formData.course_type || defaultCourseType || "Training",
+                        preferred_mode: formData.preferred_mode || "",
+                        preferred_timing: formData.preferred_timing || "",
+                        fee_status: formData.fee_status || "Pending",
+                    }
+                }));
+                return [...prev, courseId];
+            }
+        });
+    };
+
     const [formData, setFormData] = useState<EnrollmentFormData>({
         name: initialData?.name || "",
         email: initialData?.email || "",
@@ -90,14 +139,26 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
 
                 // Set initial course
                 if (formattedCourses.length > 0) {
-                    let initialId = formattedCourses[0].id;
+                    let initialId = null;
                     if (defaultCourse) {
                         const matched = formattedCourses.find((c: any) => c.name === defaultCourse);
                         if (matched) initialId = matched.id;
                     } else if (initialData?.course) {
                         initialId = initialData.course;
                     }
-                    setFormData(prev => ({ ...prev, course: initialId }));
+
+                    if (initialId) {
+                        setFormData(prev => ({ ...prev, course: initialId }));
+                        setSelectedCourseIds([Number(initialId)]);
+                        setCourseDetails({
+                            [Number(initialId)]: {
+                                course_type: initialData?.course_type || defaultCourseType || "Training",
+                                preferred_mode: initialData?.preferred_mode || "",
+                                preferred_timing: (initialData as any)?.preferred_timing || "",
+                                fee_status: initialData?.fee_status || "Pending",
+                            }
+                        });
+                    }
                 }
             } catch (error) {
                 console.error("Failed to fetch courses", error);
@@ -113,6 +174,16 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
     useEffect(() => {
         if (initialData?.course) {
             setFormData(prev => ({ ...prev, course: initialData.course }));
+            setSelectedCourseIds([Number(initialData.course)]);
+            setCourseDetails(prev => ({
+                ...prev,
+                [Number(initialData.course)]: {
+                    course_type: initialData?.course_type || defaultCourseType || "Training",
+                    preferred_mode: initialData?.preferred_mode || "",
+                    preferred_timing: (initialData as any)?.preferred_timing || "",
+                    fee_status: initialData?.fee_status || "Pending",
+                }
+            }));
         }
     }, [initialData?.course]);
 
@@ -232,52 +303,60 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
             return;
         }
 
+        if (selectedCourseIds.length === 0) {
+            toast.error("Please select at least one course");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
-            let response;
-            // Get the course title (name) instead of ID for campaign or direct student enrollment
-            const selectedCourseObj = courses.find(c => String(c.id) === String(formData.course));
-            const courseTitle = selectedCourseObj ? selectedCourseObj.name : formData.course;
+            const enrollmentPromises = selectedCourseIds.map(async (courseId) => {
+                const selectedCourseObj = courses.find(c => String(c.id) === String(courseId));
+                const courseTitle = selectedCourseObj ? selectedCourseObj.name : courseId;
 
-            if (formData.lead || demoId) {
-                if (!formData.lead) {
-                    toast.error("Please select a student first.");
-                    setIsSubmitting(false);
-                    return;
+                const cData = courseDetails[courseId] || formData;
+
+                if (formData.lead || demoId) {
+                    if (!formData.lead) {
+                        throw new Error("Please select a student first.");
+                    }
+                    // For lead conversion from campaigns
+                    return enrollService.createEnrollment({
+                        lead: formData.lead,
+                        course: courseTitle,
+                        course_type: cData.course_type,
+                        enrollment_date: formData.enrollment_date || new Date().toISOString().split('T')[0],
+                        fee_status: (cData.fee_status as any) || "Pending",
+                        qualification: formData.qualification,
+                        current_status: formData.current_status,
+                        preferred_mode: cData.preferred_mode,
+                        preferred_batch_timing: cData.preferred_timing,
+                        experience_level: formData.experience_level,
+                        notes: `Lead enrolled: ${formData.name}`,
+                        terms_accepted: formData.terms_accepted,
+                    } as any);
+                } else {
+                    // For direct student addition (admin/students page)
+                    return enrollmentService.enroll({
+                        name: formData.name,
+                        email: formData.email,
+                        phone: formData.phone,
+                        course: courseTitle,
+                        course_type: cData.course_type,
+                        qualification: formData.qualification,
+                        current_status: formData.current_status,
+                        collegeCompanyName: formData.collegeCompanyName,
+                        preferred_mode: cData.preferred_mode,
+                        preferred_timing: cData.preferred_timing,
+                        experience_level: formData.experience_level,
+                        terms_accepted: formData.terms_accepted,
+                    });
                 }
-                // For lead conversion from campaigns
-                response = await enrollService.createEnrollment({
-                    lead: formData.lead,
-                    course: courseTitle,
-                    enrollment_date: formData.enrollment_date || new Date().toISOString().split('T')[0],
-                    fee_status: (formData.fee_status as any) || "Pending",
-                    qualification: formData.qualification,
-                    current_status: formData.current_status,
-                    preferred_mode: formData.preferred_mode,
-                    preferred_batch_timing: formData.preferred_timing,
-                    experience_level: formData.experience_level,
-                    notes: `Lead enrolled: ${formData.name}`,
-                    terms_accepted: formData.terms_accepted,
-                } as any);
-            } else {
-                // For direct student addition (admin/students page)
-                response = await enrollmentService.enroll({
-                    name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone,
-                    course: courseTitle,
-                    course_type: formData.course_type,
-                    qualification: formData.qualification,
-                    current_status: formData.current_status,
-                    collegeCompanyName: formData.collegeCompanyName,
-                    preferred_mode: formData.preferred_mode,
-                    preferred_timing: formData.preferred_timing,
-                    experience_level: formData.experience_level,
-                    terms_accepted: formData.terms_accepted,
-                });
-            }
-            toast.success("Enrolled to the course successfully! Redirecting...");
+            });
+
+            await Promise.all(enrollmentPromises);
+            toast.success("Enrolled to the course(s) successfully! Redirecting...");
 
             // Reset form
             setFormData({
@@ -288,6 +367,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                 collegeCompanyName: "",
                 terms_accepted: false
             });
+            setSelectedCourseIds([]);
 
             onSuccess?.();
         } catch (error: any) {
@@ -430,48 +510,83 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="courseSelect" className="text-sm font-semibold text-gray-700">Course Name</Label>
-                        <select
-                            id="courseSelect"
-                            name="course"
-                            value={formData.course}
-                            onChange={(e) => handleSelectChange("course", Number(e.target.value))}
-                            required
-                            disabled={isLoadingCourses}
-                            className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            {isLoadingCourses ? (
-                                <option value="">Loading courses...</option>
-                            ) : (
-                                <>
-                                    <option value="" disabled>Select a course</option>
-                                    {courses.map((course) => (
-                                        <option key={course.id} value={course.id}>
-                                            {course.name}
-                                        </option>
-                                    ))}
-                                </>
+                        <div className="relative" ref={dropdownRef}>
+                            <div
+                                onClick={() => !isLoadingCourses && setIsDropdownOpen(prev => !prev)}
+                                className={`flex min-h-[2.75rem] w-full flex-wrap gap-1.5 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring ${isLoadingCourses ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                                    }`}
+                            >
+                                {selectedCourseIds.length === 0 ? (
+                                    <span className="text-gray-400 self-center select-none">Select course(s)...</span>
+                                ) : (
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {courses
+                                            .filter((c) => selectedCourseIds.includes(c.id))
+                                            .map((course) => (
+                                                <span
+                                                    key={course.id}
+                                                    className="inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 border border-indigo-100"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // prevent opening dropdown when clicking delete
+                                                        toggleCourse(course.id);
+                                                    }}
+                                                >
+                                                    {course.name}
+                                                    <span className="text-indigo-400 hover:text-indigo-900 cursor-pointer font-bold ml-1 text-sm">×</span>
+                                                </span>
+                                            ))}
+                                    </div>
+                                )}
+                                <div className="ml-auto self-center flex items-center">
+                                    <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+                                </div>
+                            </div>
+
+                            {isDropdownOpen && (
+                                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-white p-1 text-slate-900 shadow-md outline-none animate-in fade-in-0 zoom-in-95">
+                                    <div className="p-2 border-b text-xs font-semibold text-slate-500 flex justify-between items-center bg-slate-50">
+                                        <span>Select Multiple Courses</span>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsDropdownOpen(false);
+                                            }}
+                                            className="text-blue-600 hover:underline"
+                                        >
+                                            Done
+                                        </button>
+                                    </div>
+                                    <div className="p-1 space-y-1 bg-white">
+                                        {courses.map((course) => {
+                                            const isSelected = selectedCourseIds.includes(course.id);
+                                            return (
+                                                <div
+                                                    key={course.id}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleCourse(course.id);
+                                                    }}
+                                                    className={`flex items-center justify-between rounded px-2.5 py-2 cursor-pointer text-sm font-medium transition-colors ${isSelected
+                                                        ? "bg-indigo-50 text-indigo-700 font-semibold"
+                                                        : "hover:bg-slate-100 text-slate-700"
+                                                        }`}
+                                                >
+                                                    <span>{course.name}</span>
+                                                    {isSelected && (
+                                                        <span className="text-indigo-600 text-xs font-bold bg-indigo-100/55 px-1.5 py-0.5 rounded">Selected</span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                             )}
-                        </select>
+                        </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="courseTypeSelect" className="text-sm font-semibold text-gray-700">Course Type</Label>
-                        <select
-                            id="courseTypeSelect"
-                            name="course_type"
-                            value={formData.course_type}
-                            onChange={(e) => handleSelectChange("course_type", e.target.value)}
-                            required
-                            className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            <option value="" disabled>Select course type</option>
-                            {courseTypes.map((t, i) => (
-                                <option key={t.key || t.id || i} value={t.key || t.id || t}>{t.label || t.name || t}</option>
-                            ))}
-                        </select>
-                    </div>
                     <div className="space-y-2">
                         <Label htmlFor="qualificationSelect" className="text-sm font-semibold text-gray-700">Highest Qualification</Label>
                         <select
@@ -488,9 +603,6 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                             ))}
                         </select>
                     </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label htmlFor="currentStatusSelect" className="text-sm font-semibold text-gray-700">Current Status</Label>
                         <select
@@ -507,6 +619,9 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                             ))}
                         </select>
                     </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label htmlFor="collegeCompanyName" className="text-sm font-semibold text-gray-700">College / Company Name (Optional)</Label>
                         <Input
@@ -518,44 +633,6 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                             className="h-11"
                         />
                     </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="preferredModeSelect" className="text-sm font-semibold text-gray-700">Preferred Mode</Label>
-                        <select
-                            id="preferredModeSelect"
-                            name="preferred_mode"
-                            value={formData.preferred_mode}
-                            onChange={(e) => handleSelectChange("preferred_mode", e.target.value)}
-                            required
-                            className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            <option value="" disabled>Select mode</option>
-                            {modes.map((m, i) => (
-                                <option key={m.key || m.id || i} value={m.key || m.id || m}>{m.label || m.name || m}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="preferredTimingSelect" className="text-sm font-semibold text-gray-700">Preferred Batch Timing</Label>
-                        <select
-                            id="preferredTimingSelect"
-                            name="preferred_timing"
-                            value={formData.preferred_timing}
-                            onChange={(e) => handleSelectChange("preferred_timing", e.target.value)}
-                            required
-                            className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            <option value="" disabled>Select timing</option>
-                            {timings.map((t, i) => (
-                                <option key={t.key || t.id || i} value={t.key || t.id || t}>{t.label || t.name || t}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label htmlFor="experienceLevelSelect" className="text-sm font-semibold text-gray-700">Experience Level</Label>
                         <select
@@ -572,23 +649,82 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                             ))}
                         </select>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="feeStatusSelect" className="text-sm font-semibold text-gray-700">Fee Status</Label>
-                        <select
-                            id="feeStatusSelect"
-                            name="fee_status"
-                            value={formData.fee_status}
-                            onChange={(e) => handleSelectChange("fee_status", e.target.value)}
-                            required
-                            className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            <option value="" disabled>Select fee status</option>
-                            {feeStatuses.map((s, i) => (
-                                <option key={s.key || s.id || i} value={s.key || s.id || s}>{s.label || s.name || s}</option>
-                            ))}
-                        </select>
-                    </div>
                 </div>
+
+                {selectedCourseIds.length > 0 && selectedCourseIds.map(courseId => {
+                    const cData = courseDetails[courseId] || formData;
+                    const courseObj = courses.find(c => c.id === courseId);
+                    const isMultiple = selectedCourseIds.length > 1;
+                    return (
+                        <div key={courseId} className="space-y-6 mt-4 p-5 border rounded-xl bg-slate-50/70 border-slate-200 shadow-sm">
+                            {isMultiple && (
+                                <h3 className="text-base font-bold text-slate-800 pb-2 border-b border-slate-200">
+                                    Course Details: <span className="text-[#000080]">{courseObj?.name || `Course ${courseId}`}</span>
+                                </h3>
+                            )}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-gray-700">Course Type</Label>
+                                    <select
+                                        value={cData.course_type || ""}
+                                        onChange={(e) => handleCourseDetailChange(courseId, "course_type", e.target.value)}
+                                        required
+                                        className="flex h-11 w-full rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <option value="" disabled>Select course type</option>
+                                        {courseTypes.map((t, i) => (
+                                            <option key={t.key || t.id || i} value={t.key || t.id || t}>{t.label || t.name || t}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-gray-700">Preferred Mode</Label>
+                                    <select
+                                        value={cData.preferred_mode || ""}
+                                        onChange={(e) => handleCourseDetailChange(courseId, "preferred_mode", e.target.value)}
+                                        required
+                                        className="flex h-11 w-full rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <option value="" disabled>Select mode</option>
+                                        {modes.map((m, i) => (
+                                            <option key={m.key || m.id || i} value={m.key || m.id || m}>{m.label || m.name || m}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-gray-700">Preferred Batch Timing</Label>
+                                    <select
+                                        value={cData.preferred_timing || ""}
+                                        onChange={(e) => handleCourseDetailChange(courseId, "preferred_timing", e.target.value)}
+                                        required
+                                        className="flex h-11 w-full rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <option value="" disabled>Select timing</option>
+                                        {timings.map((t, i) => (
+                                            <option key={t.key || t.id || i} value={t.key || t.id || t}>{t.label || t.name || t}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-gray-700">Fee Status</Label>
+                                    <select
+                                        value={cData.fee_status || ""}
+                                        onChange={(e) => handleCourseDetailChange(courseId, "fee_status", e.target.value)}
+                                        required
+                                        className="flex h-11 w-full rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <option value="" disabled>Select fee status</option>
+                                        {feeStatuses.map((s, i) => (
+                                            <option key={s.key || s.id || i} value={s.key || s.id || s}>{s.label || s.name || s}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">

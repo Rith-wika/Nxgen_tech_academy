@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   LayoutDashboard, Users, UserCheck, Plus, Search,
-  CheckCircle, XCircle, Loader2, UsersRound, ChevronDown, ChevronUp, BookOpen, FileText, Target, CreditCard, Eye
+  CheckCircle, XCircle, Loader2, UsersRound, ChevronDown, ChevronUp, BookOpen, FileText, Target, CreditCard, Eye, Menu
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { enrollmentService, EnrollmentData } from "@/services/enrollmentService";
 import axiosInstance from "@/api/axiosInstance";
 import EnrollmentForm from "@/components/EnrollmentForm";
@@ -18,6 +24,46 @@ import { adminSidebarItems } from "./adminSidebarItems";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import PaymentDialog from "@/components/PaymentDialog";
+
+interface GroupedStudent {
+  id: string | number;
+  email: string;
+  name: string;
+  phone: string;
+  qualification: string;
+  current_status: string;
+  experience_level: string;
+  preferred_timing: string;
+  collegeCompanyName: string;
+  preferred_mode: string;
+  course_type: string;
+  enrollments: EnrollmentData[];
+}
+
+const groupEnrollments = (data: EnrollmentData[]): GroupedStudent[] => {
+  const groups: Record<string, GroupedStudent> = {};
+  data.forEach((student) => {
+    const key = (student.email || student.phone || student.id || "").toString().toLowerCase().trim();
+    if (!groups[key]) {
+      groups[key] = {
+        id: student.id || "",
+        email: student.email || "",
+        name: student.name || "",
+        phone: student.phone || "",
+        qualification: student.qualification || "",
+        current_status: student.current_status || "",
+        experience_level: student.experience_level || "",
+        preferred_timing: student.preferred_timing || "",
+        collegeCompanyName: student.collegeCompanyName || "",
+        preferred_mode: student.preferred_mode || "",
+        course_type: student.course_type || "",
+        enrollments: [],
+      };
+    }
+    groups[key].enrollments.push(student);
+  });
+  return Object.values(groups);
+};
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -31,6 +77,8 @@ const StudentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<number | string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [selectedStudentForAssign, setSelectedStudentForAssign] = useState<EnrollmentData | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [expandedId, setExpandedId] = useState<number | string | null>(null);
   const [paymentStudent, setPaymentStudent] = useState<EnrollmentData | null>(null);
@@ -53,71 +101,65 @@ const StudentsPage = () => {
     }
   };
 
-  const handleApprove = async (id: number | string) => {
-    if (!window.confirm("Approve this enrollment? The student will receive an email with login credentials.")) return;
+  const handleApproveAll = async (pendingEnvs: EnrollmentData[], studentId: number | string) => {
+    if (!window.confirm("Approve all pending enrollments for this student? The student will receive an email with login credentials.")) return;
     try {
-      setActionLoading(id);
-      const response = await axiosInstance.post(`/api/enrollments/admin/enrollments/${id}/approve/`);
-      toast.success(response.data?.message || "Enrollment approved! Confirmation email sent to student.");
+      setActionLoading(studentId);
+      await Promise.all(pendingEnvs.map(env => axiosInstance.post(`/api/enrollments/admin/enrollments/${env.id}/approve/`)));
+      toast.success("Enrollment(s) approved! Confirmation email sent to student.");
       fetchEnrollments();
     } catch (err: any) {
       console.error(err);
-      let errorMessage = "Failed to approve enrollment.";
-
-      if (err.response?.data) {
-        if (typeof err.response.data === 'object') {
-          errorMessage = err.response.data.error || err.response.data.message || errorMessage;
-        } else if (typeof err.response.data === 'string') {
-          errorMessage = err.response.data;
-        }
-      }
-
-      toast.error(errorMessage);
+      toast.error("Failed to approve some enrollments.");
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleReject = async (id: number | string) => {
-    if (!window.confirm("Reject this enrollment? The student will be notified by email.")) return;
+  const handleRejectAll = async (pendingEnvs: EnrollmentData[], studentId: number | string) => {
+    if (!window.confirm("Reject all pending enrollments for this student? The student will be notified by email.")) return;
     try {
-      setActionLoading(id);
-      const response = await axiosInstance.post(`/api/enrollments/admin/enrollments/${id}/reject/`);
-      toast.success(response.data?.message || "Enrollment rejected. Student has been notified.");
+      setActionLoading(studentId);
+      await Promise.all(pendingEnvs.map(env => axiosInstance.post(`/api/enrollments/admin/enrollments/${env.id}/reject/`)));
+      toast.success("Enrollment(s) rejected. Student has been notified.");
       fetchEnrollments();
     } catch (err: any) {
       console.error(err);
-      let errorMessage = "Failed to reject enrollment.";
-
-      if (err.response?.data) {
-        if (typeof err.response.data === 'object') {
-          errorMessage = err.response.data.error || err.response.data.message || errorMessage;
-        } else if (typeof err.response.data === 'string') {
-          errorMessage = err.response.data;
-        }
-      }
-
-      toast.error(errorMessage);
+      toast.error("Failed to reject some enrollments.");
     } finally {
       setActionLoading(null);
     }
   };
 
-  const filtered = enrollments.filter((e) => {
-    const matchSearch =
-      e.name?.toLowerCase().includes(search.toLowerCase()) ||
-      e.email?.toLowerCase().includes(search.toLowerCase()) ||
-      String(e.course).toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === "all" || (e as any).status === filterStatus;
-    return matchSearch && matchStatus;
-  });
+  const groupedList = React.useMemo(() => {
+    return groupEnrollments(enrollments);
+  }, [enrollments]);
 
-  const counts = {
-    all: enrollments.length,
-    pending: enrollments.filter((e) => (e as any).status === "pending").length,
-    approved: enrollments.filter((e) => (e as any).status === "approved").length,
-    rejected: enrollments.filter((e) => (e as any).status === "rejected").length,
-  };
+  const filtered = React.useMemo(() => {
+    return groupedList.filter((student) => {
+      const searchLower = search.toLowerCase();
+      const matchSearch =
+        student.name.toLowerCase().includes(searchLower) ||
+        student.email.toLowerCase().includes(searchLower) ||
+        student.phone.toLowerCase().includes(searchLower) ||
+        student.enrollments.some((env) => (env.course || "").toString().toLowerCase().includes(searchLower));
+
+      const matchStatus =
+        filterStatus === "all" ||
+        student.enrollments.some((env) => (env.status || "pending") === filterStatus);
+
+      return matchSearch && matchStatus;
+    });
+  }, [groupedList, search, filterStatus]);
+
+  const counts = React.useMemo(() => {
+    return {
+      all: groupedList.length,
+      pending: groupedList.filter((student) => student.enrollments.some((env) => (env.status || "pending") === "pending")).length,
+      approved: groupedList.filter((student) => student.enrollments.some((env) => env.status === "approved")).length,
+      rejected: groupedList.filter((student) => student.enrollments.some((env) => env.status === "rejected")).length,
+    };
+  }, [groupedList]);
 
   return (
     <DashboardLayout role="admin" sidebarItems={adminSidebarItems} title="NxGen Admin">
@@ -178,7 +220,7 @@ const StudentsPage = () => {
               <thead className="border-b bg-slate-50">
                 <tr className="text-slate-500">
                   <th className="px-4 py-3 font-semibold">Student Details</th>
-                  <th className="px-4 py-3 font-semibold">Course</th>
+                  <th className="px-4 py-3 font-semibold">Course(s)</th>
                   <th className="px-4 py-3 font-semibold">Mode</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold text-right">Actions</th>
@@ -190,9 +232,7 @@ const StudentsPage = () => {
                 ) : filtered.length === 0 ? (
                   <tr><td colSpan={5} className="py-12 text-center text-gray-400">No enrollments found.</td></tr>
                 ) : filtered.map((student) => {
-                  const enrollmentStatus = (student as any).status || "pending";
                   const isExpanded = expandedId === student.id;
-                  const isActioning = actionLoading === student.id;
                   return (
                     <React.Fragment key={student.id}>
                       <tr
@@ -204,59 +244,102 @@ const StudentsPage = () => {
                             <span className="font-semibold text-gray-900 text-base">{student.name}</span>
                             <span className="text-xs text-gray-500">{student.email}</span>
                             <span className="text-xs text-gray-500">{student.phone}</span>
-                            {enrollmentStatus === "pending" && (
-                              <div className="flex items-center gap-2 mt-1.5" onClick={(e) => e.stopPropagation()}>
+                            {student.enrollments.filter(env => (env.status || "pending") === "pending").length > 0 && (
+                              <div className="flex items-center gap-2 mt-2" onClick={(e) => e.stopPropagation()}>
+                                <span className="text-xs font-semibold text-gray-500">Action:</span>
                                 <Button
                                   size="sm"
-                                  className="h-7 bg-green-600 hover:bg-green-700 text-white px-2.5 text-xs"
-                                  disabled={isActioning}
-                                  onClick={() => handleApprove(student.id!)}
+                                  className="h-6 bg-green-600 hover:bg-green-700 text-white px-2 text-[10px]"
+                                  disabled={actionLoading === student.id}
+                                  onClick={() => handleApproveAll(student.enrollments.filter(env => (env.status || "pending") === "pending"), student.id)}
                                 >
-                                  {isActioning ? <Loader2 className="w-3 h-3 animate-spin" /> : <><CheckCircle className="w-3 h-3 mr-1" />Approve</>}
+                                  {actionLoading === student.id ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : "Approve"}
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-7 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 px-2.5 text-xs"
-                                  disabled={isActioning}
-                                  onClick={() => handleReject(student.id!)}
+                                  className="h-6 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 px-2 text-[10px]"
+                                  disabled={actionLoading === student.id}
+                                  onClick={() => handleRejectAll(student.enrollments.filter(env => (env.status || "pending") === "pending"), student.id)}
                                 >
-                                  <XCircle className="w-3 h-3 mr-1" />Reject
+                                  Reject
                                 </Button>
                               </div>
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-gray-600 font-medium">{student.course}</td>
                         <td className="px-4 py-3">
-                          <div className="flex flex-col text-xs">
-                            <span className="font-semibold text-blue-700">{student.course_type}</span>
-                            <span className="text-gray-400">{student.preferred_mode}</span>
+                          <div className="flex flex-col gap-1.5">
+                            {student.enrollments.map((env) => (
+                              <span key={env.id} className="inline-block bg-slate-100 text-slate-800 text-xs px-2 py-0.5 rounded font-semibold w-fit">
+                                {env.course}
+                              </span>
+                            ))}
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize ${STATUS_COLORS[enrollmentStatus] || "bg-gray-100 text-gray-700"}`}>
-                            {enrollmentStatus}
-                          </span>
+                          <div className="flex flex-col gap-2">
+                            {student.enrollments.map((env) => (
+                              <div key={env.id} className="flex flex-col text-xs">
+                                <span className="font-semibold text-blue-700">{env.course_type}</span>
+                                <span className="text-gray-400">{env.preferred_mode}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col gap-1.5">
+                            {student.enrollments.map((env) => (
+                              <span key={env.id} className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold capitalize w-fit ${STATUS_COLORS[env.status || "pending"] || "bg-gray-100 text-gray-700"}`}>
+                                {env.status || "pending"}
+                              </span>
+                            ))}
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 border-blue-300 text-blue-600 hover:bg-blue-50 hover:text-blue-700 px-3"
-                              onClick={() => setPaymentStudent(student)}
-                            >
-                              <CreditCard className="w-3 h-3 mr-1" /> Payment Details
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 px-2 text-slate-500 hover:text-slate-900"
-                              onClick={() => navigate(`/admin/students/${student.id}`)}
-                            >
-                              <Eye className="w-4.5 h-4.5" />
-                            </Button>
+                          <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-slate-500 hover:text-slate-900 rounded-full hover:bg-slate-100"
+                                >
+                                  <Menu className="h-5 w-5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48 bg-white text-slate-900 border shadow-md rounded-md p-1">
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedStudentForAssign(student.enrollments[0]);
+                                    setTimeout(() => setIsAssignDialogOpen(true), 150);
+                                  }}
+                                  className="flex items-center px-3 py-2 text-sm text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 cursor-pointer rounded-sm gap-2 font-medium"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  <span>Enroll Course</span>
+                                </DropdownMenuItem>
+
+                                {student.enrollments.map((env) => (
+                                  <DropdownMenuItem
+                                    key={env.id}
+                                    onClick={() => setTimeout(() => setPaymentStudent(env), 150)}
+                                    className="flex items-center px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 hover:text-blue-700 cursor-pointer rounded-sm gap-2 font-medium"
+                                  >
+                                    <CreditCard className="w-4 h-4" />
+                                    <span>Payment: {env.course}</span>
+                                  </DropdownMenuItem>
+                                ))}
+
+                                <DropdownMenuItem
+                                  onClick={() => setTimeout(() => navigate(`/admin/students/${student.id}`), 150)}
+                                  className="flex items-center px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer rounded-sm gap-2 font-medium"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                  <span>View Details</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </td>
                       </tr>
@@ -280,6 +363,39 @@ const StudentsPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Enroll in Additional Course Dialog */}
+      <Dialog open={isAssignDialogOpen} onOpenChange={(open) => {
+        setIsAssignDialogOpen(open);
+        if (!open) setSelectedStudentForAssign(null);
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col pb-0">
+          <DialogHeader>
+            <DialogTitle>Enroll Student in Additional Course</DialogTitle>
+          </DialogHeader>
+          {selectedStudentForAssign && (
+            <EnrollmentForm
+              initialData={{
+                name: selectedStudentForAssign.name,
+                email: selectedStudentForAssign.email,
+                phone: selectedStudentForAssign.phone,
+                qualification: selectedStudentForAssign.qualification,
+                current_status: selectedStudentForAssign.current_status,
+                collegeCompanyName: selectedStudentForAssign.collegeCompanyName,
+                preferred_mode: selectedStudentForAssign.preferred_mode,
+                preferred_timing: selectedStudentForAssign.preferred_timing,
+                experience_level: selectedStudentForAssign.experience_level,
+                fee_status: "Pending", // Default new enrollment to Pending fee status
+              }}
+              onSuccess={() => {
+                setIsAssignDialogOpen(false);
+                setSelectedStudentForAssign(null);
+                fetchEnrollments();
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {paymentStudent && (
         <PaymentDialog

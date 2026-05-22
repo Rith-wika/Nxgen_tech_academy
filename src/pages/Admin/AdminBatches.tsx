@@ -191,13 +191,20 @@ const AdminBatches = () => {
     }
   };
 
-  // Filter enrollments suitable to be added to the selected course
-  // We match enrollment data course name with the selected batch's course title
   const filteredEnrollmentsByCourse = useMemo(() => {
     if (!selectedBatch) return [];
 
-    // Some enrollments might use string for course, some might use ID.
-    // Let's compare ID if available.
+    // If backend provides enrolled_students, use it directly (better accuracy)
+    if (Array.isArray(selectedBatch.enrolled_students)) {
+      return selectedBatch.enrolled_students.filter((e: any) => {
+        const matchSearch =
+          e.name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
+          e.email?.toLowerCase().includes(studentSearch.toLowerCase());
+        return matchSearch && e.email;
+      });
+    }
+
+    // Fallback: manually filter from all enrollments
     return enrollments.filter(e => {
       const matchCourse = String(e.course) === String(selectedBatch.course);
 
@@ -386,7 +393,7 @@ const AdminBatches = () => {
                                   <div key={enrollment.email} className="flex justify-between items-center p-3 border-b hover:bg-slate-50">
                                     <div className="flex flex-col">
                                       <span className="text-sm font-medium">{enrollment.name}</span>
-                                      <span className="text-xs text-gray-500">{enrollment.email} &bull; {enrollment.course}</span>
+                                      <span className="text-xs text-gray-500">{enrollment.email} &bull; {enrollment.course || selectedBatch?.course_title || 'Enrolled in Course'}</span>
                                     </div>
                                     <Button
                                       size="sm"

@@ -14,6 +14,7 @@ export interface EnrollmentData {
     preferred_timing: string;
     experience_level: string;
     status?: "pending" | "approved" | "rejected";
+    fee_status?: string;
     created_at?: string;
     terms_accepted?: boolean;
     fee_amount?: number;
