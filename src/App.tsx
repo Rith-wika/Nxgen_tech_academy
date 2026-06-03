@@ -57,6 +57,15 @@ import BlogDashboard from "./pages/BlogAdmin/BlogDashboard";
 import CourseViewer from "./pages/Dashboard/CourseViewer";
 import BlogDetail from "./pages/BlogDetail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Payments from "@/pages/Payments";
+import StudentPaymentHistory from "./pages/Student/StudentPaymentHistory";
+import StudentInvoices from "./pages/Student/StudentInvoices";
+import StudentInvoiceDetail from "./pages/Student/StudentInvoiceDetail";
+import Transactions from "./pages/Admin/Finance/Transactions";
+import Invoices from "./pages/Admin/Finance/Invoices";
+import AdminInvoiceDetail from "./pages/Admin/Finance/AdminInvoiceDetail";
+import Refunds from "./pages/Admin/Finance/Refunds";
+import Reports from "./pages/Admin/Finance/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useLocation, useParams } from "react-router-dom";
 
@@ -71,7 +80,8 @@ const AppContent = () => {
   const isDashboardPage = location.pathname.startsWith("/admin") ||
     location.pathname.startsWith("/instructor") ||
     location.pathname.startsWith("/student") ||
-    location.pathname.startsWith("/blog-admin");
+    location.pathname.startsWith("/blog-admin") ||
+    location.pathname.startsWith("/payments");
 
   const token = localStorage.getItem("access_token");
   const isUserLoggedIn = !!token;
@@ -130,6 +140,11 @@ const AppContent = () => {
                 <Route path="courses" element={<AdminCourses />} />
                 <Route path="batches" element={<AdminBatches />} />
                 <Route path="assignments" element={<AdminAssignments />} />
+                <Route path="finance/transactions" element={<Transactions />} />
+                <Route path="finance/invoices" element={<Invoices />} />
+                <Route path="finance/invoices/:enrollmentId" element={<AdminInvoiceDetail />} />
+                <Route path="finance/refunds" element={<Refunds />} />
+                <Route path="finance/reports" element={<Reports />} />
               </Routes>
             </ProtectedRoute>
           } />
@@ -163,7 +178,16 @@ const AppContent = () => {
                 <Route path="certificates" element={<StudentCertificates />} />
                 <Route path="profile" element={<StudentProfile />} />
                 <Route path="course/:id" element={<CourseViewer />} />
+                <Route path="payment-history" element={<StudentPaymentHistory />} />
+                <Route path="invoices" element={<StudentInvoices />} />
+                <Route path="invoices/:enrollmentId" element={<StudentInvoiceDetail />} />
               </Routes>
+            </ProtectedRoute>
+          } />
+
+          <Route path="payments" element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <Payments />
             </ProtectedRoute>
           } />
 

@@ -19,7 +19,12 @@ import {
 interface SidebarItem {
     label: string;
     icon: React.ElementType;
-    path: string;
+    path?: string;
+    children?: {
+        label: string;
+        path: string;
+        icon?: React.ElementType;
+    }[];
 }
 
 interface DashboardLayoutProps {
@@ -31,6 +36,7 @@ interface DashboardLayoutProps {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sidebarItems, title }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -45,7 +51,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
         navigate("/login");
     };
 
-    const isActive = (path: string) => {
+    const toggleGroup = (label: string) => {
+        setOpenGroups(prev => ({
+            ...prev,
+            [label]: !prev[label]
+        }));
+    };
+
+    const isActive = (path?: string) => {
+        if (!path) return false;
         if (location.pathname === path) return true;
         // Specifically for instructor courses to stay active during drilling down
         if (path === "/instructor/courses" && (
@@ -64,20 +78,57 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
                     <p className="text-xs text-white/60 mt-1 capitalize">{role.replace('_', ' ')} Portal</p>
                 </div>
                 <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
-                    {sidebarItems.map((item) => (
-                        <Link
-                            key={item.path}
-                            to={item.path}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive(item.path)
-                                ? "bg-white text-[#000080] shadow-lg scale-105"
-                                : "text-white/80 hover:bg-white/10 hover:text-white"
-                                }`}
-                        >
-                            <item.icon className={`w-5 h-5 ${isActive(item.path) ? "text-[#000080]" : "text-white/60 group-hover:text-white"}`} />
-                            <span className="font-medium">{item.label}</span>
-                            {isActive(item.path) && <ChevronRight className="ml-auto w-4 h-4" />}
-                        </Link>
-                    ))}
+                    {sidebarItems.map((item) => {
+                        const hasChildren = item.children && item.children.length > 0;
+                        const isExpanded = openGroups[item.label] ?? item.children?.some(child => isActive(child.path));
+
+                        if (!hasChildren) {
+                            return (
+                                <Link
+                                    key={item.path}
+                                    to={item.path!}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive(item.path)
+                                        ? "bg-white text-[#000080] shadow-lg scale-105"
+                                        : "text-white/80 hover:bg-white/10 hover:text-white"
+                                        }`}
+                                >
+                                    <item.icon className={`w-5 h-5 ${isActive(item.path) ? "text-[#000080]" : "text-white/60 group-hover:text-white"}`} />
+                                    <span className="font-medium">{item.label}</span>
+                                    {isActive(item.path) && <ChevronRight className="ml-auto w-4 h-4" />}
+                                </Link>
+                            );
+                        }
+
+                        return (
+                            <div key={item.label} className="space-y-1">
+                                <button
+                                    onClick={() => toggleGroup(item.label)}
+                                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-200 group text-white/80 hover:bg-white/10 hover:text-white`}
+                                >
+                                    <item.icon className="w-5 h-5 text-white/60 group-hover:text-white" />
+                                    <span className="font-medium text-left">{item.label}</span>
+                                    <ChevronRight className={`ml-auto w-4 h-4 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
+                                </button>
+                                {isExpanded && (
+                                    <div className="pl-6 space-y-1 border-l border-white/20 ml-6">
+                                        {item.children.map((child) => (
+                                            <Link
+                                                key={child.path}
+                                                to={child.path}
+                                                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${isActive(child.path)
+                                                    ? "bg-white text-[#000080] font-semibold"
+                                                    : "text-white/70 hover:bg-white/5 hover:text-white"
+                                                    }`}
+                                            >
+                                                {child.icon && <child.icon className="w-4 h-4" />}
+                                                <span>{child.label}</span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </nav>
                 <div className="p-4 border-t border-white/10">
                     <button
@@ -105,18 +156,56 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, sideb
                         </button>
                     </div>
                     <nav className="p-4 space-y-2">
-                        {sidebarItems.map((item) => (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg ${isActive(item.path) ? "bg-white text-[#000080]" : "text-white/80"
-                                    }`}
-                            >
-                                <item.icon className="w-5 h-5" />
-                                <span>{item.label}</span>
-                            </Link>
-                        ))}
+                        {sidebarItems.map((item) => {
+                            const hasChildren = item.children && item.children.length > 0;
+                            const isExpanded = openGroups[item.label] ?? item.children?.some(child => isActive(child.path));
+
+                            if (!hasChildren) {
+                                return (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path!}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg ${isActive(item.path) ? "bg-white text-[#000080]" : "text-white/80"
+                                            }`}
+                                    >
+                                        <item.icon className="w-5 h-5" />
+                                        <span>{item.label}</span>
+                                    </Link>
+                                );
+                            }
+
+                            return (
+                                <div key={item.label} className="space-y-1">
+                                    <button
+                                        onClick={() => toggleGroup(item.label)}
+                                        className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white`}
+                                    >
+                                        <item.icon className="w-5 h-5 text-white/60" />
+                                        <span className="font-medium text-left">{item.label}</span>
+                                        <ChevronRight className={`ml-auto w-4 h-4 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
+                                    </button>
+                                    {isExpanded && (
+                                        <div className="pl-6 space-y-1 border-l border-white/20 ml-6">
+                                            {item.children.map((child) => (
+                                                <Link
+                                                    key={child.path}
+                                                    to={child.path}
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${isActive(child.path)
+                                                        ? "bg-white text-[#000080] font-semibold"
+                                                        : "text-white/70 hover:bg-white/5 hover:text-white"
+                                                        }`}
+                                                >
+                                                    {child.icon && <child.icon className="w-4 h-4" />}
+                                                    <span>{child.label}</span>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </nav>
                     <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
                         <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-red-300">

@@ -31,6 +31,7 @@ import { moduleService } from "@/services/moduleService";
 import { instructorService } from "@/services/instructorService";
 import { courseService } from "@/services/courseService";
 import { batchService, Batch } from "@/services/batchService";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 type AssignmentStatus = "Draft" | "Active" | "Closed";
 
@@ -85,8 +86,10 @@ interface AssignmentApiItem {
     assignment_due_date?: string | null;
     file?: string | null;
     batch?: number;
+    instructor_details?: any;
   };
   instructor?: any;
+  instructor_details?: any;
 }
 
 interface SubmissionApiItem {
@@ -170,6 +173,10 @@ const AssignmentsManager = ({ role, sidebarItems }: AssignmentsManagerProps) => 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
   const [isGradeOpen, setIsGradeOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [assignmentToDelete, setAssignmentToDelete] = useState<AssignmentItem | null>(null);
+  const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false);
+  const [assignmentToClose, setAssignmentToClose] = useState<AssignmentItem | null>(null);
 
   // Selected State
   const [selectedAssignment, setSelectedAssignment] = useState<AssignmentItem | null>(null);
@@ -221,8 +228,8 @@ const AssignmentsManager = ({ role, sidebarItems }: AssignmentsManagerProps) => 
           submissionsCount: item.submissions_count || 0,
           status: deriveStatus(assignment.assignment_due_date || null),
           fileUrl: assignment.file || null,
-          instructorId: item.instructor?.id || (typeof item.instructor === 'number' ? item.instructor : 0),
-          instructorName: item.instructor?.full_name || item.instructor?.username || item.instructor?.name || (item.instructor?.first_name ? `${item.instructor.first_name} ${item.instructor.last_name || ''}` : "Instructor"),
+          instructorId: item.instructor_details?.id || assignment.instructor_details?.id || item.instructor?.id || (typeof item.instructor === 'number' ? item.instructor : 0),
+          instructorName: item.instructor_details?.name || assignment.instructor_details?.name || item.instructor?.full_name || item.instructor?.username || item.instructor?.name || (item.instructor?.first_name ? `${item.instructor.first_name} ${item.instructor.last_name || ''}` : "Instructor"),
         };
       });
       setAssignments(mapped);
@@ -438,42 +445,54 @@ const AssignmentsManager = ({ role, sidebarItems }: AssignmentsManagerProps) => 
     }
   };
 
-  const handleDelete = async (assignment: AssignmentItem) => {
-    if (window.confirm("Are you sure you want to delete this assignment?")) {
-      try {
-        setLoading(true);
-        await moduleService.deleteLessonAssignment(assignment.moduleId, assignment.lessonId);
-        await fetchAssignments();
-        toast.success("Assignment deleted.");
-      } catch (error) {
-        console.error("Failed to delete assignment", error);
-        toast.error("Failed to delete assignment.");
-      } finally {
-        setLoading(false);
-      }
+  const handleDeleteClick = (assignment: AssignmentItem) => {
+    setAssignmentToDelete(assignment);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!assignmentToDelete) return;
+    try {
+      setLoading(true);
+      await moduleService.deleteLessonAssignment(assignmentToDelete.moduleId, assignmentToDelete.lessonId);
+      await fetchAssignments();
+      toast.success("Assignment deleted.");
+    } catch (error) {
+      console.error("Failed to delete assignment", error);
+      toast.error("Failed to delete assignment.");
+    } finally {
+      setLoading(false);
+      setIsDeleteDialogOpen(false);
+      setAssignmentToDelete(null);
     }
   };
 
-  const handleCloseAssignment = async (assignment: AssignmentItem) => {
-    if (window.confirm("Close this assignment? Students will no longer submit.")) {
-      try {
-        setLoading(true);
-        await moduleService.upsertLessonAssignment({
-          moduleId: assignment.moduleId,
-          lessonId: assignment.lessonId,
-          title: assignment.assignmentTitle,
-          description: assignment.assignmentDescription,
-          dueDate: new Date().toISOString(),
-        });
-        await fetchAssignments();
-        toast.success("Assignment closed.");
-        setIsDetailsOpen(false);
-      } catch (error) {
-        console.error("Failed to close assignment", error);
-        toast.error("Failed to close assignment.");
-      } finally {
-        setLoading(false);
-      }
+  const handleCloseClick = (assignment: AssignmentItem) => {
+    setAssignmentToClose(assignment);
+    setIsCloseDialogOpen(true);
+  };
+
+  const handleConfirmClose = async () => {
+    if (!assignmentToClose) return;
+    try {
+      setLoading(true);
+      await moduleService.upsertLessonAssignment({
+        moduleId: assignmentToClose.moduleId,
+        lessonId: assignmentToClose.lessonId,
+        title: assignmentToClose.assignmentTitle,
+        description: assignmentToClose.assignmentDescription,
+        dueDate: new Date().toISOString(),
+      });
+      await fetchAssignments();
+      toast.success("Assignment closed.");
+      setIsDetailsOpen(false);
+    } catch (error) {
+      console.error("Failed to close assignment", error);
+      toast.error("Failed to close assignment.");
+    } finally {
+      setLoading(false);
+      setIsCloseDialogOpen(false);
+      setAssignmentToClose(null);
     }
   };
 
@@ -725,7 +744,7 @@ const AssignmentsManager = ({ role, sidebarItems }: AssignmentsManagerProps) => 
                           <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-600 hover:text-gray-800 hover:bg-gray-100" title="Edit" onClick={() => handleOpenForm(assignment)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50" title="Delete" onClick={() => handleDelete(assignment)}>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50" title="Delete" onClick={() => handleDeleteClick(assignment)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -858,7 +877,7 @@ const AssignmentsManager = ({ role, sidebarItems }: AssignmentsManagerProps) => 
               <DialogFooter className="gap-2 sm:gap-0">
                 <Button variant="outline" onClick={() => { setIsDetailsOpen(false); handleOpenForm(selectedAssignment); }}>Edit Assignment</Button>
                 {selectedAssignment.status === "Active" && (
-                  <Button variant="destructive" onClick={() => handleCloseAssignment(selectedAssignment)}>Close Assignment</Button>
+                  <Button variant="destructive" onClick={() => handleCloseClick(selectedAssignment)}>Close Assignment</Button>
                 )}
                 <Button className="bg-[#000080]" onClick={() => { setIsDetailsOpen(false); handleOpenSubmissions(selectedAssignment); }}>View Submissions</Button>
               </DialogFooter>
@@ -1014,6 +1033,24 @@ const AssignmentsManager = ({ role, sidebarItems }: AssignmentsManagerProps) => 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeleteConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title="Delete Assignment"
+        description={`Are you sure you want to delete "${assignmentToDelete?.assignmentTitle || 'this assignment'}"? This action cannot be undone.`}
+      />
+
+      <DeleteConfirmDialog
+        isOpen={isCloseDialogOpen}
+        onOpenChange={setIsCloseDialogOpen}
+        onConfirm={handleConfirmClose}
+        title="Close Assignment"
+        description={`Are you sure you want to close "${assignmentToClose?.assignmentTitle || 'this assignment'}"? Students will no longer be able to submit.`}
+        confirmText="Close"
+        variant="destructive"
+      />
 
     </DashboardLayout>
   );

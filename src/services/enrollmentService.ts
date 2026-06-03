@@ -54,6 +54,7 @@ export const enrollmentService = {
         }
     },
 
+
     // Admin: Approve enrollment
     approveEnrollment: async (id: number | string) => {
         try {

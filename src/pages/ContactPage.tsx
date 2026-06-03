@@ -76,16 +76,21 @@ const ContactPage = () => {
               </div>
 
               <div className="grid gap-8">
-                {/* Hyderabad Kothrud */}
+                {/* Hyderabad (Kothaguda) */}
                 <div className="flex gap-4">
                   <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
                     <MapPin className="w-6 h-6 text-[#000080]" />
                   </div>
                   <div>
-                    <p className="font-bold text-lg mb-2 text-gray-800">Hyderabad (Miyapur)</p>
-                    <p className="text-gray-600 text-sm mb-2">
-                      First Floor, 1-121/63 Survey No. 63 Part Hotel Sitara Grand Backside, Miyapur, Telangana 500049
-                    </p>
+                    <p className="font-bold text-lg mb-2 text-gray-800">Hyderabad (Kothaguda)</p>
+                    <a 
+                      href="https://maps.google.com/?q=Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Hyderabad,+Telangana+500084" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-gray-600 text-sm mb-2 block hover:text-[#000080] transition-colors"
+                    >
+                      Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Hyderabad, Telangana 500084
+                    </a>
                     <p className="font-bold text-[#000080]">+91 9701314138</p>
                   </div>
                 </div>
@@ -176,10 +181,10 @@ const ContactPage = () => {
         </div>
       </section>
 
-      {/* Map Section - Focused on Hyderabad Kothrud */}
+      {/* Map Section - Focused on Hyderabad Kothaguda */}
       <section className="h-[400px] w-full">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3805.280746844092!2d78.3542804!3d17.4941067!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9398a74e6225%3A0x9ab33bfbaff07f32!2sSria%20Infotech%20Pvt%20Ltd!5e0!3m2!1sen!2sin!4v1770883179308!5m2!1sen!2sin"
+          src="https://maps.google.com/maps?q=Udaya%20Vensar%20Apartments,%20Rd%20Number%201,%20Hanuman%20Nagar,%20Kothaguda,%20Hyderabad,%20Telangana%20500084&t=&z=15&ie=UTF8&iwloc=&output=embed"
           width="100%"
           height="100%"
           style={{ border: 0 }}

@@ -27,7 +27,12 @@ export const ContactPreview = () => {
           {[
             { icon: Phone, title: "Call Us", info: "+91 63097 82855" },
             { icon: Mail, title: "Email Us", info: "nxgentechacademy@gmail.com" },
-            { icon: MapPin, title: "Visit Us", info: "First Floor, 1-121/63 Survey No. 63 Part Hotel Sitara Grand Backside, Miyapur, Telangana 500049" },
+            { 
+              icon: MapPin, 
+              title: "Visit Us", 
+              info: "Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Hyderabad, Telangana 500084",
+              link: "https://maps.google.com/?q=Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Hyderabad,+Telangana+500084"
+            },
           ].map((contact, index) => (
             <div
               key={index}
@@ -37,7 +42,18 @@ export const ContactPreview = () => {
                 <contact.icon className="w-7 h-7 text-primary" />
               </div>
               <h3 className="font-semibold text-lg mb-2">{contact.title}</h3>
-              <p className="text-muted-foreground text-sm">{contact.info}</p>
+              {contact.link ? (
+                <a 
+                  href={contact.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-muted-foreground text-sm hover:text-primary transition-colors block"
+                >
+                  {contact.info}
+                </a>
+              ) : (
+                <p className="text-muted-foreground text-sm">{contact.info}</p>
+              )}
             </div>
           ))}
         </div>

@@ -24,9 +24,14 @@ export const Footer = () => {
             <div className="space-y-4 text-sm leading-relaxed">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-[#000080] mt-1 shrink-0" />
-                <p>
-                  First Floor, 1-121/63, Survey No. 63 Part, Hotel Sitara Grand Backside, Miyapur, Telangana – 500049
-                </p>
+                <a 
+                  href="https://maps.google.com/?q=Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Hyderabad,+Telangana+500084" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-white transition-colors"
+                >
+                  Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Hyderabad, Telangana 500084
+                </a>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-[#000080] shrink-0" />

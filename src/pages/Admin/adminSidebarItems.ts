@@ -5,15 +5,46 @@ import {
     UsersRound,
     UserCheck,
     FileText,
-    Target
+    Target,
+    IndianRupee,
+    Receipt,
+    Briefcase,
+    GraduationCap,
+    ClipboardList
 } from "lucide-react";
 
 export const adminSidebarItems = [
-    { label: "Presales", icon: Target, path: "/admin/Presales" },
     { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-    { label: "Students", icon: Users, path: "/admin/students" },
-    { label: "Instructors", icon: UserCheck, path: "/admin/instructors" },
-    { label: "Courses", icon: BookOpen, path: "/admin/courses" },
-    { label: "Batches", icon: UsersRound, path: "/admin/batches" },
-    { label: "Assignments", icon: FileText, path: "/admin/assignments" },
+    { label: "Presales", icon: Target, path: "/admin/Presales" },
+    {
+        label: "User Management",
+        icon: Users,
+        children: [
+            { label: "Students", path: "/admin/students", icon: UsersRound },
+            { label: "Instructors", path: "/admin/instructors", icon: UserCheck },
+        ]
+    },
+    {
+        label: "Course Management",
+        icon: GraduationCap,
+        children: [
+            { label: "Courses", path: "/admin/courses", icon: BookOpen },
+            { label: "Batches", path: "/admin/batches", icon: UsersRound },
+        ]
+    },
+    {
+        label: "Assessments",
+        icon: ClipboardList,
+        children: [
+            { label: "Assignments", path: "/admin/assignments", icon: FileText },
+        ]
+    },
+    {
+        label: "Finance",
+        icon: IndianRupee,
+        children: [
+            { label: "Transactions", path: "/admin/finance/transactions", icon: Briefcase },
+            { label: "Invoices", path: "/admin/finance/invoices", icon: Receipt },
+        ]
+    }
 ];

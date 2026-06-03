@@ -37,6 +37,7 @@ import { lessonService, Topic } from "@/services/lessonService";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 const InstructorTopics = () => {
     const { lessonId } = useParams<{ lessonId: string }>();
@@ -47,6 +48,8 @@ const InstructorTopics = () => {
     const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [docFile, setDocFile] = useState<File | null>(null);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [topicToDelete, setTopicToDelete] = useState<Topic | null>(null);
 
     const [formData, setFormData] = useState<Partial<Topic>>({
         title: "",
@@ -122,14 +125,22 @@ const InstructorTopics = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm("Are you sure you want to delete this topic?")) return;
+    const handleDeleteClick = (topic: Topic) => {
+        setTopicToDelete(topic);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!topicToDelete) return;
         try {
-            await lessonService.deleteTopic(id);
+            await lessonService.deleteTopic(topicToDelete.id!);
             toast.success("Topic deleted.");
             fetchTopics();
         } catch (error) {
             toast.error("Failed to delete topic.");
+        } finally {
+            setIsDeleteDialogOpen(false);
+            setTopicToDelete(null);
         }
     };
 
@@ -187,7 +198,7 @@ const InstructorTopics = () => {
                                 <Button size="icon" variant="ghost" className="h-8 w-8 text-[#000080] hover:bg-blue-50" onClick={() => handleEditTopic(topic)}>
                                     <Edit className="w-4 h-4" />
                                 </Button>
-                                <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => handleDelete(topic.id!)}>
+                                <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => handleDeleteClick(topic)}>
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
                             </div>
@@ -285,6 +296,14 @@ const InstructorTopics = () => {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            <DeleteConfirmDialog
+                isOpen={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+                onConfirm={handleConfirmDelete}
+                title="Delete Topic"
+                description={`Are you sure you want to delete the topic "${topicToDelete ? topicToDelete.title : 'this topic'}"? This action cannot be undone.`}
+            />
         </DashboardLayout>
     );
 };

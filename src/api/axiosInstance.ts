@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8001/";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "https://nxgentechacademy.com/api/";
 
 const axiosInstance = axios.create({
     baseURL: apiBaseUrl,

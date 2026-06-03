@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Search, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import { blogService } from '@/services/blogService';
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 
 export default function BlogList() {
     const [blogs, setBlogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [blogToDelete, setBlogToDelete] = useState<any | null>(null);
 
     useEffect(() => {
         fetchBlogs();
@@ -33,14 +36,22 @@ export default function BlogList() {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm("Are you sure you want to delete this blog?")) return;
+    const handleDeleteClick = (blog: any) => {
+        setBlogToDelete(blog);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!blogToDelete) return;
         try {
-            await blogService.deleteBlog(id);
+            await blogService.deleteBlog(blogToDelete.id);
             toast.success("Blog deleted successfully!");
             fetchBlogs();
         } catch (error: any) {
             toast.error(error.response?.data?.detail || "Failed to delete blog. Please try again.");
+        } finally {
+            setIsDeleteDialogOpen(false);
+            setBlogToDelete(null);
         }
     };
 
@@ -146,7 +157,7 @@ export default function BlogList() {
                                             <Link to={`/blog-admin/edit/${blog.id}`} className="text-blue-600 hover:text-blue-900 transition-colors bg-blue-50 p-2 rounded-md hover:bg-blue-100">
                                                 <Edit2 className="w-4 h-4" />
                                             </Link>
-                                            <button onClick={() => handleDelete(blog.id)} className="text-red-600 hover:text-red-900 transition-colors bg-red-50 p-2 rounded-md hover:bg-red-100">
+                                            <button onClick={() => handleDeleteClick(blog)} className="text-red-600 hover:text-red-900 transition-colors bg-red-50 p-2 rounded-md hover:bg-red-100">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -157,6 +168,14 @@ export default function BlogList() {
                     </tbody>
                 </table>
             </div>
+
+            <DeleteConfirmDialog
+                isOpen={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+                onConfirm={handleConfirmDelete}
+                title="Delete Blog"
+                description={`Are you sure you want to delete the blog "${blogToDelete ? renderSafe(blogToDelete.title) : 'this blog'}"? This action cannot be undone.`}
+            />
         </div>
     );
 }

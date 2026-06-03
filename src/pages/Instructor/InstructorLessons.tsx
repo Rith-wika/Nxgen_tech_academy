@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { instructorSidebarItems } from "./instructorSidebarItems";
 import { useNavigate, useParams } from "react-router-dom";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 type ModuleTrack = "training" | "industryReady";
 
@@ -40,6 +41,8 @@ const InstructorLessons = () => {
   const [editingModuleId, setEditingModuleId] = useState<string | number | null>(null);
   const [editingModuleTitle, setEditingModuleTitle] = useState("");
   const [moduleSaving, setModuleSaving] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [moduleToDelete, setModuleToDelete] = useState<Module | null>(null);
 
   const sidebarItems = instructorSidebarItems;
 
@@ -181,27 +184,27 @@ const InstructorLessons = () => {
     }
   };
 
-  const deleteModule = async (moduleItem: Module) => {
+  const deleteModuleClick = (moduleItem: Module) => {
     if (moduleItem.id === undefined || moduleItem.id === null) {
       toast.error("Cannot delete this module");
       return;
     }
+    setModuleToDelete(moduleItem);
+    setIsDeleteDialogOpen(true);
+  };
 
-    const shouldDelete = window.confirm(`Delete module "${moduleItem.title}"?`);
-    if (!shouldDelete) {
-      return;
-    }
-
+  const handleConfirmDeleteModule = async () => {
+    if (!moduleToDelete) return;
     try {
       setModuleSaving(true);
-      await moduleService.deleteModule(courseId!, moduleItem.id);
-      setModules((prev) => prev.filter((item) => String(item.id) !== String(moduleItem.id)));
+      await moduleService.deleteModule(courseId!, moduleToDelete.id!);
+      setModules((prev) => prev.filter((item) => String(item.id) !== String(moduleToDelete.id)));
       setLoadedLessonsByModule((prev) => {
         const next = { ...prev };
-        delete next[String(moduleItem.id)];
+        delete next[String(moduleToDelete.id)];
         return next;
       });
-      if (String(expandedModuleId) === String(moduleItem.id)) {
+      if (String(expandedModuleId) === String(moduleToDelete.id)) {
         setExpandedModuleId(null);
       }
       toast.success("Module deleted");
@@ -210,6 +213,8 @@ const InstructorLessons = () => {
       console.error(error);
     } finally {
       setModuleSaving(false);
+      setIsDeleteDialogOpen(false);
+      setModuleToDelete(null);
     }
   };
 
@@ -335,14 +340,14 @@ const InstructorLessons = () => {
                                     >
                                       <Edit2 className="w-4 h-4" />
                                     </Button>
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-8 px-2 text-red-700 hover:bg-red-50"
-                                      onClick={() => deleteModule(moduleItem)}
-                                      disabled={moduleSaving}
-                                    >
+                                     <Button
+                                       type="button"
+                                       size="sm"
+                                       variant="ghost"
+                                       className="h-8 px-2 text-red-700 hover:bg-red-50"
+                                       onClick={() => deleteModuleClick(moduleItem)}
+                                       disabled={moduleSaving}
+                                     >
                                       <Trash2 className="w-4 h-4" />
                                     </Button>
                                   </>
@@ -443,6 +448,14 @@ const InstructorLessons = () => {
           </CardContent>
         </Card>
       </div>
+
+      <DeleteConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDeleteModule}
+        title="Delete Module"
+        description={`Are you sure you want to delete the module "${moduleToDelete ? moduleToDelete.title : 'this module'}"? This action cannot be undone.`}
+      />
     </DashboardLayout>
   );
 };

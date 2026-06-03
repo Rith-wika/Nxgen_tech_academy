@@ -108,7 +108,27 @@ export const EditCampaignDialog: React.FC<CampaignDialogsProps> = ({
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Status</label>
                         <select className="w-full border rounded-md p-2 text-sm bg-white" value={editingCampaign.status} onChange={e => setEditingCampaign({ ...editingCampaign, status: e.target.value })}>
-                            {campaignStatuses.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                            {(() => {
+                                const statuses = campaignStatuses as any;
+                                if (!statuses) return null;
+                                if (Array.isArray(statuses)) {
+                                    return statuses.map((s: any) => {
+                                        const val = s.id || s.key || s.value || s;
+                                        const label = s.name || s.label || String(s);
+                                        return <option key={val} value={val}>{label}</option>;
+                                    });
+                                }
+                                if (statuses.status_choices && Array.isArray(statuses.status_choices)) {
+                                    return statuses.status_choices.map((s: any) => {
+                                        const val = s.key || s.value || s;
+                                        const label = s.label || s.name || String(s);
+                                        return <option key={val} value={val}>{label}</option>;
+                                    });
+                                }
+                                return Object.entries(statuses).map(([k, v]) => (
+                                    <option key={k} value={k}>{String(v)}</option>
+                                ));
+                            })()}
                         </select>
                     </div>
                     <div className="space-y-2">

@@ -11,6 +11,7 @@ import { instructorService } from "@/services/instructorService";
 import axiosInstance from "@/api/axiosInstance";
 import { toast } from "sonner";
 import { adminSidebarItems } from "./adminSidebarItems";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 interface EditForm {
   full_name: string;
@@ -28,6 +29,8 @@ const InstructorsPage = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
+  const [instructorToDeactivate, setInstructorToDeactivate] = useState<any | null>(null);
   const [instructorList, setInstructorList] = useState<any[]>([]);
   const [availableCourses, setAvailableCourses] = useState<any[]>([]);
   const [editTarget, setEditTarget] = useState<any | null>(null);
@@ -99,14 +102,22 @@ const InstructorsPage = () => {
     }
   };
 
-  const handleDeactivate = async (instructor: any) => {
-    if (!window.confirm(`Deactivate instructor "${instructor.full_name || instructor.name}"?`)) return;
+  const handleDeactivateClick = (instructor: any) => {
+    setInstructorToDeactivate(instructor);
+    setIsDeactivateDialogOpen(true);
+  };
+
+  const handleConfirmDeactivate = async () => {
+    if (!instructorToDeactivate) return;
     try {
-      await axiosInstance.post(`/api/instructors/${instructor.id}/deactivate/`);
+      await axiosInstance.post(`/api/instructors/${instructorToDeactivate.id}/deactivate/`);
       toast.success("Instructor deactivated.");
       fetchAllData();
     } catch (err) {
       toast.error("Failed to deactivate instructor.");
+    } finally {
+      setIsDeactivateDialogOpen(false);
+      setInstructorToDeactivate(null);
     }
   };
 
@@ -203,7 +214,7 @@ const InstructorsPage = () => {
                             {instructor.is_active ? (
                               <button
                                 className="px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
-                                onClick={() => handleDeactivate(instructor)}
+                                onClick={() => handleDeactivateClick(instructor)}
                               >
                                 Deactivate
                               </button>
@@ -318,6 +329,16 @@ const InstructorsPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <DeleteConfirmDialog
+        isOpen={isDeactivateDialogOpen}
+        onOpenChange={setIsDeactivateDialogOpen}
+        onConfirm={handleConfirmDeactivate}
+        title="Deactivate Instructor"
+        description={`Are you sure you want to deactivate instructor "${instructorToDeactivate?.full_name || instructorToDeactivate?.name || ''}"? They will lose access to the portal.`}
+        confirmText="Deactivate"
+        variant="destructive"
+      />
     </DashboardLayout>
   );
 };

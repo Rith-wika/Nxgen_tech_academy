@@ -41,6 +41,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { adminSidebarItems } from "./adminSidebarItems";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { campaignService, Campaign } from "@/services/campaignService";
 import { leadService } from "@/services/leadService";
 import { courseService } from "@/services/courseService";
@@ -326,6 +327,10 @@ const Presales = () => {
     const [editingCampaign, setEditingCampaign] = useState<any>(null);
     const [deleteCampaignOpen, setDeleteCampaignOpen] = useState(false);
     const [campaignToDelete, setCampaignToDelete] = useState<any>(null);
+    const [isDeleteEnrollOpen, setIsDeleteEnrollOpen] = useState(false);
+    const [enrollmentToDelete, setEnrollmentToDelete] = useState<any>(null);
+    const [isDeleteDemoOpen, setIsDeleteDemoOpen] = useState(false);
+    const [demoToDelete, setDemoToDelete] = useState<any>(null);
 
     const handleDeleteCampaign = async () => {
         if (!campaignToDelete) return;
@@ -549,14 +554,23 @@ const Presales = () => {
         }
     };
 
-    const handleDeleteDemo = async (demoId: number) => {
+    const handleDeleteDemoClick = (demo: any) => {
+        setDemoToDelete(demo);
+        setIsDeleteDemoOpen(true);
+    };
+
+    const handleConfirmDeleteDemo = async () => {
+        if (!demoToDelete) return;
         try {
-            await demoService.deleteDemo(demoId);
+            await demoService.deleteDemo(demoToDelete.id);
             toast.success("Demo deleted successfully!");
             fetchDemos();
         } catch (error) {
             toast.error("Failed to delete demo.");
             console.error(error);
+        } finally {
+            setIsDeleteDemoOpen(false);
+            setDemoToDelete(null);
         }
     };
 
@@ -684,10 +698,15 @@ const Presales = () => {
         setEnrollOpen(true);
     };
 
-    const handleDeleteEnrollment = async (id: number) => {
-        if (!window.confirm("Are you sure you want to delete this enrollment?")) return;
+    const handleDeleteEnrollmentClick = (enrollment: any) => {
+        setEnrollmentToDelete(enrollment);
+        setIsDeleteEnrollOpen(true);
+    };
+
+    const handleConfirmDeleteEnrollment = async () => {
+        if (!enrollmentToDelete) return;
         try {
-            await enrollService.deleteEnrollment(id);
+            await enrollService.deleteEnrollment(enrollmentToDelete.id);
             toast.success("Enrollment deleted successfully.");
             if (selectedCampaign) {
                 fetchEnrollments(selectedCampaign.id);
@@ -695,6 +714,9 @@ const Presales = () => {
         } catch (error) {
             console.error("Failed to delete enrollment", error);
             toast.error("Failed to delete enrollment.");
+        } finally {
+            setIsDeleteEnrollOpen(false);
+            setEnrollmentToDelete(null);
         }
     };
 
@@ -1360,9 +1382,7 @@ const Presales = () => {
                                                             }}>Details</Button>
                                                             <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                if (window.confirm("Are you sure you want to delete this demo?")) {
-                                                                    handleDeleteDemo(d.id);
-                                                                }
+                                                                handleDeleteDemoClick(d);
                                                             }}>
                                                                 <Trash2 className="w-4 h-4" />
                                                             </Button>
@@ -1499,7 +1519,7 @@ const Presales = () => {
                                                                 <Button variant="ghost" size="sm" onClick={() => handleEditEnrollment(enrollment)}>
                                                                     Edit
                                                                 </Button>
-                                                                <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDeleteEnrollment(enrollment.id)}>
+                                                                <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDeleteEnrollmentClick(enrollment)}>
                                                                     Delete
                                                                 </Button>
                                                             </td>
@@ -1542,6 +1562,22 @@ const Presales = () => {
                 )}
 
             </div>
+
+            <DeleteConfirmDialog
+                isOpen={isDeleteEnrollOpen}
+                onOpenChange={setIsDeleteEnrollOpen}
+                onConfirm={handleConfirmDeleteEnrollment}
+                title="Delete Enrollment"
+                description={`Are you sure you want to delete the enrollment for "${enrollmentToDelete?.full_name || enrollmentToDelete?.name || enrollmentToDelete?.lead_name || 'this student'}"? This action cannot be undone.`}
+            />
+
+            <DeleteConfirmDialog
+                isOpen={isDeleteDemoOpen}
+                onOpenChange={setIsDeleteDemoOpen}
+                onConfirm={handleConfirmDeleteDemo}
+                title="Delete Demo"
+                description={`Are you sure you want to delete the demo campaign "${demoToDelete?.campaign || 'this demo'}"? This action cannot be undone.`}
+            />
         </DashboardLayout>
     );
 };

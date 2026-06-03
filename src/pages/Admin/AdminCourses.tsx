@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import axiosInstance from "@/api/axiosInstance";
 import { toast } from "sonner";
 import { adminSidebarItems } from "./adminSidebarItems";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 interface Category { id: number; name: string; slug: string; is_active: boolean; }
 interface Course { id: number; title: string; description: string; price: string; is_active: boolean; category: number; }
@@ -25,6 +26,19 @@ const AdminCourses = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
+
+  // Delete Dialog States
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    type: "course" | "category";
+    id: number | null;
+    name: string;
+  }>({
+    isOpen: false,
+    type: "course",
+    id: null,
+    name: "",
+  });
 
   // Course dialog
   const [courseDialog, setCourseDialog] = useState<{ open: boolean; mode: "create" | "edit"; data: any }>({ open: false, mode: "create", data: emptyForm });
@@ -88,13 +102,32 @@ const AdminCourses = () => {
     }
   };
 
-  const deleteCourse = async (id: number) => {
-    if (!window.confirm("Delete this course? This cannot be undone.")) return;
+  const handleDeleteClick = (type: "course" | "category", id: number, name: string) => {
+    setDeleteConfirm({
+      isOpen: true,
+      type,
+      id,
+      name,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    const { type, id } = deleteConfirm;
+    if (!id) return;
     try {
-      await axiosInstance.delete(`/api/courses/courses/${id}/`);
-      toast.success("Course deleted.");
+      if (type === "course") {
+        await axiosInstance.delete(`/api/courses/courses/${id}/`);
+        toast.success("Course deleted.");
+      } else {
+        await axiosInstance.delete(`/api/courses/categories/${id}/`);
+        toast.success("Category deleted.");
+      }
       fetchAll();
-    } catch { toast.error("Delete failed."); }
+    } catch {
+      toast.error("Delete failed.");
+    } finally {
+      setDeleteConfirm(prev => ({ ...prev, isOpen: false, id: null }));
+    }
   };
 
   // ──── CATEGORY CRUD ──────────────────────────────────────
@@ -123,15 +156,6 @@ const AdminCourses = () => {
     } finally {
       setSaving(false);
     }
-  };
-
-  const deleteCat = async (id: number) => {
-    if (!window.confirm("Delete this category? All courses in it may be affected.")) return;
-    try {
-      await axiosInstance.delete(`/api/courses/categories/${id}/`);
-      toast.success("Category deleted.");
-      fetchAll();
-    } catch { toast.error("Delete failed."); }
   };
 
   const filteredCourses = courses.filter(c =>
@@ -205,7 +229,7 @@ const AdminCourses = () => {
                     </Button>
                     <button
                       className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
-                      onClick={() => deleteCourse(course.id)}
+                      onClick={() => handleDeleteClick("course", course.id, course.title)}
                       title="Delete Course"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -243,7 +267,7 @@ const AdminCourses = () => {
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => openEditCat(cat)}><Edit2 className="w-4 h-4" /></button>
-                        <button className="p-2 text-red-500 hover:bg-red-50 rounded-lg" onClick={() => deleteCat(cat.id)}><Trash2 className="w-4 h-4" /></button>
+                        <button className="p-2 text-red-500 hover:bg-red-50 rounded-lg" onClick={() => handleDeleteClick("category", cat.id, cat.name)}><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>
@@ -354,6 +378,18 @@ const AdminCourses = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <DeleteConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onOpenChange={open => setDeleteConfirm(p => ({ ...p, isOpen: open }))}
+        onConfirm={handleConfirmDelete}
+        title={deleteConfirm.type === "course" ? "Delete Course" : "Delete Category"}
+        description={
+          deleteConfirm.type === "course"
+            ? `Are you sure you want to delete the course "${deleteConfirm.name}"? This action cannot be undone.`
+            : `Are you sure you want to delete the category "${deleteConfirm.name}"? All courses in it may be affected.`
+        }
+      />
     </DashboardLayout>
   );
 };

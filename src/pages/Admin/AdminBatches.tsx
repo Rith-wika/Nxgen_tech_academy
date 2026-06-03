@@ -12,6 +12,7 @@ import { courseService } from "@/services/courseService";
 import { enrollmentService } from "@/services/enrollmentService";
 import { instructorService } from "@/services/instructorService";
 import { adminSidebarItems } from "./adminSidebarItems";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 const AdminBatches = () => {
   const [batches, setBatches] = useState<any[]>([]);
@@ -24,6 +25,8 @@ const AdminBatches = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isManageStudentsOpen, setIsManageStudentsOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<any>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [batchToDelete, setBatchToDelete] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -147,15 +150,23 @@ const AdminBatches = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Delete this batch?")) return;
+  const handleDeleteClick = (batch: any) => {
+    setBatchToDelete(batch);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!batchToDelete) return;
     try {
-      await batchService.deleteBatch(id);
+      await batchService.deleteBatch(batchToDelete.id);
       toast.success("Batch deleted");
       loadBatches();
     } catch (error) {
       toast.error("Failed to delete batch");
       console.error(error);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setBatchToDelete(null);
     }
   };
 
@@ -411,7 +422,7 @@ const AdminBatches = () => {
                       </DialogContent>
                     </Dialog>
 
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(batch.id)}>
+                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDeleteClick(batch)}>
                       Delete Batch
                     </Button>
                   </div>
@@ -421,6 +432,14 @@ const AdminBatches = () => {
           ))
         )}
       </div>
+
+      <DeleteConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title="Delete Batch"
+        description={`Are you sure you want to delete the batch "${batchToDelete?.name || 'this batch'}"? This action cannot be undone.`}
+      />
     </DashboardLayout>
   );
 };

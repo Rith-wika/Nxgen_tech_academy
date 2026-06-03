@@ -24,6 +24,7 @@ import { adminSidebarItems } from "./adminSidebarItems";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import PaymentDialog from "@/components/PaymentDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 interface GroupedStudent {
   id: string | number;
@@ -82,6 +83,10 @@ const StudentsPage = () => {
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [expandedId, setExpandedId] = useState<number | string | null>(null);
   const [paymentStudent, setPaymentStudent] = useState<EnrollmentData | null>(null);
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [studentForApprove, setStudentForApprove] = useState<{ pendingEnvs: EnrollmentData[]; studentId: number | string } | null>(null);
+  const [studentForReject, setStudentForReject] = useState<{ pendingEnvs: EnrollmentData[]; studentId: number | string } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -101,8 +106,14 @@ const StudentsPage = () => {
     }
   };
 
-  const handleApproveAll = async (pendingEnvs: EnrollmentData[], studentId: number | string) => {
-    if (!window.confirm("Approve all pending enrollments for this student? The student will receive an email with login credentials.")) return;
+  const handleApproveClick = (pendingEnvs: EnrollmentData[], studentId: number | string) => {
+    setStudentForApprove({ pendingEnvs, studentId });
+    setIsApproveDialogOpen(true);
+  };
+
+  const handleConfirmApprove = async () => {
+    if (!studentForApprove) return;
+    const { pendingEnvs, studentId } = studentForApprove;
     try {
       setActionLoading(studentId);
       await Promise.all(pendingEnvs.map(env => axiosInstance.post(`/api/enrollments/admin/enrollments/${env.id}/approve/`)));
@@ -113,11 +124,19 @@ const StudentsPage = () => {
       toast.error("Failed to approve some enrollments.");
     } finally {
       setActionLoading(null);
+      setIsApproveDialogOpen(false);
+      setStudentForApprove(null);
     }
   };
 
-  const handleRejectAll = async (pendingEnvs: EnrollmentData[], studentId: number | string) => {
-    if (!window.confirm("Reject all pending enrollments for this student? The student will be notified by email.")) return;
+  const handleRejectClick = (pendingEnvs: EnrollmentData[], studentId: number | string) => {
+    setStudentForReject({ pendingEnvs, studentId });
+    setIsRejectDialogOpen(true);
+  };
+
+  const handleConfirmReject = async () => {
+    if (!studentForReject) return;
+    const { pendingEnvs, studentId } = studentForReject;
     try {
       setActionLoading(studentId);
       await Promise.all(pendingEnvs.map(env => axiosInstance.post(`/api/enrollments/admin/enrollments/${env.id}/reject/`)));
@@ -128,6 +147,8 @@ const StudentsPage = () => {
       toast.error("Failed to reject some enrollments.");
     } finally {
       setActionLoading(null);
+      setIsRejectDialogOpen(false);
+      setStudentForReject(null);
     }
   };
 
@@ -251,7 +272,7 @@ const StudentsPage = () => {
                                   size="sm"
                                   className="h-6 bg-green-600 hover:bg-green-700 text-white px-2 text-[10px]"
                                   disabled={actionLoading === student.id}
-                                  onClick={() => handleApproveAll(student.enrollments.filter(env => (env.status || "pending") === "pending"), student.id)}
+                                  onClick={() => handleApproveClick(student.enrollments.filter(env => (env.status || "pending") === "pending"), student.id)}
                                 >
                                   {actionLoading === student.id ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : "Approve"}
                                 </Button>
@@ -260,7 +281,7 @@ const StudentsPage = () => {
                                   variant="outline"
                                   className="h-6 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 px-2 text-[10px]"
                                   disabled={actionLoading === student.id}
-                                  onClick={() => handleRejectAll(student.enrollments.filter(env => (env.status || "pending") === "pending"), student.id)}
+                                  onClick={() => handleRejectClick(student.enrollments.filter(env => (env.status || "pending") === "pending"), student.id)}
                                 >
                                   Reject
                                 </Button>
@@ -405,6 +426,26 @@ const StudentsPage = () => {
           onSuccess={fetchEnrollments}
         />
       )}
+
+      <DeleteConfirmDialog
+        isOpen={isApproveDialogOpen}
+        onOpenChange={setIsApproveDialogOpen}
+        onConfirm={handleConfirmApprove}
+        title="Approve Enrollment"
+        description="Are you sure you want to approve all pending enrollments for this student? The student will receive an email with login credentials."
+        confirmText="Approve"
+        variant="default"
+      />
+
+      <DeleteConfirmDialog
+        isOpen={isRejectDialogOpen}
+        onOpenChange={setIsRejectDialogOpen}
+        onConfirm={handleConfirmReject}
+        title="Reject Enrollment"
+        description="Are you sure you want to reject all pending enrollments for this student? The student will be notified by email."
+        confirmText="Reject"
+        variant="destructive"
+      />
     </DashboardLayout>
   );
 };
