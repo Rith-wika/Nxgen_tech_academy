@@ -50,11 +50,12 @@ const About = () => {
   ];
 
   const courses = [
-    "Python Programming",
-    "Artificial Intelligence & Machine Learning (AI/ML)",
-    "Data Analytics",
-    "Full Stack Development",
-    "Emerging Technologies Training"
+    { title: "Python Programming", path: "/courses/python" },
+    { title: "Artificial Intelligence & Machine Learning (AI/ML)", path: "/courses/aiml" },
+    { title: "AI", path: "/courses/ai" },
+    { title: "Data Analytics", path: "/courses/data-analytics" },
+    { title: "SAP", path: "/sap-courses" },
+    { title: "Digital Marketing", path: "/courses/digital-marketing" }
   ];
 
   const faqs = [
@@ -128,7 +129,7 @@ const About = () => {
                 <div className="absolute inset-0 bg-[#000080]/10 mix-blend-multiply" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl border-l-4 border-[#000080] hidden md:block">
-                <p className="text-4xl font-bold text-[#000080]">15+</p>
+                <p className="text-4xl font-bold text-[#000080]">10+</p>
                 <p className="text-gray-600 font-medium">Years Experience</p>
               </div>
             </motion.div>
@@ -314,8 +315,8 @@ const About = () => {
                 <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center mb-4 group-hover:bg-[#000080] transition-colors">
                   <BookOpen className="w-6 h-6 text-[#000080] group-hover:text-white transition-colors" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{course}</h3>
-                <Link to="/all-courses" className="text-[#000080] text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{course.title}</h3>
+                <Link to={course.path} className="text-[#000080] text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
                   Learn more <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
@@ -419,7 +420,7 @@ const About = () => {
               viewport={{ once: true }}
               className="text-center space-y-2 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors"
             >
-              <div className="text-4xl md:text-5xl font-bold text-white mb-2">15+</div>
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">10+</div>
               <div className="text-sm md:text-base text-green-200 uppercase tracking-widest font-medium">Years Excellence</div>
             </motion.div>
 
@@ -430,7 +431,7 @@ const About = () => {
               transition={{ delay: 0.1 }}
               className="text-center space-y-2 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors"
             >
-              <div className="text-4xl md:text-5xl font-bold text-white mb-2">5000+</div>
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">1000+</div>
               <div className="text-sm md:text-base text-green-200 uppercase tracking-widest font-medium">Students Trained</div>
             </motion.div>
 

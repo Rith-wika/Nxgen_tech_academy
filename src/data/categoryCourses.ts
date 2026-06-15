@@ -151,7 +151,7 @@ export const coursesData: CourseData[] = [
         price: "₹28,000",
         duration: "10-12 weeks",
         enrolled: "1284+",
-        mode: "Live Training"
+        mode: "Online / Offline"
     },
     {
         id: "sap-mm-course",
@@ -163,7 +163,7 @@ export const coursesData: CourseData[] = [
         price: "₹28,000",
         duration: "40+ hours",
         enrolled: "1452+",
-        mode: "Live Training"
+        mode: "Online / Offline"
     },
     {
         id: "sap-fico-course-training",
@@ -175,7 +175,7 @@ export const coursesData: CourseData[] = [
         price: "₹30,000",
         duration: "40+ hours",
         enrolled: "1584+",
-        mode: "Live Training"
+        mode: "Online / Offline"
     },
     {
         id: "sap-pp-course",
@@ -187,7 +187,7 @@ export const coursesData: CourseData[] = [
         price: "₹30,000",
         duration: "40+ hours",
         enrolled: "1230+",
-        mode: "Live Training"
+        mode: "Online / Offline"
     },
 
     {
@@ -210,7 +210,7 @@ export const coursesData: CourseData[] = [
         price: "₹30,000",
         duration: "40+ Hours",
         enrolled: "1100+",
-        mode: "Live Training"
+        mode: "Online / Offline"
     },
 
     // SAP BTP - Courses
@@ -253,7 +253,7 @@ export const coursesData: CourseData[] = [
         price: "Contact Us",
         duration: "3 to 4 Months",
         enrolled: "1250+",
-        mode: "Classroom / Online"
+        mode: " Online / Offline"
     },
 
     // AI - UPDATED CONTENT
@@ -267,7 +267,7 @@ export const coursesData: CourseData[] = [
         price: "Contact Us",
         duration: "3 to 4 Months",
         enrolled: "1280+",
-        mode: "Online / Offline / Hybrid"
+        mode: "Online / Offline"
     },
 
     // AIML - UPDATED CONTENT
@@ -281,7 +281,7 @@ export const coursesData: CourseData[] = [
         price: "Contact Us",
         duration: "3 to 4 Months",
         enrolled: "1150+",
-        mode: "Online / Offline / Hybrid"
+        mode: "Online / Offline"
     },
 
 
@@ -320,6 +320,6 @@ export const coursesData: CourseData[] = [
         price: "Contact Us",
         duration: "3 to 4 Months",
         enrolled: "1500+",
-        mode: "Online / Offline / Hybrid"
+        mode: "Online / Offline"
     }
 ];

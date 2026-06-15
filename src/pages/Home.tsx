@@ -225,7 +225,6 @@ const Home = () => {
               <div className="flex flex-wrap items-center gap-4 sm:gap-8 opacity-70 grayscale hover:grayscale-0 transition-all">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg" alt="IBM" className="h-4 sm:h-6 object-contain" />
                 <img src="https://upload.wikimedia.org/wikipedia/commons/4/43/Cognizant_logo_2022.svg" alt="Cognizant" className="h-4 sm:h-6 object-contain" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Accenture.svg/2560px-Accenture.svg.png" alt="Accenture" className="h-4 sm:h-6 object-contain" />
                 <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg" alt="Infosys" className="h-5 sm:h-8 object-contain" />
               </div>
             </div>
