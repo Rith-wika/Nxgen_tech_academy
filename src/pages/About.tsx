@@ -10,6 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { PageHero } from '@/components/PageHero';
 import sriaLogo from '@/assets/sria-logo.png';
+import sriaMulugu1 from '@/assets/about/sria-mulugu-1.png';
+import sriaMulugu2 from '@/assets/about/sria-mulugu-2.jpg';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -138,37 +140,81 @@ const About = () => {
       </section>
 
       {/* Section 2.5: Brand Introduction */}
-      <section className="pt-0 pb-20 bg-white">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#000080]/5 to-[#22c55e]/5" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#000080]/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#22c55e]/10 rounded-full blur-3xl" />
+
+        <div className="container mx-auto px-4 max-w-6xl relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
-            className="bg-white border-b-4 border-[#000080] p-8 md:p-12 rounded-3xl shadow-xl shadow-[#000080]/5"
+            className="bg-white/90 backdrop-blur-xl border border-gray-100 p-8 md:p-12 rounded-[2.5rem] shadow-2xl shadow-[#000080]/10 ring-1 ring-black/5"
           >
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 border-b border-gray-100 pb-8 mb-8">
-              <div className="bg-white p-4 rounded-2xl shrink-0 border border-gray-100 shadow-sm">
-                <img src={sriaLogo} alt="Sriainfotech Logo" className="w-32 md:w-48 h-auto object-contain" />
-              </div>
-              <div className="text-center md:text-left pt-2">
-                <h3 className="text-3xl font-bold text-[#000080] mb-4 tracking-tight">NxGenTech Academy</h3>
-                <div className="inline-flex items-center gap-3 px-5 py-3 bg-green-50 rounded-xl border border-green-100">
-                  <span className="w-2.5 h-2.5 bg-[#22c55e] rounded-full animate-pulse shrink-0"></span>
-                  <p className="font-semibold text-gray-800 text-base md:text-lg">
-                    A Skill Development Brand Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" >Sria Infotech Pvt. Ltd.</a>
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+              {/* Left Column: Content */}
+              <div>
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 border-b border-gray-100 pb-8 mb-8">
+                  <div className="bg-white p-4 rounded-3xl shrink-0 border border-gray-100 shadow-md">
+                    <img src={sriaLogo} alt="Sriainfotech Logo" className="w-32 h-auto object-contain" />
+                  </div>
+                  <div className="text-center sm:text-left pt-1">
+                    <h3 className="text-3xl font-bold text-[#000080] mb-4 tracking-tight">NxGenTech Academy</h3>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-white rounded-xl border border-green-100 shadow-sm">
+                      <span className="w-2.5 h-2.5 bg-[#22c55e] rounded-full animate-pulse shrink-0 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                      <p className="font-medium text-gray-800 text-sm">
+                        Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" className="text-[#000080] hover:text-[#22c55e] transition-colors hover:underline">Sria Infotech Pvt. Ltd.</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6 text-gray-700">
+                  <p className="text-lg leading-relaxed text-gray-800">
+                    <strong className="text-gray-900 font-bold">NxGenTech Academy</strong> is a career-oriented IT training institute dedicated to building industry-ready professionals through structured, practical, and performance-driven education.
+                  </p>
+                  <p className="text-lg leading-relaxed">
+                    Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" ><strong className="text-[#000080] hover:text-[#22c55e] transition-colors font-semibold">Sria Infotech Pvt. Ltd.</strong></a>, our academy functions as a specialized skill development platform designed to prepare students, graduates, and working professionals for modern technology careers.
                   </p>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-6 text-gray-700">
-              <p className="text-lg leading-relaxed">
-                <strong className="text-gray-900 font-bold">NxGenTech Academy</strong> is a career-oriented IT training institute dedicated to building industry-ready professionals through structured, practical, and performance-driven education.
-              </p>
-              <p className="text-lg leading-relaxed">
-                Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" ><strong className="text-gray-900 font-medium">Sria Infotech Pvt. Ltd.</strong></a>, NxGenTech Academy was established with a clear vision — to bridge the gap between academic learning and real-world industry requirements. The academy functions as a specialized skill development platform designed to prepare students, graduates, and working professionals for modern technology careers.
-              </p>
+              {/* Right Column: Overlapping Images */}
+              <div className="relative h-[350px] md:h-[450px] flex items-center justify-center mt-8 lg:mt-0 perspective-1000">
+                {/* Back Image */}
+                <motion.div
+                  initial={{ rotate: 0, x: 0, y: 0 }}
+                  whileInView={{ rotate: 6, x: 20, y: 15 }}
+                  whileHover={{ rotate: 10, x: 30, y: 5, zIndex: 30 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  viewport={{ once: true }}
+                  className="absolute w-4/5 md:w-3/4 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white z-10 cursor-pointer"
+                >
+                  <img src={sriaMulugu1} alt="Sria Infotech Plaque Unveiling" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-5">
+                    <span className="text-white font-medium text-sm md:text-base">Plaque Unveiling</span>
+                  </div>
+                </motion.div>
+
+                {/* Front Image */}
+                <motion.div
+                  initial={{ rotate: 0, x: 0, y: 0 }}
+                  whileInView={{ rotate: -4, x: -20, y: -15 }}
+                  whileHover={{ rotate: -8, x: -30, y: -25, zIndex: 30 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  viewport={{ once: true }}
+                  className="absolute w-4/5 md:w-3/4 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white z-20 cursor-pointer"
+                >
+                  <img src={sriaMulugu2} alt="Sria Infotech Ribbon Cutting Ceremony" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-5">
+                    <span className="text-white font-medium text-sm md:text-base">Mulugu Branch Inauguration</span>
+                  </div>
+                </motion.div>
+              </div>
+
             </div>
           </motion.div>
         </div>
