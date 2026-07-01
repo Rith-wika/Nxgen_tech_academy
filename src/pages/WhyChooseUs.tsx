@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { PageHero } from "@/components/PageHero";
 import { AnimatedCarousel } from "@/components/AnimatedCarousel";
 import { TestimonialsCarousel } from "@/components/TestimonialsCarousel";
+import { SEO } from "@/components/SEO";
 import {
   BookOpen,
   Users,
@@ -92,6 +93,13 @@ const WhyChooseUs = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title="Why Choose NxGen Tech Academy"
+        description="Empowering learners with real-world skills for a digital future. Discover why NxGen Tech Academy is the right choice for your career."
+        type="website"
+        path="/why-choose-us"
+      />
+
       {/* Hero Section */}
       <PageHero
         title="Why Choose NxGen?"

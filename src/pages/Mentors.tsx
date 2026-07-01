@@ -3,6 +3,7 @@ import { PageHero } from "@/components/PageHero";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { categories, instructors } from "@/data";
+import { SEO } from "@/components/SEO";
 
 // Define mentors data
 const mentors = [
@@ -108,6 +109,13 @@ const Mentors = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title="Our Mentors - NxGen Tech Academy"
+        description="Learn from industry expert mentors with years of real-world experience in leading tech companies at NxGen Tech Academy."
+        type="website"
+        path="/mentors"
+      />
+
       {/* Hero Section */}
       <PageHero
         title="Learn from Industry Experts"

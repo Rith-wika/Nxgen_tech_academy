@@ -38,7 +38,7 @@ const SAPCategory = () => {
                 title="SAP Certification Courses | NxGen Tech Academy"
                 description="SAP Certification Courses at NxGen Tech Academy with expert-led training in SAP ABAP, Fiori, SD, MM, FICO, BTP and more. Learn with real-time projects and placement support."
                 type="website"
-                path="/sap-certification-courses"
+                path="/sap-courses"
             />
 
             <PageHero

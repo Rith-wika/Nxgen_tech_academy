@@ -196,6 +196,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
             <Helmet>
                 <title>{content.metaTitle || `${basicCourse.title} Training in Hyderabad | NxGen Tech Academy`}</title>
                 <meta name="description" content={content.metaDescription || `Master ${basicCourse.title}. 100% placement guarantee, expert-led training.`} />
+                <link rel="canonical" href={`https://nxgentechacademy.com/courses/${paramId}`} />
             </Helmet>
 
             <Preloader isLoading={isLoading} threshold={800} />
