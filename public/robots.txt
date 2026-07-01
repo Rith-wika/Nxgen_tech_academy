@@ -14,13 +14,14 @@ Allow: /contact/
 Allow: /blogs/
 Allow: /mentors/
 Allow: /why-choose-us/
+Allow: /admin/
+Allow: /admin-login/
+Allow: /dashboard/
+Allow: /register/
+Allow: /student-login/
+Allow: /instructor-login/
+Allow: /*.pdf$
+Allow: /*?*
 
 # Block search engines from crawling these directories/auth pages
-Disallow: /admin/
-Disallow: /admin-login/
-Disallow: /dashboard/
-Disallow: /register/
-Disallow: /student-login/
-Disallow: /instructor-login/
-Disallow: /*.pdf$
-Disallow: /*?*
+
