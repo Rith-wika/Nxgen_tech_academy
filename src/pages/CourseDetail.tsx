@@ -88,6 +88,11 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
     if (!basicCourse) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-4">
+                <Helmet>
+                    <title>Course Not Found | NxGen Tech Academy</title>
+                    <meta name="robots" content="noindex, follow" />
+                    <link rel="canonical" href={`https://nxgentechacademy.com/courses/${paramId}`} />
+                </Helmet>
                 <h2 className="text-2xl font-bold mb-4">Course not found</h2>
                 <Button asChild>
                     <Link to="/courses-menu">Browse All Courses</Link>
