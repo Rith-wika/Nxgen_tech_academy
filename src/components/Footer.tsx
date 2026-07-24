@@ -59,6 +59,11 @@ export const Footer = () => {
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Blogs
                 </Link>
               </li>
+              <li>
+                <Link to="/bsnl-skill-development-partner" className="hover:text-white transition-colors flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Our Associations
+                </Link>
+              </li>
             </ul>
           </div>
 

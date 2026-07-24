@@ -129,56 +129,6 @@ const Home = () => {
         <meta property="og:image" content={`${siteUrl}/og-image.jpg`} />
       </Helmet>
 
-      {/* Upcoming Event Banner */}
-      <section className="bg-primary text-white py-3 border-b-2 border-secondary/50 relative overflow-hidden z-20 shadow-md">
-        <div className="w-full px-4 md:px-10 lg:px-20 mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-
-          <div className="flex flex-col md:flex-row items-center gap-3 md:gap-5 text-center md:text-left flex-1 w-full">
-            <div className="inline-flex items-center gap-1.5 bg-secondary text-white font-bold px-3 py-1 rounded text-xs uppercase tracking-wide whitespace-nowrap shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
-              Free Demo
-            </div>
-
-            <h2 className="text-sm md:text-base lg:text-lg font-bold flex items-center whitespace-nowrap">
-              SAP BTP Masterclass
-            </h2>
-
-            <p className="text-white/80 text-xs md:text-sm hidden lg:block truncate max-w-sm xl:max-w-xl">
-              Explore SAP Cloud Development & Integration.
-            </p>
-
-            <div className="flex items-center justify-center gap-4 text-xs font-medium ml-auto mr-0 md:mr-4 bg-black/10 px-3 md:px-4 py-1.5 rounded-md border border-white/10 whitespace-nowrap">
-              <div className="flex items-center gap-1.5 hidden sm:flex">
-                <Presentation className="w-3.5 h-3.5 text-secondary" />
-                <span>Upcoming Event</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-secondary" />
-                <span>14th Mar 2026</span>
-              </div>
-              <div className="flex items-center gap-1.5 hidden sm:flex">
-                <Clock className="w-3.5 h-3.5 text-secondary" />
-                <span>10:00 AM IST</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full md:w-auto shrink-0 flex items-center justify-center">
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSdXT8Mx2S5-wBwOrevQ_09OYcvV0oYFFHznNrYg_5RQQ9OBrw/viewform?usp=publish-editor"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto block group"
-            >
-              <Button size="sm" className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-white font-bold text-sm px-6 rounded shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2 h-9">
-                BOOK A DEMO <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </a>
-          </div>
-
-        </div>
-      </section>
-
       {/* Hero Section with Carousel */}
       <section className="relative bg-white text-gray-800 py-2 lg:py-4 overflow-hidden">
         <div className="w-full px-4 md:px-10 lg:px-20 mx-auto grid lg:grid-cols-2 gap-12 items-center">
@@ -198,13 +148,6 @@ const Home = () => {
             <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-2 w-full">
               <Button asChild size="lg" className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium text-lg px-8 rounded-md w-full sm:w-auto">
                 <Link to="/all-courses">Explore Courses</Link>
-              </Button>
-              <Button
-                onClick={() => setIsDemoModalOpen(true)}
-                size="lg"
-                className="bg-[#000080]/10 text-[#000080] hover:bg-[#000080]/20 border border-[#000080]/30 font-medium text-lg px-8 rounded-md w-full sm:w-auto"
-              >
-                Book a Free Demo Class
               </Button>
             </div>
 
@@ -320,6 +263,53 @@ const Home = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Our Associations */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#000080] via-[#000080] to-[#00004d]" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#22c55e]/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 opacity-[0.06] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white text-xs font-bold uppercase tracking-wider mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-[#22c55e]" /> Government Partnership
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Our Associations</h2>
+            <p className="text-white/70 text-lg">Trusted collaborations that strengthen our training ecosystem</p>
+          </div>
+
+          <Link
+            to="/bsnl-skill-development-partner"
+            className="group relative flex flex-col sm:flex-row items-center gap-8 max-w-3xl mx-auto bg-white rounded-[2rem] p-8 sm:p-10 shadow-2xl hover:shadow-[0_25px_60px_-15px_rgba(34,197,94,0.4)] transition-all duration-300 hover:-translate-y-1.5"
+          >
+            <div className="absolute -top-3 -right-3 md:top-6 md:right-6 bg-[#22c55e] text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+              Official Partner
+            </div>
+
+            <div className="w-28 h-28 shrink-0 rounded-2xl bg-white border border-gray-100 shadow-inner flex items-center justify-center overflow-hidden p-3 group-hover:border-[#22c55e]/40 transition-colors">
+              <img
+                src="/bsnl-logo.png"
+                alt="BSNL Logo"
+                className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+              />
+            </div>
+
+            <div className="text-center sm:text-left flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-[#000080] rounded-full font-bold text-xs uppercase tracking-wide mb-2">
+                <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" /> BSNL RTTC Skill Development Partner
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#000080] transition-colors mb-1">BSNL Regional Telecom Training Centre (RTTC), Hyderabad</h3>
+              <p className="text-gray-500 text-sm">Practical training in AI, Cloud, Networking & Telecom technologies</p>
+            </div>
+
+            <div className="hidden sm:flex items-center gap-2 text-[#000080] font-bold shrink-0 bg-[#000080]/5 group-hover:bg-[#000080] group-hover:text-white px-5 py-3 rounded-xl transition-all">
+              View Details <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
         </div>
       </section>
 

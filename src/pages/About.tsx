@@ -220,6 +220,62 @@ const About = () => {
         </div>
       </section>
 
+      {/* Section 2.75: Our Associations */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#000080] via-[#000080] to-[#00004d]" />
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#22c55e]/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 opacity-[0.06] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none" />
+
+        <div className="container mx-auto px-4 max-w-5xl relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white text-xs font-bold uppercase tracking-wider mb-4">
+              <Award className="w-3.5 h-3.5 text-[#22c55e]" /> Government Partnership
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Our Associations</h2>
+            <p className="text-white/70 max-w-2xl mx-auto text-lg">
+              Collaborations that reinforce our commitment to industry-aligned, credible skill development
+            </p>
+          </div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+          >
+            <Link
+              to="/bsnl-skill-development-partner"
+              className="group relative flex flex-col sm:flex-row items-center gap-8 bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl hover:shadow-[0_25px_60px_-15px_rgba(34,197,94,0.4)] transition-all duration-300 hover:-translate-y-1.5"
+            >
+              <div className="absolute -top-3 -right-3 md:top-6 md:right-6 bg-[#22c55e] text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                Official Partner
+              </div>
+
+              <div className="w-28 h-28 shrink-0 rounded-2xl bg-white border border-gray-100 shadow-inner flex items-center justify-center overflow-hidden p-3 group-hover:border-[#22c55e]/40 transition-colors">
+                <img
+                  src="/bsnl-logo.png"
+                  alt="BSNL Logo"
+                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                />
+              </div>
+
+              <div className="text-center sm:text-left flex-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-[#000080] rounded-full font-bold text-xs uppercase tracking-wide mb-2">
+                  <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" /> BSNL RTTC Skill Development Partner
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-[#000080] transition-colors mb-2">BSNL Regional Telecom Training Centre (RTTC), Hyderabad</h3>
+                <p className="text-gray-600 leading-relaxed">NxGen Tech Academy collaborates with BSNL RTTC as a Skill Development Partner in Hyderabad, offering practical training in AI, Python, Cyber Security, Cloud Computing, Networking, and Telecom technologies.</p>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-2 text-[#000080] font-bold shrink-0 bg-[#000080]/5 group-hover:bg-[#000080] group-hover:text-white px-5 py-3 rounded-xl transition-all">
+                View Details <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Section 3: Mission, Vision & Values */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">

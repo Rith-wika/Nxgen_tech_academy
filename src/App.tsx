@@ -19,6 +19,7 @@ import CourseDetail from "./pages/CourseDetail";
 import ContactPage from "./pages/ContactPage";
 import NotFound from "./pages/NotFound";
 import WhyChooseUs from "./pages/WhyChooseUs";
+import Partners from "./pages/Partners";
 import Mentors from "./pages/Mentors";
 import { categories } from './data';
 
@@ -115,6 +116,7 @@ const AppContent = () => {
           <Route path="mentors" element={<Mentors />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="why-choose-us" element={<WhyChooseUs />} />
+          <Route path="bsnl-skill-development-partner" element={<Partners />} />
           <Route path="blogs" element={<Blogs />} />
           <Route path="blogs/:slug" element={<BlogDetail />} />
           <Route path="register" element={<Register />} />

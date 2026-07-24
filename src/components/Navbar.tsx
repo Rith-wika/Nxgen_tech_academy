@@ -366,15 +366,7 @@ export const Navbar = () => {
                   Logout
                 </Button>
               </>
-            ) : (
-              <Button
-                asChild
-                variant="outline"
-                className="border-[#000080] text-[#000080] hover:bg-[#000080] hover:text-white font-medium px-2 xl:px-6"
-              >
-                <Link to="/register">Register</Link>
-              </Button>
-            )}
+            ) : null}
           </div>
 
           {/* Mobile Menu Button */}
@@ -542,18 +534,6 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full border-[#000080] text-[#000080]"
-                >
-                  <Link
-                    to="/register"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Register Now
-                  </Link>
-                </Button>
                 <Button
                   asChild
                   variant="outline"

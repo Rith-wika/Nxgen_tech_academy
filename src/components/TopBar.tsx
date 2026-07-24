@@ -17,12 +17,6 @@ export const TopBar = () => {
                         <a href="https://x.com/tech_nxgen" target="_blank" className="w-8 h-8 flex items-center justify-center border border-white/30 rounded hover:bg-white/10 transition-colors"><Twitter className="w-4 h-4" /></a>
                     </div>
 
-                    {/* Marquee Text */}
-                    <div
-                        className="flex-1 px-4 overflow-hidden lg:w-auto text-sm font-medium min-w-0"
-                        // dangerouslySetInnerHTML={{ __html: '<marquee scrollamount="5">Join Our 100% Job Guarantee Courses (Open to All Graduates/ Diploma Holders/ Career Gaps/ Non-IT Backgrounds/ Pass-Outs from Any Year).</marquee>' }}
-                        dangerouslySetInnerHTML={{ __html: '<marquee scrollamount="5">🚀 Book a FREE Demo this Saturday on SAP BTP – Learn Cloud Development, Integration, and Real-Time Projects. Limited Seats Available. Register Now!</marquee>' }}
-                    />
 
                     {/* Login Button */}
                     <div className="flex items-center gap-2 xl:gap-3 shrink-0 flex-wrap justify-center">
