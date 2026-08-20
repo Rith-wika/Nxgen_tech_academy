@@ -12,6 +12,11 @@ type Course = {
     image?: string;
 };
 
+// All 'course' type images used with this component have a pre-generated
+// WebP sibling (see gen-webp.cjs); swapping the extension lets modern
+// browsers download the smaller WebP while older ones keep the <img> fallback.
+const toWebp = (src: string) => src.replace(/\.(jpe?g|png)$/i, '.webp');
+
 type CarouselProps = {
     items: Course[];
     loop?: boolean;
@@ -97,15 +102,22 @@ export const CourseCarousel: React.FC<CarouselProps> = ({
                             className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_25%] min-w-0 pl-4"
                         >
                             {type === 'course' ? (
-                                <Link to={item.link} className="block h-full group/card transition-all duration-300">
-                                    <div className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col">
+                                <Link to={item.link} className="block h-full group/card transition-transform duration-300">
+                                    <div className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-[transform,box-shadow] duration-300 transform hover:-translate-y-1 h-full flex flex-col">
                                         <div className="h-40 bg-gray-100 relative overflow-hidden flex-shrink-0">
                                             {item.image ? (
-                                                <img 
-                                                    src={item.image} 
-                                                    alt={item.title} 
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110" 
-                                                />
+                                                <picture>
+                                                    <source type="image/webp" srcSet={toWebp(item.image)} />
+                                                    <img
+                                                        src={item.image}
+                                                        alt={item.title}
+                                                        width={400}
+                                                        height={160}
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110"
+                                                    />
+                                                </picture>
                                             ) : (
                                                 <div className="w-full h-full bg-primary/5 flex items-center justify-center">
                                                     <span className="text-gray-400 font-bold text-lg px-4 text-center">NxGen</span>
@@ -122,7 +134,7 @@ export const CourseCarousel: React.FC<CarouselProps> = ({
                                                     {item.duration ? <Clock className="w-4 h-4 text-secondary" /> : <span className="w-2 h-2 rounded-full bg-secondary"></span>}
                                                     {item.duration || item.hours}
                                                 </p>
-                                                <div className="mt-3 text-primary font-bold text-sm flex items-center gap-1 group-hover/card:gap-2 transition-all">
+                                                <div className="mt-3 text-primary font-bold text-sm flex items-center gap-1 group-hover/card:gap-2 transition-[gap]">
                                                     Read More <ArrowRight className="w-3 h-3" />
                                                 </div>
                                             </div>
@@ -132,13 +144,17 @@ export const CourseCarousel: React.FC<CarouselProps> = ({
                             ) : (
                                 // Category card style
                                 <Link to={item.link} className="block h-full group/card">
-                                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
+                                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-[transform,box-shadow] duration-300 h-full flex flex-col">
                                         <div className="h-40 bg-gray-200 flex items-center justify-center relative overflow-hidden flex-shrink-0">
                                             {item.image ? (
-                                                <img 
-                                                    src={item.image} 
-                                                    alt={item.title} 
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110" 
+                                                <img
+                                                    src={item.image}
+                                                    alt={item.title}
+                                                    width={400}
+                                                    height={160}
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110"
                                                 />
                                             ) : (
                                                 <div className="absolute inset-0 bg-gradient-to-br from-primary to-[#000080] opacity-80"></div>
@@ -150,7 +166,7 @@ export const CourseCarousel: React.FC<CarouselProps> = ({
                                                 <span className="w-2 h-2 rounded-full bg-secondary"></span>
                                                 {item.hours || item.duration}
                                             </p>
-                                            <div className="text-primary font-bold flex items-center gap-2 group-hover/card:gap-4 transition-all">
+                                            <div className="text-primary font-bold flex items-center gap-2 group-hover/card:gap-4 transition-[gap]">
                                                 Read More <ArrowRight className="w-4 h-4" />
                                             </div>
                                         </div>

@@ -19,5 +19,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     chunkSizeWarningLimit: 2000,
+    // Modern-only baseline (native ES modules, no @vitejs/plugin-legacy in
+    // use) - avoids esbuild downleveling syntax/adding polyfills for
+    // browsers this site doesn't need to support.
+    target: "es2020",
   },
 }));

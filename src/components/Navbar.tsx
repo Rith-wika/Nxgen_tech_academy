@@ -52,7 +52,12 @@ export const Navbar = () => {
   const [activeCategory, setActiveCategory] = useState(
     courseCategories[0]?.category || "SAP Courses",
   );
-  const [isCourseMenuOpen, setIsCourseMenuOpen] = useState(false);
+  // The desktop "Course Menu" dropdown (~60+ links across 6 categories) is
+  // mounted only after the first hover instead of always sitting in the DOM
+  // hidden behind CSS - it was previously rendered on every page load
+  // whether or not a visitor ever opened it. Stays true once set so the
+  // hover interaction is unchanged after the first open.
+  const [hasHoveredCourseMenu, setHasHoveredCourseMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -129,6 +134,9 @@ export const Navbar = () => {
               <img
                 src="/Logo.png"
                 alt="NxGen Tech Academy"
+                width={169}
+                height={48}
+                fetchPriority="high"
                 className="h-12 w-auto object-contain"
               />
             </Link>
@@ -148,6 +156,9 @@ export const Navbar = () => {
             <img
               src="/Logo.png"
               alt="NxGen Tech Academy"
+              width={169}
+              height={48}
+              fetchPriority="high"
               className="h-12 w-auto object-contain"
             />
           </Link>
@@ -155,7 +166,10 @@ export const Navbar = () => {
           {/* Nav Controls - Middle Section */}
           <div className="flex flex-1 flex-col sm:flex-row items-center gap-3 xl:gap-4 w-full lg:w-auto justify-center lg:justify-start lg:pl-2 xl:pl-8 mt-2 lg:mt-0 min-w-0">
             {/* Hover Course Menu Button & Dropdown - Hidden on Mobile/Tablet */}
-            <div className="relative group/menu hidden lg:flex justify-center">
+            <div
+              className="relative group/menu hidden lg:flex justify-center"
+              onMouseEnter={() => setHasHoveredCourseMenu(true)}
+            >
               <Button
                 asChild
                 className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium px-2 xl:px-6 gap-2 shrink-0 cursor-default"
@@ -169,8 +183,10 @@ export const Navbar = () => {
               {/* Invisible bridge for smooth hover */}
               <div className="absolute top-full left-0 w-full h-4 bg-transparent z-[60]"></div>
 
-              {/* Priority dropdown, shown on hover of group/menu */}
-              <div className="absolute top-[calc(100%+0.5rem)] left-0 w-64 bg-white shadow-xl rounded-md opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-[60] py-2 border border-gray-100">
+              {/* Priority dropdown, shown on hover of group/menu. Only mounted
+                  after the first hover - see hasHoveredCourseMenu above. */}
+              {hasHoveredCourseMenu && (
+              <div className="absolute top-[calc(100%+0.5rem)] left-0 w-64 bg-white shadow-xl rounded-md opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-opacity duration-300 z-[60] py-2 border border-gray-100">
                 <ul className="flex flex-col">
                   {[
                     {
@@ -225,7 +241,7 @@ export const Navbar = () => {
 
                       {/* Nested Dropdown */}
                       {category.items.length > 0 && (
-                        <div className="absolute left-full top-0 ml-0 w-[600px] bg-[#fdfdfd] shadow-2xl rounded-md opacity-0 invisible group-hover/category:opacity-100 group-hover/category:visible transition-all duration-300 z-[70] p-6 border border-gray-100">
+                        <div className="absolute left-full top-0 ml-0 w-[600px] bg-[#fdfdfd] shadow-2xl rounded-md opacity-0 invisible group-hover/category:opacity-100 group-hover/category:visible transition-opacity duration-300 z-[70] p-6 border border-gray-100">
                           <ul className="grid grid-cols-2 md:grid-cols-3 gap-y-5 gap-x-6">
                             {category.items.map((item, idx) => (
                               <li key={idx}>
@@ -246,6 +262,7 @@ export const Navbar = () => {
                   ))}
                 </ul>
               </div>
+              )}
             </div>
 
             {/* Search Bar */}

@@ -2,34 +2,53 @@
 <html lang="en">
 
 <head>
+  <!-- Preload the LCP candidate: the first homepage hero slide. Matches the
+       <picture> srcset/sizes rendered in src/pages/Home.tsx so the browser
+       fetches the exact same (mobile-sized, WebP) resource it will need,
+       without waiting for React to mount before discovering it. -->
+  <link rel="preload" as="image" type="image/webp" fetchpriority="high"
+    href="/hero-bg-4-1200w.webp"
+    imagesrcset="/hero-bg-4-480w.webp 480w, /hero-bg-4-1200w.webp 1200w"
+    imagesizes="(max-width: 1023px) 100vw, 600px" />
   <meta name="facebook-domain-verification" content="onohtz3jcg5awwhbpq3mltyh07lnao" />
-  <!-- Meta Pixel Code -->
+  <!-- Meta Pixel + GTM: deferred until the page has finished loading so the
+       initial render / main-thread work isn't competing with these
+       third-party scripts. Tracking still fires the same events, just after
+       load instead of at parse time; dataLayer pushes made before then are
+       queued and processed once GTM initializes, so no events are lost. -->
   <script>
-    !function (f, b, e, v, n, t, s) {
-      if (f.fbq) return; n = f.fbq = function () {
-        n.callMethod ?
-          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-      };
-      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-      n.queue = []; t = b.createElement(e); t.async = !0;
-      t.src = v; s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s)
-    }(window, document, 'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1214198700823851');
-    fbq('track', 'PageView');
-  </script>
-  <!-- End Meta Pixel Code -->
-  <script>
-    (function (w, d, s, l, i) {
-      w[l] = w[l] || []; w[l].push({
-        'gtm.start':
-          new Date().getTime(), event: 'gtm.js'
-      }); var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-          'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', 'GTM-MRBC485T');
+    function nxgenLoadTracking() {
+      // Meta Pixel Code
+      !function (f, b, e, v, n, t, s) {
+        if (f.fbq) return; n = f.fbq = function () {
+          n.callMethod ?
+            n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+        };
+        if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+        n.queue = []; t = b.createElement(e); t.async = !0;
+        t.src = v; s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s)
+      }(window, document, 'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '1214198700823851');
+      fbq('track', 'PageView');
+
+      // GTM Code
+      ; (function (w, d, s, l, i) {
+        w[l] = w[l] || []; w[l].push({
+          'gtm.start':
+            new Date().getTime(), event: 'gtm.js'
+        }); var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+            'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'dataLayer', 'GTM-MRBC485T');
+    }
+    if (document.readyState === 'complete') {
+      nxgenLoadTracking();
+    } else {
+      window.addEventListener('load', nxgenLoadTracking);
+    }
   </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -66,9 +85,6 @@
   <meta name="msapplication-TileColor" content="#ffffff">
   <meta name="msapplication-TileImage" content="/Logo.png">
 
-  <!-- Preload Fonts -->
-  <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
-
   <!-- JSON-LD Schema -->
   <script type="application/ld+json">
     {
@@ -100,7 +116,8 @@
       ]
     }
     </script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Razorpay checkout SDK is loaded on demand from src/utils/razorpay.ts,
+       only on the pages that actually process a payment. -->
 
 </head>
 

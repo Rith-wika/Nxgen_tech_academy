@@ -116,7 +116,7 @@ const StudentsPage = () => {
     const { pendingEnvs, studentId } = studentForApprove;
     try {
       setActionLoading(studentId);
-      await Promise.all(pendingEnvs.map(env => axiosInstance.post(`/api/enrollments/admin/enrollments/${env.id}/approve/`)));
+      await Promise.all(pendingEnvs.map(env => axiosInstance.post(`/api/enrollments/${env.id}/approve/`)));
       toast.success("Enrollment(s) approved! Confirmation email sent to student.");
       fetchEnrollments();
     } catch (err: any) {
@@ -139,7 +139,7 @@ const StudentsPage = () => {
     const { pendingEnvs, studentId } = studentForReject;
     try {
       setActionLoading(studentId);
-      await Promise.all(pendingEnvs.map(env => axiosInstance.post(`/api/enrollments/admin/enrollments/${env.id}/reject/`)));
+      await Promise.all(pendingEnvs.map(env => axiosInstance.post(`/api/enrollments/${env.id}/reject/`)));
       toast.success("Enrollment(s) rejected. Student has been notified.");
       fetchEnrollments();
     } catch (err: any) {

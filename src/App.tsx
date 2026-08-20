@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import GTMPageView from "./GTMPageView";
 import { Helmet } from 'react-helmet-async';
 import { Preloader } from "./components/Preloader";
@@ -11,64 +11,75 @@ import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { TopBar } from "./components/TopBar"; // New Import
+// Home stays eagerly bundled - it's the landing page for most visitors,
+// so lazy-loading it would add a network round trip to the LCP path.
 import Home from "./pages/Home";
-import About from "./pages/About";
-import Courses from "./pages/Courses";
-import CategoryListing from "./pages/CategoryListing";
-import CourseDetail from "./pages/CourseDetail";
-import ContactPage from "./pages/ContactPage";
-import NotFound from "./pages/NotFound";
-import WhyChooseUs from "./pages/WhyChooseUs";
-import Partners from "./pages/Partners";
-import Mentors from "./pages/Mentors";
 import { categories } from './data';
-
-// New Pages
-import AllCourses from "./pages/AllCourses";
-import Blogs from "./pages/Blogs";
-import SAPCategory from "./pages/SAPCategory";
-import Register from "./pages/Auth/Register";
-import Login from "./pages/Auth/Login";
-import ForgotPassword from "./pages/Auth/ForgotPassword";
-import ChangePassword from "./pages/Auth/ChangePassword";
-import MainDashboard from "./pages/Admin/MainDashboard";
-import StudentsPage from "./pages/Admin/StudentsPage";
-import StudentDetailPage from "./pages/Admin/StudentDetailPage";
-import InstructorsPage from "./pages/Admin/InstructorsPage";
-import AddInstructor from "./pages/Admin/AddInstructor";
-import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
-import InstructorProfile from "./pages/Instructor/InstructorProfile";
-import InstructorCourses from "./pages/Instructor/InstructorCourses";
-import InstructorLessons from "./pages/Instructor/InstructorLessons";
-import InstructorModuleLessons from "./pages/Instructor/InstructorModuleLessons";
-import InstructorStudents from "./pages/Instructor/InstructorStudents";
-import InstructorAssignments from "./pages/Instructor/InstructorAssignments";
-import AdminBatches from "./pages/Admin/AdminBatches";
-import AdminCourses from "./pages/Admin/AdminCourses";
-import AdminAssignments from "./pages/Admin/AdminAssignments";
-import Presales from "./pages/Admin/Presales";
-import InstructorTopics from "./pages/Instructor/InstructorTopics";
-import StudentDashboard from "./pages/Student/StudentDashboard";
-import StudentCourses from "./pages/Student/StudentCourses";
-import StudentAssignments from "./pages/Student/StudentAssignments";
-import StudentProgress from "./pages/Student/StudentProgress";
-import StudentCertificates from "./pages/Student/StudentCertificates";
-import StudentProfile from "./pages/Student/StudentProfile";
-import BlogDashboard from "./pages/BlogAdmin/BlogDashboard";
-import CourseViewer from "./pages/Dashboard/CourseViewer";
-import BlogDetail from "./pages/BlogDetail";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Payments from "@/pages/Payments";
-import StudentPaymentHistory from "./pages/Student/StudentPaymentHistory";
-import StudentInvoices from "./pages/Student/StudentInvoices";
-import StudentInvoiceDetail from "./pages/Student/StudentInvoiceDetail";
-import Transactions from "./pages/Admin/Finance/Transactions";
-import Invoices from "./pages/Admin/Finance/Invoices";
-import AdminInvoiceDetail from "./pages/Admin/Finance/AdminInvoiceDetail";
-import Refunds from "./pages/Admin/Finance/Refunds";
-import Reports from "./pages/Admin/Finance/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { useLocation, useParams } from "react-router-dom";
+
+// Every other route is code-split so its JS/CSS is only fetched when
+// that route is actually visited (admin/instructor/student dashboards,
+// auth pages, finance pages, etc. were previously all bundled into the
+// homepage's initial load).
+const About = lazy(() => import("./pages/About"));
+const Courses = lazy(() => import("./pages/Courses"));
+const CategoryListing = lazy(() => import("./pages/CategoryListing"));
+const CourseDetail = lazy(() => import("./pages/CourseDetail"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
+const Partners = lazy(() => import("./pages/Partners"));
+const Mentors = lazy(() => import("./pages/Mentors"));
+
+const AllCourses = lazy(() => import("./pages/AllCourses"));
+const Blogs = lazy(() => import("./pages/Blogs"));
+const SAPCategory = lazy(() => import("./pages/SAPCategory"));
+const Register = lazy(() => import("./pages/Auth/Register"));
+const Login = lazy(() => import("./pages/Auth/Login"));
+const ForgotPassword = lazy(() => import("./pages/Auth/ForgotPassword"));
+const ChangePassword = lazy(() => import("./pages/Auth/ChangePassword"));
+const MainDashboard = lazy(() => import("./pages/Admin/MainDashboard"));
+const StudentsPage = lazy(() => import("./pages/Admin/StudentsPage"));
+const StudentDetailPage = lazy(() => import("./pages/Admin/StudentDetailPage"));
+const InstructorsPage = lazy(() => import("./pages/Admin/InstructorsPage"));
+const AddInstructor = lazy(() => import("./pages/Admin/AddInstructor"));
+const InstructorDashboard = lazy(() => import("./pages/Instructor/InstructorDashboard"));
+const InstructorProfile = lazy(() => import("./pages/Instructor/InstructorProfile"));
+const InstructorCourses = lazy(() => import("./pages/Instructor/InstructorCourses"));
+const InstructorLessons = lazy(() => import("./pages/Instructor/InstructorLessons"));
+const InstructorModuleLessons = lazy(() => import("./pages/Instructor/InstructorModuleLessons"));
+const InstructorStudents = lazy(() => import("./pages/Instructor/InstructorStudents"));
+const InstructorAssignments = lazy(() => import("./pages/Instructor/InstructorAssignments"));
+const AdminBatches = lazy(() => import("./pages/Admin/AdminBatches"));
+const AdminCourses = lazy(() => import("./pages/Admin/AdminCourses"));
+const AdminAssignments = lazy(() => import("./pages/Admin/AdminAssignments"));
+const Presales = lazy(() => import("./pages/Admin/Presales"));
+const InstructorTopics = lazy(() => import("./pages/Instructor/InstructorTopics"));
+const StudentDashboard = lazy(() => import("./pages/Student/StudentDashboard"));
+const StudentCourses = lazy(() => import("./pages/Student/StudentCourses"));
+const StudentAssignments = lazy(() => import("./pages/Student/StudentAssignments"));
+const StudentProgress = lazy(() => import("./pages/Student/StudentProgress"));
+const StudentCertificates = lazy(() => import("./pages/Student/StudentCertificates"));
+const StudentProfile = lazy(() => import("./pages/Student/StudentProfile"));
+const BlogDashboard = lazy(() => import("./pages/BlogAdmin/BlogDashboard"));
+const CourseViewer = lazy(() => import("./pages/Dashboard/CourseViewer"));
+const BlogDetail = lazy(() => import("./pages/BlogDetail"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Payments = lazy(() => import("@/pages/Payments"));
+const StudentPaymentHistory = lazy(() => import("./pages/Student/StudentPaymentHistory"));
+const StudentInvoices = lazy(() => import("./pages/Student/StudentInvoices"));
+const StudentInvoiceDetail = lazy(() => import("./pages/Student/StudentInvoiceDetail"));
+const Transactions = lazy(() => import("./pages/Admin/Finance/Transactions"));
+const Invoices = lazy(() => import("./pages/Admin/Finance/Invoices"));
+const AdminInvoiceDetail = lazy(() => import("./pages/Admin/Finance/AdminInvoiceDetail"));
+const Refunds = lazy(() => import("./pages/Admin/Finance/Refunds"));
+const Reports = lazy(() => import("./pages/Admin/Finance/Reports"));
+
+const RouteFallback = () => (
+  <div className="flex items-center justify-center min-h-[40vh]">
+    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -97,6 +108,7 @@ const AppContent = () => {
       {!hideComponents && <TopBar />}
       {!hideComponents && <Navbar />}
       <main>
+        <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
@@ -202,6 +214,7 @@ const AppContent = () => {
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </main>
       {!hideComponents && <Footer />}
     </>

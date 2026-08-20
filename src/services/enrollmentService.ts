@@ -146,6 +146,12 @@ export const enrollmentService = {
     }
 };
 
+export interface PaymentTransaction {
+    id: number | string;
+    amount: number;
+    paid_at: string;
+}
+
 export interface PaymentDetails {
     id?: number | string;
     enrollment?: number | string;
@@ -153,5 +159,6 @@ export interface PaymentDetails {
     fee_amount?: number;
     payment_paid?: number;
     remaining_balance?: number;
+    transactions?: PaymentTransaction[];
 }
 

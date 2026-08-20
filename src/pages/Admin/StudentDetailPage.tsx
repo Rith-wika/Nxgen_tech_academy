@@ -225,6 +225,22 @@ const StudentDetailPage = () => {
                           <p className="font-bold text-xs text-orange-700 mt-0.5">₹{pmInfo.remaining_balance ?? 0}</p>
                         </div>
                       </div>
+
+                      {pmInfo.transactions && pmInfo.transactions.length > 0 && (
+                        <div className="pt-2 border-t space-y-1.5">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payment History</p>
+                          <div className="space-y-1 max-h-28 overflow-y-auto pr-1">
+                            {pmInfo.transactions.map((t) => (
+                              <div key={t.id} className="flex justify-between items-center text-xs">
+                                <span className="text-slate-500">
+                                  {new Date(t.paid_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                                </span>
+                                <span className="font-semibold text-green-700">₹{Number(t.amount).toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

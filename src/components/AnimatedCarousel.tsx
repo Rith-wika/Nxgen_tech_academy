@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { motion } from 'framer-motion';
-
+//For checking git status
 type Slide = {
   id?: string | number;
   title?: string;

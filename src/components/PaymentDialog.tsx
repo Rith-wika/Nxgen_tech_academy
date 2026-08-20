@@ -16,10 +16,9 @@ interface PaymentDialogProps {
 
 const PaymentDialog: React.FC<PaymentDialogProps> = ({ student, isOpen, onClose, onSuccess }) => {
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
-  const [paymentPaid, setPaymentPaid] = useState<string>("");
+  const [newPayment, setNewPayment] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasPaymentDetails, setHasPaymentDetails] = useState(false);
 
   const fetchPaymentDetails = async () => {
     if (!student.id) return;
@@ -27,17 +26,14 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({ student, isOpen, onClose,
       setIsLoading(true);
       const data = await enrollmentService.getPaymentDetails(student.id);
       setPaymentDetails(data);
-      setPaymentPaid(data.payment_paid?.toString() || "0");
-      setHasPaymentDetails(true);
     } catch (error: any) {
       if (error.response?.status === 404) {
-        setHasPaymentDetails(false);
-        setPaymentPaid("0");
         setPaymentDetails({
           course_name: String(student.course),
           fee_amount: student.fee_amount || 0,
           payment_paid: 0,
           remaining_balance: student.fee_amount || 0,
+          transactions: [],
         });
       } else {
         console.error(error);
@@ -50,6 +46,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({ student, isOpen, onClose,
 
   useEffect(() => {
     if (isOpen && student.id) {
+      setNewPayment("");
       fetchPaymentDetails();
     }
   }, [isOpen, student.id]);
@@ -57,36 +54,42 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({ student, isOpen, onClose,
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!student.id) return;
-    
+
+    const amount = parseFloat(newPayment);
+    if (!amount || amount <= 0) {
+      toast.error("Enter a valid payment amount.");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
-      const payload = {
-        payment_paid: parseFloat(paymentPaid) || 0,
+      // This always records a new payment on top of what's already been
+      // paid - it does not overwrite the running total.
+      await enrollmentService.createPaymentDetails(student.id, {
+        payment_paid: amount,
         enrollment: student.id,
-      };
-      
-      if (hasPaymentDetails) {
-        await enrollmentService.updatePaymentDetails(student.id, payload);
-      } else {
-        await enrollmentService.createPaymentDetails(student.id, payload);
-      }
-      
-      toast.success("Payment details saved successfully!");
+      });
+
+      toast.success("Payment recorded successfully!");
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to save payment details.");
+      toast.error(error.response?.data?.error || "Failed to save payment details.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const alreadyPaid = Number(paymentDetails?.payment_paid) || 0;
+  const feeAmount = Number(paymentDetails?.fee_amount) || 0;
+  const projectedDue = Math.max(0, feeAmount - alreadyPaid - (parseFloat(newPayment) || 0));
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Update Payment Details</DialogTitle>
+          <DialogTitle>Record New Payment</DialogTitle>
         </DialogHeader>
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
@@ -99,30 +102,36 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({ student, isOpen, onClose,
               <Label>Course Name</Label>
               <Input value={paymentDetails?.course_name || student.course || ""} disabled className="bg-slate-100" />
             </div>
-            
-            <div className="grid gap-2">
-              <Label>Fee Amount</Label>
-              <Input value={paymentDetails?.fee_amount || 0} disabled className="bg-slate-100" />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Total Fee</Label>
+                <Input value={feeAmount} disabled className="bg-slate-100" />
+              </div>
+              <div className="grid gap-2">
+                <Label>Due Amount</Label>
+                <Input value={Math.max(0, feeAmount - alreadyPaid)} disabled className="bg-slate-100" />
+              </div>
             </div>
 
             <div className="grid gap-2">
-              <Label>Payment Paid</Label>
-              <Input 
-                type="number" 
-                value={paymentPaid} 
-                onChange={(e) => setPaymentPaid(e.target.value)}
-                placeholder="Enter amount paid"
+              <Label>New Payment Amount</Label>
+              <Input
+                type="number"
+                value={newPayment}
+                onChange={(e) => setNewPayment(e.target.value)}
+                placeholder="Enter the amount being paid now"
                 min="0"
                 required
               />
             </div>
 
             <div className="grid gap-2">
-              <Label>Remaining Balance</Label>
-              <Input 
-                value={paymentDetails ? (paymentDetails.fee_amount || 0) - (parseFloat(paymentPaid) || 0) : 0} 
-                disabled 
-                className="bg-slate-100 font-semibold" 
+              <Label>Remaining Balance After This Payment</Label>
+              <Input
+                value={projectedDue}
+                disabled
+                className="bg-slate-100 font-semibold"
               />
             </div>
 

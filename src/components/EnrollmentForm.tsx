@@ -22,6 +22,7 @@ export interface EnrollmentFormData {
     preferred_timing: string;
     experience_level: string;
     fee_status?: string;
+    payment_paid?: string;
     enrollment_date?: string;
     terms_accepted?: boolean;
     lead?: number | string;
@@ -52,7 +53,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [selectedCourseIds, setSelectedCourseIds] = useState<number[]>([]);
-    const [courseDetails, setCourseDetails] = useState<Record<number, { course_type: string; preferred_mode: string; preferred_timing: string; fee_status: string }>>({});
+    const [courseDetails, setCourseDetails] = useState<Record<number, { course_type: string; preferred_mode: string; preferred_timing: string; fee_status: string; payment_paid: string }>>({});
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -65,6 +66,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                     preferred_mode: formData.preferred_mode || "",
                     preferred_timing: formData.preferred_timing || "",
                     fee_status: formData.fee_status || "Pending",
+                    payment_paid: "",
                 }),
                 [field]: value
             }
@@ -100,6 +102,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                         preferred_mode: formData.preferred_mode || "",
                         preferred_timing: formData.preferred_timing || "",
                         fee_status: formData.fee_status || "Pending",
+                        payment_paid: "",
                     }
                 }));
                 return [...prev, courseId];
@@ -133,7 +136,8 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                 const courseList = Array.isArray(data) ? data : ((data as any).results || []);
                 const formattedCourses = courseList.map((c: any) => ({
                     id: c.id,
-                    name: c.title || c.name || "Unnamed Course"
+                    name: c.title || c.name || "Unnamed Course",
+                    price: c.price
                 }));
                 setCourses(formattedCourses);
 
@@ -156,6 +160,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                                 preferred_mode: initialData?.preferred_mode || "",
                                 preferred_timing: (initialData as any)?.preferred_timing || "",
                                 fee_status: initialData?.fee_status || "Pending",
+                                payment_paid: "",
                             }
                         });
                     }
@@ -182,6 +187,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                     preferred_mode: initialData?.preferred_mode || "",
                     preferred_timing: (initialData as any)?.preferred_timing || "",
                     fee_status: initialData?.fee_status || "Pending",
+                    payment_paid: "",
                 }
             }));
         }
@@ -338,7 +344,7 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                     } as any);
                 } else {
                     // For direct student addition (admin/students page)
-                    return enrollmentService.enroll({
+                    const res = await enrollmentService.enroll({
                         name: formData.name,
                         email: formData.email,
                         phone: formData.phone,
@@ -352,6 +358,21 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                         experience_level: formData.experience_level,
                         terms_accepted: formData.terms_accepted,
                     });
+
+                    const amountPaid = parseFloat(cData.payment_paid);
+                    const newEnrollmentId = res?.enrollment_id || res?.enrollments?.[0];
+                    if (newEnrollmentId && !isNaN(amountPaid) && amountPaid > 0) {
+                        try {
+                            await enrollmentService.createPaymentDetails(newEnrollmentId, {
+                                payment_paid: amountPaid,
+                                enrollment: newEnrollmentId,
+                            });
+                        } catch (paymentError) {
+                            console.error("Failed to record initial payment", paymentError);
+                            toast.error(`Student enrolled, but failed to record the paid amount for ${courseTitle}.`);
+                        }
+                    }
+                    return res;
                 }
             });
 
@@ -720,6 +741,26 @@ const EnrollmentForm = ({ defaultCourse, defaultCourseType, onSuccess, initialDa
                                             <option key={s.key || s.id || i} value={s.key || s.id || s}>{s.label || s.name || s}</option>
                                         ))}
                                     </select>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-gray-700">
+                                        Amount Paid (₹)
+                                        {courseObj?.price ? (
+                                            <span className="text-gray-400 font-normal"> — Course Fee: ₹{Number(courseObj.price).toLocaleString()}</span>
+                                        ) : null}
+                                    </Label>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="0"
+                                        value={cData.payment_paid || ""}
+                                        onChange={(e) => handleCourseDetailChange(courseId, "payment_paid", e.target.value)}
+                                        className="h-11 bg-white"
+                                    />
+                                    <p className="text-xs text-gray-400">Leave blank if no payment has been collected yet.</p>
                                 </div>
                             </div>
                         </div>
