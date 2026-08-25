@@ -50,8 +50,8 @@ const generateDefaultSAPContent = (title: string, id: string): SAPCourseContent 
 // Define the unique content for each SAP course here. 
 // You can edit the text strings below for each course to completely customize their pages later!
 export const sapCoursesContent: Record<string, SAPCourseContent> = {
-    "sap-abap-on-hana-course-online": {
-        id: "sap-abap-on-hana-course-online",
+    "sap-abap-course-training": {
+        id: "sap-abap-course-training",
         metaTitle: "SAP ABAP on HANA Course Online with Certification & Placement | NxGen Tech Academy",
         metaDescription: "Learn SAP ABAP on HANA Course Online at NxGen Tech Academy with real-time projects, certification preparation, and placement support. Master SAP development and build a high-demand career in SAP technologies.",
         whatIs: `If you want to build a strong career in SAP development, enrolling in an SAP ABAP on HANA course online is an excellent choice. NxGen Tech Academy offers a comprehensive training program designed to help students, freshers, and working professionals master SAP ABAP on HANA development skills.\n\nOur course is designed to be simple, practical, and beginner-friendly, making it ideal even for those who are new to programming. Through structured lessons, real-time projects, and certification preparation, learners gain the skills required to work confidently on SAP HANA-based enterprise applications.\n\nBy completing our SAP ABAP on HANA certification training, you can stand out in the competitive job market and build a rewarding career in SAP technologies.\n\n What is SAP ABAP on HANA Certification?\nSAP is one of the world’s leading enterprise software solutions used by organizations to manage their business processes. ABAP (Advanced Business Application Programming) is the primary programming language used to develop and customize applications within SAP systems. SAP ABAP on HANA is the modern evolution of ABAP designed to work with SAP HANA, a high-performance in-memory database that enables real-time data processing.\n\n With SAP ABAP on HANA, developers can:\n• Build high-performance enterprise applications\n• Work with real-time data processing\n• Develop optimized applications using SAP HANA capabilities\n• Support businesses in managing operations efficiently\n\nEven beginners with minimal programming knowledge can learn ABAP on HANA through structured tutorials, live sessions, and practical projects.\n\n The Future of SAP ABAP in the Cloud \n The IT industry is rapidly moving toward cloud-based solutions, and SAP is leading this transformation with platforms such as SAP Business Technology Platform (SAP BTP).\n\nLearning SAP ABAP on HANA online training prepares you for the future of enterprise development by enabling you to build applications that integrate with SAP’s cloud ecosystem.\n\nAs organizations migrate to SAP S/4HANA and SAP BTP, professionals with ABAP on HANA expertise are becoming increasingly valuable in the global job market.`,
@@ -398,8 +398,8 @@ With ABAP on HANA expertise, professionals can grow into roles such as SAP Consu
             }
         ]
     },
-    "sap-abap-rap": {
-        id: "sap-abap-rap",
+    "sap-abap-cds-course-training": {
+        id: "sap-abap-cds-course-training",
         metaTitle: "SAP ABAP on HANA Course Online | CDS Views & OData Training",
         metaDescription: "Join SAP ABAP on HANA Course Online at NxGen Tech Academy. Learn CDS Views, OData services, SAP HANA optimization, and SAP S/4HANA development with real-time projects.",
         whatIs: `The SAP ABAP on HANA Upskilling Course at NxGen Tech Academy is designed specifically for ABAP developers who want to upgrade their skills to modern SAP technologies used in SAP S/4HANA environments. This advanced training focuses on Core Data Services (CDS Views) and OData services, which are essential for building high-performance SAP applications and SAP Fiori solutions.
@@ -589,8 +589,8 @@ Enroll today in NxGen Tech Academy’s SAP ABAP on HANA Certification Training a
             }
         ]
     },
-    "sap-ui5-fiori-training": {
-        id: "sap-ui5-fiori-training",
+    "sap-fiori-course-training": {
+        id: "sap-fiori-course-training",
         metaTitle: "SAP UI5 Fiori Training Online with Certification & Placement | NxGen Tech Academy",
         metaDescription: "Learn SAP UI5 Fiori Training Online at NxGen Tech Academy. Master SAP UI5 development, OData services, Fiori Launchpad, and responsive UI design with real-time projects and certification support.",
         whatIs: `The SAP UI5 Fiori Training at NxGen Tech Academy is designed to help learners understand how modern SAP user interfaces are built to deliver a superior user experience. This course focuses on SAP UI5 components, Fiori design principles, responsive layouts, and real-time application development used in enterprise SAP environments.\n\nAs one of the most popular SAP front-end development courses, this program prepares learners to develop modern SAP applications that are intuitive, responsive, and optimized for multiple devices.\n\nThrough hands-on training, real-world projects, and expert guidance, our SAP UI5 Fiori online course equips learners with the practical skills required to become SAP UI5 Fiori developers in today’s digital enterprise landscape.\n\nWhat is SAP UI5 and SAP Fiori?\nSAP UI5 is a JavaScript-based framework used to build enterprise-grade web applications for SAP systems.\nSAP Fiori is SAP’s design system that focuses on creating modern, user-friendly, and responsive interfaces for business applications.\nTogether, SAP UI5 and Fiori enable developers to build applications that provide a consistent and intuitive user experience across multiple devices.\n\nKey features of SAP UI5 and Fiori include:\n• Modern and responsive application development\n• Simplified user experience with intuitive interfaces\n• Cross-device compatibility\n• Integration with SAP backend systems\n• Scalable enterprise application development`,
@@ -1327,8 +1327,8 @@ The course fee includes complete training sessions, study materials, SAP practic
             }
         ]
     },
-    "sap-pp-course": {
-        id: "sap-pp-course",
+    "sap-pp-course-training": {
+        id: "sap-pp-course-training",
         metaTitle: "SAP PP Course with Placement | SAP MM Training – NXGEN",
         metaDescription: "Join SAP PP Course at NXGEN Tech Academy. Learn production planning, MRP, capacity planning, and SAP S/4HANA with placement support.",
         whatIs: `In manufacturing industries such as automobiles, textiles, electronics, and food processing, production planning plays a crucial role in ensuring that products are manufactured on time, in the correct quantity, and with the right materials.\n\nTo manage these complex processes efficiently, organizations use SAP PP (Production Planning) — one of the core modules of the SAP ERP system.\n\nThe SAP PP Course at NXGEN Tech Academy helps students and professionals understand how production planning works in large organizations and how SAP systems streamline the entire manufacturing process.\n\nThis training program is designed for beginners, fresh graduates, and working professionals, enabling them to learn SAP Production Planning step by step with practical examples.`,
@@ -1532,8 +1532,8 @@ The course fee includes complete training sessions, study materials, SAP practic
         ]
     },
 
-    "sap-mm-course": {
-        id: "sap-mm-course",
+    "sap-mm-course-training": {
+        id: "sap-mm-course-training",
         metaTitle: "SAP MM Course with Placement | SAP MM Training – NXGEN",
         metaDescription: "Join SAP MM Course at NXGEN Tech Academy. Learn procurement, inventory management, SAP S/4HANA, and get placement support to start your SAP career.",
         whatIs: `
@@ -1803,8 +1803,8 @@ With the right training and guidance, your journey toward becoming an SAP MM pro
     },
 
     "sap-pm": generateDefaultSAPContent("SAP PM", "sap-pm"),
-    "sap-qm-course": {
-        id: "sap-qm-course",
+    "sap-qm-course-training": {
+        id: "sap-qm-course-training",
         metaTitle: "SAP QM Course | SAP QM Training with Placement – NXGEN",
         metaDescription: "Learn SAP QM Course at NXGEN Tech Academy. Get hands-on SAP training, certification guidance, internship, and 100% job support to build a career in SAP Quality Management.",
         whatIs: `
@@ -2023,8 +2023,8 @@ If you want to become a quality management expert and build a global SAP career,
     "sap-scm": generateDefaultSAPContent("SAP SCM", "sap-scm"),
     "sap-ewm": generateDefaultSAPContent("SAP EWM", "sap-ewm"),
 
-    "sap-basis-s4hana-training": {
-        id: "sap-basis-s4hana-training",
+    "sap-basis-course-training": {
+        id: "sap-basis-course-training",
         metaTitle: "SAP BASIS S/4HANA Training Online with Certification & Placement | NxGen Tech Academy",
         metaDescription: "Learn SAP BASIS S/4HANA Training Online with real-time projects, certification guidance, and placement support at NxGen Tech Academy. Enroll today to become an SAP BASIS administrator.",
         whatIs: `The SAP BASIS S/4HANA Training at NxGen Tech Academy is designed for professionals who want to manage, administer, and support modern SAP S/4HANA system landscapes. This course focuses on system installation, configuration, monitoring, performance optimization, upgrades, and security management in real SAP environments.\n\nAs one of the most important SAP technical administration courses, this training helps learners develop the expertise required to maintain SAP systems efficiently and ensure smooth business operations. The course provides a strong foundation in SAP BASIS administration, enabling professionals to work with enterprise-level SAP S/4HANA systems.\n\nThrough practical sessions, real-time exercises, and industry-focused training, learners gain hands-on experience in managing SAP system landscapes and preparing for SAP BASIS S/4HANA certification and career opportunities.\n\nWhat is SAP BASIS S/4HANA?\n\nSAP BASIS (Business Application Systems Integrated Solutions) is the technical foundation that supports SAP applications. It manages the technical infrastructure of SAP systems, including installation, configuration, system monitoring, and performance optimization.\n\nSAP S/4HANA is the next-generation ERP system developed by SAP that runs on the SAP HANA in-memory database. It provides real-time analytics, simplified data models, and improved user experiences.\n\nThe SAP BASIS S/4HANA consultant plays a critical role in ensuring that SAP systems operate smoothly. Their responsibilities include system administration, performance monitoring, security management, and maintaining system stability.\n\nSAP BASIS acts as the backbone of SAP S/4HANA environments, helping organizations manage their enterprise applications efficiently and securely.`,
@@ -2156,8 +2156,8 @@ If you want to become a quality management expert and build a global SAP career,
     // BTP Courses
     "sap-btp-appdev": generateDefaultSAPContent("SAP BTP Application Development", "sap-btp-appdev"),
 
-    "sap-btp-working-professionals": {
-        id: "sap-btp-working-professionals",
+    "sap-btp-professionals-course-training": {
+        id: "sap-btp-professionals-course-training",
         metaTitle: "SAP BTP Course Online | SAP Business Technology Platform Training – NxGen Tech Academy",
         metaDescription: "Join the SAP BTP Course Online at NxGen Tech Academy. Learn SAP Business Technology Platform, SAP HANA Cloud, Integration Suite, security, and cloud development with hands-on projects and placement support.",
         whatIs: `Are you looking to upgrade your SAP skills, build expertise in cloud-based enterprise technologies, and unlock high-paying career opportunities? The SAP BTP Course Online at NxGen Tech Academy is designed to help you achieve these goals.\n\nThis comprehensive training program helps learners master the SAP Business Technology Platform (SAP BTP), including global account management, subaccount creation, entitlement configuration, user role management, and integration with services such as SAP HANA Cloud and SAP Integration Suite.\n\nOur training is delivered by certified SAP professionals with 8–15 years of industry experience, ensuring that learners gain both theoretical knowledge and real-world project experience. Through hands-on practice, live projects, and expert mentorship, NxGen Tech Academy helps transform your SAP knowledge into a competitive professional advantage.\n\nWhat is an SAP BTP Course Online?\nAn SAP BTP course online is a structured learning program designed to help professionals understand and work with the SAP Business Technology Platform, a powerful cloud platform used by enterprises worldwide.\n\nSAP BTP provides organizations with tools for:\n• Application development\n• Data management and analytics\n• Artificial intelligence and machine learning\n• Integration between systems\n• Process automation\n\nIn simple terms, an SAP BTP training course equips developers, consultants, architects, and IT professionals with the skills needed to support organizations in becoming Intelligent Enterprises through digital transformation.`,
@@ -2305,8 +2305,8 @@ If you want to become a quality management expert and build a global SAP career,
             },
         ]
     },
-    "sap-cpi-training": {
-        id: "sap-cpi-training",
+    "sap-cpi-course-training": {
+        id: "sap-cpi-course-training",
         metaTitle: "SAP CPI Training | SAP Cloud Integration Certification Training",
         metaDescription: "Join SAP CPI Training at NxGen Tech Academy and learn SAP Cloud Integration, iFlows, adapters, security, and enterprise integrations with hands-on projects and certification guidance.",
         whatIs: `The SAP CPI Training at NxGen Tech Academy is designed to help professionals gain expertise in SAP Cloud Integration (CPI), a core component of the SAP Integration Suite on SAP Business Technology Platform (BTP). This training program equips learners with the skills required to design, develop, and manage integration scenarios between SAP and non-SAP systems in cloud environments.
@@ -2527,8 +2527,8 @@ Enroll today in NxGen Tech Academy’s SAP CPI Training and become a skilled SAP
             }
         ]
     },
-    "sap-btp-freshers": {
-        id: "sap-btp-freshers",
+    "sap-btp-freshers-course-training": {
+        id: "sap-btp-freshers-course-training",
         metaTitle: "SAP BTP Courses Online| SAP Business Technology Platform Training",
         metaDescription: "Explore SAP BTP courses online and learn SAP Business Technology Platform, cloud development, SAP HANA Cloud, integration services, and DevOps with hands-on training and certification support.",
         whatIs: `Are you looking to upgrade your SAP skills, build expertise in cloud-based enterprise technologies, and unlock high-paying career opportunities? The SAP BTP Course Online at NxGen Tech Academy is designed to help you achieve these goals.\n\nThis comprehensive training program helps learners master the SAP Business Technology Platform (SAP BTP), including global account management, subaccount creation, entitlement configuration, user role management, and integration with services such as SAP HANA Cloud and SAP Integration Suite.\n\nOur training is delivered by certified SAP professionals with 8–15 years of industry experience, ensuring that learners gain both theoretical knowledge and real-world project experience. Through hands-on practice, live projects, and expert mentorship, NxGen Tech Academy helps transform your SAP knowledge into a competitive professional advantage.\n\nWhat is an SAP BTP Course Online?\nAn SAP BTP course online is a structured learning program designed to help professionals understand and work with the SAP Business Technology Platform, a powerful cloud platform used by enterprises worldwide.\n\nSAP BTP provides organizations with tools for:\n• Application development\n• Data management and analytics\n• Artificial intelligence and machine learning\n• Integration between systems\n• Process automation\n\nIn simple terms, an SAP BTP training course equips developers, consultants, architects, and IT professionals with the skills needed to support organizations in becoming Intelligent Enterprises through digital transformation.`,

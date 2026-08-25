@@ -273,7 +273,7 @@ const WhyChooseUs = () => {
               <Link to="/courses">Browse Courses</Link>
             </Button>
             <Button size="lg" variant="secondary" asChild>
-              <Link to="/contact">Talk to an Advisor</Link>
+              <Link to="/contact-us">Talk to an Advisor</Link>
             </Button>
           </div>
           <div className="mt-8 flex items-center justify-center gap-4">

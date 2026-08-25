@@ -8,23 +8,18 @@ import { Eye, Clock, Monitor, Star, Users } from "lucide-react";
 const SAPCategory = () => {
     // List of exact course IDs the user wants in this SAP Course page
     const sapCourseIds = [
-        "sap-abap-on-hana-course-online",
-        "sap-abap-rap",
-        "sap-ui5-fiori-training",
-        "sap-fullstack",
+        "sap-abap-course-training",
+        "sap-abap-cds-course-training",
+        "sap-fiori-course-training",
         "sap-sd-course-training",
-        "sap-mm-course",
+        "sap-mm-course-training",
         "sap-fico-course-training",
-        "sap-pp-course",
-        "sap-btp-working-professionals",
-        "sap-btp-freshers",
-        "sap-cpi-training",
-        "sap-pm",
-        "sap-qm-course",
-        "sap-scm",
-        "sap-ewm",
-        "sap-basis-s4hana-training",
-        "sap-hcm-successfactors",
+        "sap-pp-course-training",
+        "sap-btp-professionals-course-training",
+        "sap-btp-freshers-course-training",
+        "sap-cpi-course-training",
+        "sap-qm-course-training",
+        "sap-basis-course-training",
     ];
 
     // Filter the coursesData to only include these courses, in the order specified
@@ -38,7 +33,7 @@ const SAPCategory = () => {
                 title="SAP Certification Courses | NxGen Tech Academy"
                 description="SAP Certification Courses at NxGen Tech Academy with expert-led training in SAP ABAP, Fiori, SD, MM, FICO, BTP and more. Learn with real-time projects and placement support."
                 type="website"
-                path="/sap-courses"
+                path="/courses/sap-courses"
             />
 
             <PageHero

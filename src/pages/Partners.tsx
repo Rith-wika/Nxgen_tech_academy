@@ -120,7 +120,7 @@ const Partners = () => {
         description="Empowering Future Professionals Through Industry-Oriented Skill Development"
       >
         <Button size="lg" className="bg-[#22c55e] hover:bg-[#22c55e]/90 text-white font-semibold" asChild>
-          <Link to="/all-courses">Start Your Learning Journey Today</Link>
+          <Link to="/training-programs">Start Your Learning Journey Today</Link>
         </Button>
       </PageHero>
 
@@ -357,7 +357,7 @@ const Partners = () => {
             <h3 className="text-2xl font-bold text-gray-900 mb-3">Ready to Build Your Future?</h3>
             <p className="text-gray-600 mb-6">Contact our team today to learn more about our programs and upcoming batches.</p>
             <Button size="lg" className="bg-[#000080] hover:bg-[#000080]/90 text-white" asChild>
-              <Link to="/contact">
+              <Link to="/contact-us">
                 Get in Touch <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>

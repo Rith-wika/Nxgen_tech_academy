@@ -410,7 +410,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
                                             </h2>
 
                                             {/* For FICO, Python and Digital Marketing, move the title heading right after main section heading */}
-                                            {(id === "sap-fico-course-training" || id === "python-course-training-hyderabad" || id === "digital-marketing-course-hyderabad" || id === "job-guarantee-digital-marketing-course") && (
+                                            {(id === "sap-fico-course-training" || id === "python-course-training" || id === "digital-marketing-course-training" || id === "digital-marketing-job-guarantee-course-training") && (
                                                 <h3 className="text-2xl font-bold text-[#000080] mb-6">
                                                     What is {basicCourse.title}?
                                                 </h3>
@@ -424,7 +424,7 @@ const CourseDetail = ({ id: propId }: { id?: string }) => {
                                             ))}
 
                                             {/* For other courses, title heading remains here (after 3rd paragraph) */}
-                                            {!(id === "sap-fico-course-training" || id === "python-course-training-hyderabad" || id === "digital-marketing-course-hyderabad" || id === "job-guarantee-digital-marketing-course") && (
+                                            {!(id === "sap-fico-course-training" || id === "python-course-training" || id === "digital-marketing-course-training" || id === "digital-marketing-job-guarantee-course-training") && (
                                                 <h3 className="text-2xl font-bold text-[#000080] mb-6">
                                                     What is {basicCourse.title}?
                                                 </h3>

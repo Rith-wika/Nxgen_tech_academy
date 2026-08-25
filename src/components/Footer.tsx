@@ -24,10 +24,10 @@ export const Footer = () => {
             <div className="space-y-4 text-sm leading-relaxed">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-[#000080] mt-1 shrink-0" />
-                <a 
-                  href="https://maps.google.com/?q=Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Hyderabad,+Telangana+500084" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href="https://maps.google.com/?q=Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Hyderabad,+Telangana+500084"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
                 >
                   Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Hyderabad, Telangana 500084
@@ -45,12 +45,12 @@ export const Footer = () => {
             <h3 className="text-white text-xl mb-6 font-semibold">Quick Menu</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/about" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/about-us" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> About Us
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/contact-us" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Contact Us
                 </Link>
               </li>
@@ -72,32 +72,32 @@ export const Footer = () => {
             <h3 className="text-white text-xl mb-6 font-semibold">Our Services</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/all-courses?category=SAP Courses" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/training-programs?category=SAP Courses" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> SAP Courses
                 </Link>
               </li>
               <li>
-                <Link to="/all-courses?category=Python" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/training-programs?category=Python" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Python
                 </Link>
               </li>
               <li>
-                <Link to="/all-courses?category=AI" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/training-programs?category=AI" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> AI
                 </Link>
               </li>
               <li>
-                <Link to="/all-courses?category=AIML" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/training-programs?category=AIML" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> AIML
                 </Link>
               </li>
               <li>
-                <Link to="/all-courses?category=Data Analytics" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/training-programs?category=Data Analytics" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Data Analytics
                 </Link>
               </li>
               <li>
-                <Link to="/all-courses?category=Digital Marketing" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/training-programs?category=Digital Marketing" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Digital Marketing
                 </Link>
               </li>
@@ -120,7 +120,7 @@ export const Footer = () => {
               <a href="https://www.instagram.com/nxgentechacademy/" target="_blank" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#000080] transition-colors text-white">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="https://www.linkedin.com/in/nxgen-tech-academy/" target="_blank" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#000080] transition-colors text-white">
+              <a href="https://www.linkedin.com/company/nxgen-tech-academy/" target="_blank" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#000080] transition-colors text-white">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
@@ -136,11 +136,13 @@ export const Footer = () => {
           <p className="text-[#22c55e] font-medium text-lg md:text-lg mb-3">
             Industry-Focused Learning & Career Development
           </p>
-          <p className="text-slate-300 text-sm md:text-lg flex items-center justify-center gap-2">
-            <span className="w-8 h-[1px] bg-slate-500"></span>
-            Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors cursor-pointer relative z-20"><b>SRIA Infotech Pvt. Ltd.</b></a>
-            <span className="w-8 h-[1px] bg-slate-500"></span>
-          </p>
+          <div className="flex items-center justify-center gap-3">
+            <span className="hidden sm:inline-block w-8 h-[1px] bg-slate-500 shrink-0"></span>
+            <p className="text-slate-300 text-sm md:text-lg text-center">
+              Founded by <a href="https://www.sriainfotech.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors cursor-pointer relative z-20"><b>SRIA Infotech Pvt. Ltd.</b></a>
+            </p>
+            <span className="hidden sm:inline-block w-8 h-[1px] bg-slate-500 shrink-0"></span>
+          </div>
         </div>
 
         <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs opacity-60">

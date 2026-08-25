@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import GTMPageView from "./GTMPageView";
 import { Helmet } from 'react-helmet-async';
 import { Preloader } from "./components/Preloader";
@@ -111,22 +111,44 @@ const AppContent = () => {
         <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route index element={<Home />} />
-          <Route path="about" element={<About />} />
+          <Route path="about-us" element={<About />} />
           <Route path="courses" element={<Courses />} />
-          <Route path="/all-courses" element={<AllCourses />} />
+          <Route path="/training-programs" element={<AllCourses />} />
           <Route path="courses-menu" element={<AllCourses />} />
-          <Route path="/sap-courses" element={<SAPCategory />} />
+          <Route path="courses/sap-courses" element={<SAPCategory />} />
           <Route path="courses/sap-technical" element={<CategoryListing categorySlug="sap-technical" />} />
           <Route path="courses/sap-functional" element={<CategoryListing categorySlug="sap-functional" />} />
           <Route path="courses/python" element={<CategoryListing categorySlug="python" />} />
           <Route path="courses/ai" element={<CategoryListing categorySlug="ai" />} />
           <Route path="courses/aiml" element={<CategoryListing categorySlug="aiml" />} />
-          <Route path="courses/data-analytics" element={<CategoryListing categorySlug="data-analytics-online-training" />} />
+          <Route path="courses/data-analytics" element={<CategoryListing categorySlug="data-analytics" />} />
           <Route path="courses/digital-marketing" element={<CategoryListing categorySlug="digital-marketing" />} />
           <Route path="courses/sap-btp" element={<CategoryListing categorySlug="sap-btp" />} />
           <Route path="courses/:id" element={<CourseDetail />} />
+
+          {/* Old slugs kept as redirects so existing links/bookmarks/SEO don't break */}
+          <Route path="about" element={<Navigate to="/about-us" replace />} />
+          <Route path="contact" element={<Navigate to="/contact-us" replace />} />
+          <Route path="/all-courses" element={<Navigate to="/training-programs" replace />} />
+          <Route path="/sap-courses" element={<Navigate to="/courses/sap-courses" replace />} />
+          <Route path="courses/sap-abap-on-hana-course-online" element={<Navigate to="/courses/sap-abap-course-training" replace />} />
+          <Route path="courses/sap-abap-rap" element={<Navigate to="/courses/sap-abap-cds-course-training" replace />} />
+          <Route path="courses/sap-ui5-fiori-training" element={<Navigate to="/courses/sap-fiori-course-training" replace />} />
+          <Route path="courses/sap-mm-course" element={<Navigate to="/courses/sap-mm-course-training" replace />} />
+          <Route path="courses/sap-pp-course" element={<Navigate to="/courses/sap-pp-course-training" replace />} />
+          <Route path="courses/sap-qm-course" element={<Navigate to="/courses/sap-qm-course-training" replace />} />
+          <Route path="courses/sap-basis-s4hana-training" element={<Navigate to="/courses/sap-basis-course-training" replace />} />
+          <Route path="courses/sap-btp-working-professionals" element={<Navigate to="/courses/sap-btp-professionals-course-training" replace />} />
+          <Route path="courses/sap-btp-freshers" element={<Navigate to="/courses/sap-btp-freshers-course-training" replace />} />
+          <Route path="courses/sap-cpi-training" element={<Navigate to="/courses/sap-cpi-course-training" replace />} />
+          <Route path="courses/python-course-training-hyderabad" element={<Navigate to="/courses/python-course-training" replace />} />
+          <Route path="courses/artificial-intelligence-training-hyderabad" element={<Navigate to="/courses/ai-course-training" replace />} />
+          <Route path="courses/aiml-training-hyderabad" element={<Navigate to="/courses/aiml-course-training" replace />} />
+          <Route path="courses/job-guarantee-digital-marketing-course" element={<Navigate to="/courses/digital-marketing-job-guarantee-course-training" replace />} />
+          <Route path="courses/digital-marketing-course-hyderabad" element={<Navigate to="/courses/digital-marketing-course-training" replace />} />
+          <Route path="courses/data-analytics-online-training" element={<Navigate to="/courses/data-analytics-course-training" replace />} />
           <Route path="mentors" element={<Mentors />} />
-          <Route path="contact" element={<ContactPage />} />
+          <Route path="contact-us" element={<ContactPage />} />
           <Route path="why-choose-us" element={<WhyChooseUs />} />
           <Route path="bsnl-skill-development-partner" element={<Partners />} />
           <Route path="blogs" element={<Blogs />} />

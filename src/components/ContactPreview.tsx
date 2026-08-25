@@ -60,7 +60,7 @@ export const ContactPreview = () => {
 
         <div className="text-center">
           <Button variant="hero" size="lg" asChild>
-            <Link to="/contact">Contact Us Now</Link>
+            <Link to="/contact-us">Contact Us Now</Link>
           </Button>
         </div>
       </div>

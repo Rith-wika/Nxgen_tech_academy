@@ -224,7 +224,7 @@ const CategoryListing = ({ categorySlug }: { categorySlug: string }) => {
                                     <h3 className="text-xl font-bold text-gray-400 mb-2">No matching modules found</h3>
                                     <p className="text-gray-500 mb-6">Try adjusting your search or contact us for custom curriculum requirements.</p>
                                     <Button asChild variant="outline" className="border-[#000080] text-[#000080]">
-                                        <Link to="/contact">Get in Touch</Link>
+                                        <Link to="/contact-us">Get in Touch</Link>
                                     </Button>
                                 </div>
                             )}
@@ -297,7 +297,7 @@ const CategoryListing = ({ categorySlug }: { categorySlug: string }) => {
                                 <h4 className="text-xl font-bold mb-4">Still Unsure?</h4>
                                 <p className="text-white/80 text-sm mb-6">Connect with our career experts for a free 1-on-1 counseling session to find the right path for you.</p>
                                 <Button asChild className="w-full bg-white text-[#000080] hover:bg-gray-100 rounded-lg">
-                                    <Link to="/contact">Schedule Call</Link>
+                                    <Link to="/contact-us">Schedule Call</Link>
                                 </Button>
                             </div>
                         </motion.div>

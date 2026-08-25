@@ -6,7 +6,7 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/about</loc>
+    <loc>https://nxgentechacademy.com/about-us</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -16,7 +16,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/all-courses</loc>
+    <loc>https://nxgentechacademy.com/training-programs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -65,17 +65,17 @@
 
   <!-- Individual course detail pages -->
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-abap-on-hana-course-online</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-abap-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-abap-rap</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-abap-cds-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-ui5-fiori-training</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-fiori-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -85,7 +85,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-mm-course</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-mm-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -95,62 +95,62 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-pp-course</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-pp-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-qm-course</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-qm-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-basis-s4hana-training</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-basis-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-btp-working-professionals</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-btp-professionals-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-btp-freshers</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-btp-freshers-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/sap-cpi-training</loc>
+    <loc>https://nxgentechacademy.com/courses/sap-cpi-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/python-course-training-hyderabad</loc>
+    <loc>https://nxgentechacademy.com/courses/python-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/artificial-intelligence-training-hyderabad</loc>
+    <loc>https://nxgentechacademy.com/courses/ai-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/aiml-training-hyderabad</loc>
+    <loc>https://nxgentechacademy.com/courses/aiml-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/job-guarantee-digital-marketing-course</loc>
+    <loc>https://nxgentechacademy.com/courses/digital-marketing-job-guarantee-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/digital-marketing-course-hyderabad</loc>
+    <loc>https://nxgentechacademy.com/courses/digital-marketing-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/courses/data-analytics-online-training</loc>
+    <loc>https://nxgentechacademy.com/courses/data-analytics-course-training</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -161,7 +161,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://nxgentechacademy.com/contact</loc>
+    <loc>https://nxgentechacademy.com/contact-us</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

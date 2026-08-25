@@ -99,7 +99,7 @@ export const categoryConfig: Record<string, { title: string; description: string
             "Analyze marketing data to optimize campaign performance"
         ]
     },
-    "data-analytics-online-training": {
+    "data-analytics": {
         title: "Data Analytics programing",
         description: "Master Data Analytics with Excel, SQL, Python, Power BI, and Tableau.",
         parentCategory: "Data Analytics",
@@ -114,7 +114,7 @@ export const categoryConfig: Record<string, { title: string; description: string
 
 export const coursesData: CourseData[] = [
     {
-        id: "sap-abap-on-hana-course-online",
+        id: "sap-abap-course-training",
         title: "SAP ABAP on HANA",
         description: "Modern ABAP development with reports, enhancements, performance tuning, and S/4HANA best practices.",
         categoryId: "sap-technical",
@@ -123,7 +123,7 @@ export const coursesData: CourseData[] = [
         price: "₹30,000"
     },
     {
-        id: "sap-abap-rap",
+        id: "sap-abap-cds-course-training",
         title: "SAP ABAP on HANA (CDS & OData Training)",
         description: "Advanced upskilling in CDS Views, OData services, and SAP HANA optimized development for S/4HANA.",
         categoryId: "sap-technical",
@@ -132,7 +132,7 @@ export const coursesData: CourseData[] = [
         price: "₹35,000"
     },
     {
-        id: "sap-ui5-fiori-training",
+        id: "sap-fiori-course-training",
         title: "SAP Fiori & UI5",
         description: "Front-end SAP application development using Fiori architecture, UI5, MVC, and OData integration.",
         categoryId: "sap-technical",
@@ -154,7 +154,7 @@ export const coursesData: CourseData[] = [
         mode: "Online / Offline"
     },
     {
-        id: "sap-mm-course",
+        id: "sap-mm-course-training",
         title: "SAP MM (Materials Management)",
         description: "Procurement, inventory management, vendor handling, and invoice verification.",
         categoryId: "sap-functional",
@@ -178,7 +178,7 @@ export const coursesData: CourseData[] = [
         mode: "Online / Offline"
     },
     {
-        id: "sap-pp-course",
+        id: "sap-pp-course-training",
         title: "SAP PP (Production Planning)",
         description: "BOM, routing, MRP, production orders, and capacity planning.",
         categoryId: "sap-functional",
@@ -191,7 +191,7 @@ export const coursesData: CourseData[] = [
     },
 
     {
-        id: "sap-qm-course",
+        id: "sap-qm-course-training",
         title: "SAP QM (Quality Management)",
         description: "Quality planning, inspections, notifications, and compliance management.",
         categoryId: "sap-functional",
@@ -201,7 +201,7 @@ export const coursesData: CourseData[] = [
     },
 
     {
-        id: "sap-basis-s4hana-training",
+        id: "sap-basis-course-training",
         title: "SAP BASIS S/4HANA Training",
         description: "SAP system administration, monitoring, transports, authorizations, and S/4HANA technical management.",
         categoryId: "sap-technical",
@@ -215,7 +215,7 @@ export const coursesData: CourseData[] = [
 
     // SAP BTP - Courses
     {
-        id: "sap-btp-working-professionals",
+        id: "sap-btp-professionals-course-training",
         title: "SAP BTP For Working Professionals",
         description: "Comprehensive SAP BTP module tailored for experienced working professionals.",
         categoryId: "sap-btp",
@@ -224,16 +224,16 @@ export const coursesData: CourseData[] = [
         price: "₹40,000"
     },
     {
-        id: "sap-btp-freshers",
+        id: "sap-btp-freshers-course-training",
         title: "SAP BTP For Freshers",
         description: "Foundational SAP BTP training designed specifically for freshers.",
         categoryId: "sap-btp",
-        image: "/sap/sap-btp-freshers.jpg",
+        image: "/sap/sap-btp-freshers-course-training.jpg",
         rating: 5,
         price: "₹30,000"
     },
     {
-        id: "sap-cpi-training",
+        id: "sap-cpi-course-training",
         title: "SAP CPI Training",
         description: "Master SAP Cloud Integration (CPI), iFlows, adapters, and security within the SAP BTP ecosystem.",
         categoryId: "sap-btp",
@@ -244,7 +244,7 @@ export const coursesData: CourseData[] = [
 
     // Python - Programming
     {
-        id: "python-course-training-hyderabad",
+        id: "python-course-training",
         title: "Python Programming",
         description: "Python Course training focuses on practical learning and industry skills from scratch.",
         categoryId: "python",
@@ -258,7 +258,7 @@ export const coursesData: CourseData[] = [
 
     // AI - UPDATED CONTENT
     {
-        id: "artificial-intelligence-training-hyderabad",
+        id: "ai-course-training",
         title: "AI Programing",
         description: "Artificial intelligence training in Hyderabad helps learners understand how machines think, learn, and act intelligently.",
         categoryId: "ai",
@@ -272,7 +272,7 @@ export const coursesData: CourseData[] = [
 
     // AIML - UPDATED CONTENT
     {
-        id: "aiml-training-hyderabad",
+        id: "aiml-course-training",
         title: "AIML Programing",
         description: "AI and Machine Learning training in Hyderabad helps learners understand how systems learn from data and make accurate predictions.",
         categoryId: "aiml",
@@ -287,7 +287,7 @@ export const coursesData: CourseData[] = [
 
     // Digital Marketing Courses
     {
-        id: "job-guarantee-digital-marketing-course",
+        id: "digital-marketing-job-guarantee-course-training",
         title: "Job Guarantee Digital Marketing Course",
         description: "6 months advanced training program in Hyderabad focusing on practical learning, AI tools, and 100% placement help.",
         categoryId: "digital-marketing",
@@ -299,7 +299,7 @@ export const coursesData: CourseData[] = [
         mode: "Online / Offline"
     },
     {
-        id: "digital-marketing-course-hyderabad",
+        id: "digital-marketing-course-training",
         title: "Digital Marketing Course",
         description: "3 months fast-track training program in Hyderabad covering essential SEO, PPC, and Social Media Marketing skills.",
         categoryId: "digital-marketing",
@@ -311,10 +311,10 @@ export const coursesData: CourseData[] = [
         mode: "Online / Offline"
     },
     {
-        id: "data-analytics-online-training",
+        id: "data-analytics-course-training",
         title: "Data Analytics programing",
         description: "Data analytics online training helps you gain in-demand skills and build a successful career.",
-        categoryId: "data-analytics-online-training",
+        categoryId: "data-analytics",
         image: "/data-analytics.jpg",
         rating: 5,
         price: "Contact Us",

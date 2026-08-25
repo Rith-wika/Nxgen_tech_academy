@@ -1,10 +1,13 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Smartphone, Clock, Star, ChevronLeft, ChevronRight, Calendar, Database, Sparkles, Presentation } from "lucide-react";
+import { ArrowRight, CheckCircle, Smartphone, Clock, ChevronLeft, ChevronRight, Calendar, Database, Sparkles, Presentation } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Helmet } from 'react-helmet-async';
 import { coursesData } from "@/data/categoryCourses";
-import { LiteYouTube } from "@/components/LiteYouTube";
+import { VideoTestimonialCarousel } from "@/components/VideoTestimonialCarousel";
+import { StudentReviewCarousel } from "@/components/StudentReviewCarousel";
+import sriaLogo from '@/assets/sria-logo.png';
 
 // Both are below-the-fold / interaction-only on the homepage, so they're
 // code-split out of the critical bundle: CourseCarousel pulls in
@@ -22,15 +25,15 @@ const sapCategories = [
   { title: "SAP Business Technology Platform (BTP)", hours: "Cloud integration and digital transformation modules.", link: "/courses/sap-btp" },
 ];
 const sapCourses = [
-  { ...coursesData.find(c => c.id === "sap-abap-on-hana-course-online"), title: "SAP ABAP on S/4 HANA", duration: "8-10 Weeks", link: "/courses/sap-abap-on-hana-course-online" },
-  { ...coursesData.find(c => c.id === "sap-abap-rap"), title: "SAP ABAP & CDS", duration: "8-10 Weeks", link: "/courses/sap-abap-rap" },
-  { ...coursesData.find(c => c.id === "sap-ui5-fiori-training"), title: "SAP FIORI UI5", duration: "40+ Hours", link: "/courses/sap-ui5-fiori-training" },
-  { ...coursesData.find(c => c.id === "sap-basis-s4hana-training"), title: "SAP BASIS", duration: "40+ Hours", link: "/courses/sap-basis-s4hana-training" },
+  { ...coursesData.find(c => c.id === "sap-abap-course-training"), title: "SAP ABAP on S/4 HANA", duration: "8-10 Weeks", link: "/courses/sap-abap-course-training" },
+  { ...coursesData.find(c => c.id === "sap-abap-cds-course-training"), title: "SAP ABAP & CDS", duration: "8-10 Weeks", link: "/courses/sap-abap-cds-course-training" },
+  { ...coursesData.find(c => c.id === "sap-fiori-course-training"), title: "SAP FIORI UI5", duration: "40+ Hours", link: "/courses/sap-fiori-course-training" },
+  { ...coursesData.find(c => c.id === "sap-basis-course-training"), title: "SAP BASIS", duration: "40+ Hours", link: "/courses/sap-basis-course-training" },
   { ...coursesData.find(c => c.id === "sap-fico-course-training"), title: "SAP FICO On S4 HANA", duration: "2-3 Months", link: "/courses/sap-fico-course-training" },
   { ...coursesData.find(c => c.id === "sap-sd-course-training"), title: "SAP SD On S4 HANA", duration: "10-12 Weeks", link: "/courses/sap-sd-course-training" },
-  { ...coursesData.find(c => c.id === "sap-mm-course"), title: "SAP MM On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-mm-course" },
-  { ...coursesData.find(c => c.id === "sap-pp-course"), title: "SAP PP On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-pp-course" },
-  { ...coursesData.find(c => c.id === "sap-qm-course"), title: "SAP QM On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-qm-course" },
+  { ...coursesData.find(c => c.id === "sap-mm-course-training"), title: "SAP MM On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-mm-course-training" },
+  { ...coursesData.find(c => c.id === "sap-pp-course-training"), title: "SAP PP On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-pp-course-training" },
+  { ...coursesData.find(c => c.id === "sap-qm-course-training"), title: "SAP QM On S4 HANA", duration: "8-10 Weeks", link: "/courses/sap-qm-course-training" },
 ].map(c => ({
   title: c.title || "",
   duration: c.duration || "",
@@ -164,23 +167,51 @@ const Home = () => {
 
       {/* Hero Section with Carousel */}
       <section className="relative bg-white text-gray-800 py-2 lg:py-4 overflow-hidden">
-        <div className="w-full px-4 md:px-10 lg:px-20 mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <div className="w-full px-4 md:px-10 lg:px-20 mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12 items-center lg:items-start">
           {/* Left Content */}
-          <div className="space-y-8 z-10">
-            <div>
-              <p className="text-xl md:text-2xl text-gray-600 font-medium mb-2">Upscale Your Career in IT Industry</p>
-              <h1 className="text-4xl lg:text-5xl font-bold leading-tight text-black">
-                IT Training Institute in Hyderabad
-              </h1>
+          <div className="order-2 lg:order-1 space-y-6 z-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#000080]/10 text-[#000080] rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider">
+              IT Training Institute in Hyderabad
             </div>
 
-            <p className="text-lg text-gray-600 font-medium">
-              SAP | SAS | Data Engineer | Salesforce | Data Science
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-bold leading-tight text-black">
+                Build Job-Ready IT Skills for Your Career
+              </h1>
+              <p className="text-lg md:text-xl text-[#000080] font-semibold mt-4 leading-snug">
+                Bridge the gap between learning and industry requirements with practical training in SAP, Python, and AI/ML.
+              </p>
+            </div>
+
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+              Learn from experienced trainers, work on practical projects, and develop the skills you need to confidently take your next step in the IT industry.
             </p>
 
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                "Practical, Hands-On Training",
+                "Project-Based Learning",
+                "Industry-Relevant Skills",
+                "Career-Focused Preparation",
+              ].map((title, i) => (
+                <span key={i} className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-[#000080] text-white font-bold text-xs sm:text-sm shadow-sm text-center">
+                  <CheckCircle className="w-4 h-4 text-secondary shrink-0" />
+                  {title}
+                </span>
+              ))}
+            </div>
+
             <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-2 w-full">
-              <Button asChild size="lg" className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium text-lg px-8 rounded-md w-full sm:w-auto">
-                <Link to="/all-courses">Explore Courses</Link>
+              <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-white font-medium text-lg px-8 rounded-md w-full sm:w-auto">
+                <Link to="/training-programs">Explore Courses</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-[#000080] text-[#000080] hover:bg-[#000080] hover:text-white font-medium text-lg px-8 rounded-md w-full sm:w-auto"
+                onClick={() => setIsDemoModalOpen(true)}
+              >
+                Book a Free Demo
               </Button>
             </div>
 
@@ -193,27 +224,22 @@ const Home = () => {
               </Suspense>
             )}
 
+            <p className="text-sm text-gray-500 leading-relaxed max-w-xl">
+              IT Training Institute in Hyderabad offering SAP, Python, and AI/ML training for students, graduates, and working professionals.
+            </p>
+
             <div className="pt-2">
-              <p className="text-base sm:text-lg text-[#000080] leading-snug sm:leading-normal">
-                <span className="font-bold text-xl sm:text-2xl block sm:inline mb-1 sm:mb-0">Extensive</span> <span className="opacity-90">experience in the IT Training &amp; Placement Industry</span>
+              <p className="text-base sm:text-lg font-bold text-[#000080] border-l-4 border-secondary pl-3">
+                Learn. Build. Prepare. Move Forward in Your IT Career.
               </p>
               <div className="h-0.5 w-full bg-gray-200 mt-4 max-w-md"></div>
-            </div>
-
-            <div className="pt-6">
-              <p className="text-gray-600 mb-4 font-medium text-sm sm:text-base">Professionals hired by</p>
-              <div className="flex flex-wrap items-center gap-4 sm:gap-8 opacity-70 grayscale hover:grayscale-0 transition-[filter]">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg" alt="IBM" width={80} height={24} decoding="async" className="h-4 sm:h-6 object-contain" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/43/Cognizant_logo_2022.svg" alt="Cognizant" width={140} height={24} decoding="async" className="h-4 sm:h-6 object-contain" />
-                <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg" alt="Infosys" width={120} height={32} decoding="async" className="h-5 sm:h-8 object-contain" />
-              </div>
             </div>
           </div>
 
           {/* Right Image Carousel */}
-          <div className="relative flex justify-center lg:justify-end mt-8 lg:mt-0">
+          <div className="order-1 lg:order-2 relative flex flex-col items-center lg:items-end -mx-4 md:-mx-10 lg:mx-0 mb-6 lg:mb-0 lg:mt-0 lg:sticky lg:top-24">
             {/* Carousel Container */}
-            <div className="relative w-full max-w-[600px] h-[300px] sm:h-[400px] lg:h-[600px] mx-auto lg:mx-0">
+            <div className="relative w-full max-w-full lg:max-w-[600px] h-[260px] sm:h-[400px] lg:h-[600px] mx-auto lg:mx-0">
               {/* Images - only slide 0 (the LCP candidate) mounts on first
                   paint; the rest mount once the browser is idle so hidden
                   slides don't compete for bandwidth during initial render. */}
@@ -231,7 +257,7 @@ const Home = () => {
                       loading={index === 0 ? 'eager' : 'lazy'}
                       fetchPriority={index === 0 ? 'high' : undefined}
                       decoding={index === 0 ? 'sync' : 'async'}
-                      className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                      className={`absolute inset-0 w-full h-full object-cover lg:object-contain transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
                         } ${image.link ? 'cursor-pointer' : ''}`}
                     />
                   </picture>
@@ -282,6 +308,19 @@ const Home = () => {
                 ))}
               </div>
             </div>
+
+            {/* Founded By - highlighted trust badge */}
+            <div className="mt-6 w-full max-w-full lg:max-w-[600px] mx-auto lg:mx-0">
+              <div className="flex items-center gap-4 bg-gradient-to-r from-[#000080]/[0.06] to-secondary/10 border border-[#000080]/15 rounded-2xl p-4 sm:p-5 shadow-sm">
+                <div className="bg-white rounded-xl p-2.5 shadow-sm shrink-0 border border-gray-100">
+                  <img src={sriaLogo} alt="SRIA Infotech Logo" width={140} height={50} decoding="async" className="h-10 sm:h-12 object-contain" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wider font-bold text-secondary">Founded by</p>
+                  <p className="text-gray-900 font-bold text-base sm:text-lg leading-snug">SRIA Infotech Pvt. Ltd.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -315,56 +354,58 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Our Associations */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#000080] via-[#000080] to-[#00004d]" />
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#22c55e]/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute inset-0 opacity-[0.06] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none" />
+      {/* Our Associations (Government Partnership) - hidden for now */}
+      {false && (
+        <section className="py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#000080] via-[#000080] to-[#00004d]" />
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#22c55e]/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute inset-0 opacity-[0.06] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none" />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white text-xs font-bold uppercase tracking-wider mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-[#22c55e]" /> Government Partnership
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Our Associations</h2>
-            <p className="text-white/70 text-lg">Trusted collaborations that strengthen our training ecosystem</p>
-          </div>
-
-          <Link
-            to="/bsnl-skill-development-partner"
-            className="group relative flex flex-col sm:flex-row items-center gap-8 max-w-3xl mx-auto bg-white rounded-[2rem] p-8 sm:p-10 shadow-2xl hover:shadow-[0_25px_60px_-15px_rgba(34,197,94,0.4)] transition-all duration-300 hover:-translate-y-1.5"
-          >
-            <div className="absolute -top-3 -right-3 md:top-6 md:right-6 bg-[#22c55e] text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-              Official Partner
-            </div>
-
-            <div className="w-28 h-28 shrink-0 rounded-2xl bg-white border border-gray-100 shadow-inner flex items-center justify-center overflow-hidden p-3 group-hover:border-[#22c55e]/40 transition-colors">
-              <img
-                src="/bsnl-logo.png"
-                alt="BSNL Logo"
-                width={112}
-                height={112}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
-              />
-            </div>
-
-            <div className="text-center sm:text-left flex-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-[#000080] rounded-full font-bold text-xs uppercase tracking-wide mb-2">
-                <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" /> BSNL RTTC Skill Development Partner
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white text-xs font-bold uppercase tracking-wider mb-4">
+                <Sparkles className="w-3.5 h-3.5 text-[#22c55e]" /> Government Partnership
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#000080] transition-colors mb-1">BSNL Regional Telecom Training Centre (RTTC), Hyderabad</h3>
-              <p className="text-gray-500 text-sm">Practical training in AI, Cloud, Networking & Telecom technologies</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Our Associations</h2>
+              <p className="text-white/70 text-lg">Trusted collaborations that strengthen our training ecosystem</p>
             </div>
 
-            <div className="hidden sm:flex items-center gap-2 text-[#000080] font-bold shrink-0 bg-[#000080]/5 group-hover:bg-[#000080] group-hover:text-white px-5 py-3 rounded-xl transition-colors">
-              View Details <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-        </div>
-      </section>
+            <Link
+              to="/bsnl-skill-development-partner"
+              className="group relative flex flex-col sm:flex-row items-center gap-8 max-w-3xl mx-auto bg-white rounded-[2rem] p-8 sm:p-10 shadow-2xl hover:shadow-[0_25px_60px_-15px_rgba(34,197,94,0.4)] transition-all duration-300 hover:-translate-y-1.5"
+            >
+              <div className="absolute -top-3 -right-3 md:top-6 md:right-6 bg-[#22c55e] text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                Official Partner
+              </div>
+
+              <div className="w-28 h-28 shrink-0 rounded-2xl bg-white border border-gray-100 shadow-inner flex items-center justify-center overflow-hidden p-3 group-hover:border-[#22c55e]/40 transition-colors">
+                <img
+                  src="/bsnl-logo.png"
+                  alt="BSNL Logo"
+                  width={112}
+                  height={112}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                />
+              </div>
+
+              <div className="text-center sm:text-left flex-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-[#000080] rounded-full font-bold text-xs uppercase tracking-wide mb-2">
+                  <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" /> BSNL RTTC Skill Development Partner
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#000080] transition-colors mb-1">BSNL Regional Telecom Training Centre (RTTC), Hyderabad</h3>
+                <p className="text-gray-500 text-sm">Practical training in AI, Cloud, Networking & Telecom technologies</p>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-2 text-[#000080] font-bold shrink-0 bg-[#000080]/5 group-hover:bg-[#000080] group-hover:text-white px-5 py-3 rounded-xl transition-colors">
+                View Details <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* SAP Academy Feature */}
       <section className="py-20">
@@ -398,7 +439,7 @@ const Home = () => {
                 </li>
               </ul>
               <Button className="bg-secondary hover:bg-secondary/90 text-white mt-4" asChild>
-                <Link to="/all-courses">Explore More <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                <Link to="/training-programs">Explore More <ArrowRight className="ml-2 w-4 h-4" /></Link>
               </Button>
             </div>
           </div>
@@ -414,7 +455,7 @@ const Home = () => {
       </section> */}
 
       {/* Trending Courses Carousel */}
-      <section className="py-20">
+      <section className="py-10 lg:py-12">
         <div className="w-full px-4 md:px-10 lg:px-20 mx-auto">
           <h2 className="text-3xl font-bold mb-10 text-center text-primary">Trending Courses</h2>
           <Suspense fallback={<CarouselFallback />}>
@@ -424,7 +465,7 @@ const Home = () => {
       </section>
 
       {/* SAP Courses Grid */}
-      <section className="py-20">
+      <section className="py-10 lg:py-12">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-10 text-center text-primary">SAP Courses</h2>
           <Suspense fallback={<CarouselFallback />}>
@@ -432,14 +473,14 @@ const Home = () => {
           </Suspense>
           <div className="text-center mt-10">
             <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-              <Link to="/all-courses">View All SAP Courses</Link>
+              <Link to="/courses/sap-courses">View All SAP Courses</Link>
             </Button>
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-primary/5">
+      <section className="py-10 lg:py-12 bg-primary/5">
         <div className="w-full px-4 md:px-10 lg:px-20 mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl font-bold mb-4 text-primary">Testimonials</h2>
@@ -450,46 +491,34 @@ const Home = () => {
           {/* Video Testimonials */}
           <div className="mb-20">
             <h3 className="text-2xl font-bold mb-8 text-primary uppercase tracking-wider">Video Success Stories</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-              {[
+            <VideoTestimonialCarousel
+              items={[
                 { id: "v1", youtubeId: "AZEZc7j5jDg", title: "" },
                 { id: "v2", youtubeId: "Y019HAHgJvc", title: "" },
                 { id: "v3", youtubeId: "f8JehiagC40", title: "" },
                 { id: "v4", youtubeId: "-pkVqNifeOA", title: "" },
-              ].map((video) => (
-                <div key={video.id} className="bg-white rounded-2xl overflow-hidden shadow-xl group hover:shadow-2xl transition-shadow duration-500 border border-gray-100">
-                  <div className="relative aspect-[9/16] bg-black">
-                    <LiteYouTube youtubeId={video.youtubeId} title={video.title} />
-                  </div>
-                </div>
-              ))}
-            </div>
+                { id: "v5", youtubeId: "zWoBwPb2C6Y", title: "" },
+                { id: "v6", youtubeId: "YMkN-vbyY9U", title: "" },
+                { id: "v7", youtubeId: "ZtRi5g89wkU", title: "" },
+                { id: "v8", youtubeId: "OFWzuvcjyWI", title: "" },
+                { id: "v9", youtubeId: "saMGWM-ELnw", title: "" },
+              ]}
+            />
           </div>
 
-          <h3 className="text-2xl font-bold mb-8 text-primary">Student Experiences</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { name: "Bhargavi", text: "I have successfully completed my SAP FICO training from NxGen Tech Academy, which gave me a strong understanding of Financial Accounting and Controlling concepts.", course: "SAP FICO" },
-              { name: "Vinod Goud", text: "THIS MONTH I HAVE COMPLETED SAP FICO COURSE. THE TRAINING IS WELL STRUCTURED AND EASY TO UNDERSTAND. COURSE CONTENT PROVIDES HANDS ON PRATICE.", course: "SAP FICO" },
-              { name: "Ritik S. Mourya", text: "I have just completed my FullStack DOT NET training from NxGen Tech Academy. The sessions were very helpful and understanding session throughout the training.", course: "FullStack .NET" },
-            ].map((testimonial, i) => (
-              <div key={i} className="bg-white p-8 rounded-xl shadow-sm relative hover:shadow-md transition-all">
-                <div className="absolute -top-4 left-8 bg-secondary text-white p-2 rounded-full">
-                  <Star className="w-6 h-6 fill-current" />
-                </div>
-                <p className="text-gray-600 mb-6 italic leading-relaxed">"{testimonial.text}"</p>
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-primary">
-                    {testimonial.name[0]}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm">{testimonial.name}</h4>
-                    <p className="text-xs text-secondary">{testimonial.course}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-between gap-3 mb-8">
+            <h3 className="text-2xl font-bold text-primary">Google Reviews</h3>
+            <span className="inline-flex items-center bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm font-bold shrink-0">
+              4.9
+            </span>
           </div>
+          <StudentReviewCarousel
+            items={[
+              { name: "Archana", text: "I had a great learning experience at NxGen Tech Academy. The teaching approach is practical, and the support from the team is excellent.", rating: 5 },
+              { name: "Ashwitha Aldandi", text: "I had a wonderful experience at NxGen Tech Academy. The SAP ABAP training was industry-oriented and included real-time assignments and live project exposure. The faculty was knowledgeable, approachable, and always willing to help. The overall learning environment was excellent, and I would recommend this academy to students and freshers who want practical SAP training.", rating: 5 },
+              { name: "Achhe Kavya", text: "I had a great learning experience at NxGen Tech Academy. The trainers were supportive and provided excellent guidance throughout the learning journey. The hands-on training in Python, SQL, and Django helped me strengthen my technical skills and gain practical experience. It is a great place for anyone looking to build a career in software development.", rating: 5 },
+            ]}
+          />
         </div>
       </section>
 
@@ -536,7 +565,19 @@ const Home = () => {
         </div>
       </section> */}
 
-
+      {/* WhatsApp quick chat button */}
+      <a
+        aria-label="Chat on WhatsApp"
+        href={`https://wa.me/919059585039?text=${encodeURIComponent("Hi, I'm interested in courses at NxGen Tech Academy")}`}
+        target="_blank"
+        rel="noreferrer noopener"
+        className="fixed right-6 bottom-6 z-50 flex items-center justify-center w-14 h-14"
+      >
+        <span className="absolute inset-0 rounded-full bg-green-500 opacity-75 animate-ping"></span>
+        <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-green-600 text-white shadow-lg animate-bounce transition-transform hover:scale-110">
+          <FaWhatsapp className="w-8 h-8" />
+        </span>
+      </a>
     </div>
   );
 };

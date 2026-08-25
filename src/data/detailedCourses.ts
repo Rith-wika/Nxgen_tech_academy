@@ -35,8 +35,8 @@ export interface DetailedCourse {
 
 export const detailedCourses: Record<string, DetailedCourse> = {
     // AIML Courses
-    "aiml-training-hyderabad": {
-        id: "aiml-training-hyderabad",
+    "aiml-course-training": {
+        id: "aiml-course-training",
         title: "AIML Programing",
         tagline: "AI and Machine Learning Training in Hyderabad – Learn AIML Skills for Future-Ready Careers.",
         level: "Beginner",
@@ -164,8 +164,8 @@ export const detailedCourses: Record<string, DetailedCourse> = {
     },
 
     // AI Courses
-    "artificial-intelligence-training-hyderabad": {
-        id: "artificial-intelligence-training-hyderabad",
+    "ai-course-training": {
+        id: "ai-course-training",
         title: "AI Programing",
         tagline: "Learn AI Skills for Future Careers with Industry-Ready Training in Hyderabad.",
         level: "Beginner",
@@ -268,8 +268,8 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "What job roles are available after AI training?", answer: "Learners can become AI engineers, data analysts, automation specialists, or AI developers after completing artificial intelligence training in Hyderabad." }
         ]
     },
-    "job-guarantee-digital-marketing-course": {
-        id: "job-guarantee-digital-marketing-course",
+    "digital-marketing-job-guarantee-course-training": {
+        id: "digital-marketing-job-guarantee-course-training",
         title: "Job Guarantee Digital Marketing Course",
         tagline: "6 Months Advanced Training in Hyderabad with AI-Powered Tools and Structured Mentorship.",
         level: "Advanced",
@@ -388,8 +388,8 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "Is prior experience required?", answer: "No, beginners can start easily." }
         ]
     },
-    "digital-marketing-course-hyderabad": {
-        id: "digital-marketing-course-hyderabad",
+    "digital-marketing-course-training": {
+        id: "digital-marketing-course-training",
         title: "Digital Marketing Course",
         tagline: "Master Essential Digital Marketing Skills in Just 3 Months.",
         level: "Beginner",
@@ -476,8 +476,8 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "Will I get practical experience?", answer: "Yes, live projects and assignments are included." }
         ]
     },
-    "python-course-training-hyderabad": {
-        id: "python-course-training-hyderabad",
+    "python-course-training": {
+        id: "python-course-training",
         title: "Python Programming",
         tagline: "Learn Python programming with practical projects at NxGen Tech Academy in Hyderabad.",
         level: "Beginner",
@@ -540,8 +540,8 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "Does the Python course include practical projects?", answer: "Yes. The training includes assignments, coding practice, and real-time projects." }
         ]
     },
-    "data-analytics-online-training": {
-        id: "data-analytics-online-training",
+    "data-analytics-course-training": {
+        id: "data-analytics-course-training",
         title: "Data Analytics programing",
         tagline: "Master In-Demand Skills and Build a High-Growth Career with NxGen Tech Academy.",
         level: "Beginner",

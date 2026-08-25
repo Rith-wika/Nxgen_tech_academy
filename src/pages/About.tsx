@@ -56,7 +56,7 @@ const About = () => {
     { title: "Artificial Intelligence & Machine Learning (AI/ML)", path: "/courses/aiml" },
     { title: "AI", path: "/courses/ai" },
     { title: "Data Analytics", path: "/courses/data-analytics" },
-    { title: "SAP", path: "/sap-courses" },
+    { title: "SAP", path: "/courses/sap-courses" },
     { title: "Digital Marketing", path: "/courses/digital-marketing" }
   ];
 
@@ -86,7 +86,7 @@ const About = () => {
         title="About Us - NxGen Tech Academy"
         description="NxGen Tech Academy is the best IT training institution in Hyderabad, offering career-driven education in Python, AI/ML, Data Analytics, and Full Stack Development."
         type="website"
-        path="/about"
+        path="/about-us"
         schemaData={faqSchema}
       />
 
@@ -220,7 +220,8 @@ const About = () => {
         </div>
       </section>
 
-      {/* Section 2.75: Our Associations */}
+      {/* Section 2.75: Our Associations (Government Partnership) - hidden for now */}
+      {false && (
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#000080] via-[#000080] to-[#00004d]" />
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#22c55e]/20 rounded-full blur-3xl" />
@@ -275,6 +276,7 @@ const About = () => {
           </motion.div>
         </div>
       </section>
+      )}
 
       {/* Section 3: Mission, Vision & Values */}
       <section className="py-20 bg-gray-50">

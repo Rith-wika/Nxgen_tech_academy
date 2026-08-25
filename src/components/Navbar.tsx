@@ -47,6 +47,7 @@ const courseCategories = (() => {
 
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isMobileCoursesOpen, setIsMobileCoursesOpen] = useState(false);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState(
@@ -62,6 +63,7 @@ export const Navbar = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const role = localStorage.getItem("role");
@@ -76,7 +78,10 @@ export const Navbar = () => {
   // Close search when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const insideDesktopSearch = searchRef.current?.contains(target);
+      const insideMobileSearch = mobileSearchRef.current?.contains(target);
+      if (!insideDesktopSearch && !insideMobileSearch) {
         setIsSearchFocused(false);
       }
     };
@@ -150,7 +155,129 @@ export const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-sm border-b pb-4 pt-4">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row lg:flex-wrap items-center justify-between gap-2 xl:gap-4">
+        {/* Mobile Top Row: Logo left, Search + Burger grouped on the right */}
+        <div className="flex lg:hidden items-center justify-between gap-2">
+          <Link to="/" className="flex items-center shrink-0">
+            <img
+              src="/Logo.png"
+              alt="NxGen Tech Academy"
+              width={169}
+              height={48}
+              fetchPriority="high"
+              className="h-10 w-auto object-contain"
+            />
+          </Link>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => {
+                setIsMobileSearchOpen((prev) => !prev);
+                setIsMobileMenuOpen(false);
+              }}
+              className="p-2 text-gray-700"
+              aria-label="Search"
+            >
+              <Search className="w-6 h-6" />
+            </button>
+
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen((prev) => !prev);
+                setIsMobileSearchOpen(false);
+              }}
+              className="p-2 text-gray-700"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Search Panel */}
+        {isMobileSearchOpen && (
+          <div className="lg:hidden mt-3 relative" ref={mobileSearchRef}>
+            <div className="flex w-full">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onKeyDown={handleKeyDown}
+                autoFocus
+                placeholder="Search courses..."
+                className="w-full h-10 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:border-[#000080] focus:ring-1 focus:ring-[#000080]/20 transition-all"
+              />
+              <button
+                onClick={() => searchResults.length > 0 && handleSelectCourse(searchResults[0].id)}
+                className="bg-[#000080] hover:bg-[#000080]/90 text-white w-12 flex items-center justify-center rounded-r-md transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+            </div>
+
+            {isSearchFocused && (searchQuery.length >= 2) && (
+              <div className="absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-white rounded-lg shadow-2xl border border-gray-100 z-[100] overflow-hidden animate-fade-in">
+                {searchResults.length > 0 ? (
+                  <>
+                    <div className="p-2 max-h-[350px] overflow-y-auto">
+                      <div className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Top Results
+                      </div>
+                      {searchResults.map((course) => (
+                        <button
+                          key={course.id}
+                          onClick={() => {
+                            handleSelectCourse(course.id);
+                            setIsMobileSearchOpen(false);
+                          }}
+                          className="w-full flex items-center gap-3 p-3 hover:bg-blue-50/50 rounded-md transition-all text-left group"
+                        >
+                          <div className="w-10 h-10 rounded bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-[#000080] transition-colors">
+                            <BookOpen className="w-5 h-5 text-[#000080] group-hover:text-white transition-colors" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-gray-900 group-hover:text-[#000080] transition-colors truncate">
+                              {course.title}
+                            </h4>
+                            <p className="text-xs text-gray-500 truncate">
+                              {course.categoryId.split('-').map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}
+                            </p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#000080] transition-transform group-hover:translate-x-1" />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="bg-gray-50 p-3 text-center border-t border-gray-100">
+                      <Link
+                        to="/training-programs"
+                        onClick={() => {
+                          setIsSearchFocused(false);
+                          setIsMobileSearchOpen(false);
+                        }}
+                        className="text-sm font-bold text-[#000080] hover:underline underline-offset-4"
+                      >
+                        View All Courses
+                      </Link>
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-8 text-center">
+                    <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Search className="w-6 h-6 text-gray-300" />
+                    </div>
+                    <p className="text-sm text-gray-500">No courses found matching "{searchQuery}"</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="hidden lg:flex lg:flex-wrap items-center justify-between gap-2 xl:gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center shrink-0">
             <img
@@ -191,20 +318,20 @@ export const Navbar = () => {
                   {[
                     {
                       name: "SAP",
-                      link: "/sap-courses",
+                      link: "/courses/sap-courses",
                       items: [
-                        { title: "SAP ABAP on HANA", link: "/courses/sap-abap-on-hana-course-online" },
-                        { title: "SAP ABAP on HANA (CDS & OData)", link: "/courses/sap-abap-rap" },
-                        { title: "SAP Fiori & UI5", link: "/courses/sap-ui5-fiori-training" },
+                        { title: "SAP ABAP on HANA", link: "/courses/sap-abap-course-training" },
+                        { title: "SAP ABAP on HANA (CDS & OData)", link: "/courses/sap-abap-cds-course-training" },
+                        { title: "SAP Fiori & UI5", link: "/courses/sap-fiori-course-training" },
                         { title: "SAP SD", link: "/courses/sap-sd-course-training" },
-                        { title: "SAP MM", link: "/courses/sap-mm-course" },
+                        { title: "SAP MM", link: "/courses/sap-mm-course-training" },
                         { title: "SAP FICO", link: "/courses/sap-fico-course-training" },
-                        { title: "SAP PP", link: "/courses/sap-pp-course" },
-                        { title: "SAP BTP For Working Professionals", link: "/courses/sap-btp-working-professionals" },
-                        { title: "SAP BTP For Freshers", link: "/courses/sap-btp-freshers" },
-                        { title: "SAP CPI Training", link: "/courses/sap-cpi-training" },
-                        { title: "SAP QM", link: "/courses/sap-qm-course" },
-                        { title: "SAP BASIS S/4HANA", link: "/courses/sap-basis-s4hana-training" },
+                        { title: "SAP PP", link: "/courses/sap-pp-course-training" },
+                        { title: "SAP BTP For Working Professionals", link: "/courses/sap-btp-professionals-course-training" },
+                        { title: "SAP BTP For Freshers", link: "/courses/sap-btp-freshers-course-training" },
+                        { title: "SAP CPI Training", link: "/courses/sap-cpi-course-training" },
+                        { title: "SAP QM", link: "/courses/sap-qm-course-training" },
+                        { title: "SAP BASIS S/4HANA", link: "/courses/sap-basis-course-training" },
                       ]
                     },
                     {
@@ -317,7 +444,7 @@ export const Navbar = () => {
                       </div>
                       <div className="bg-gray-50 p-3 text-center border-t border-gray-100">
                         <Link
-                          to="/all-courses"
+                          to="/training-programs"
                           onClick={() => setIsSearchFocused(false)}
                           className="text-sm font-bold text-[#000080] hover:underline underline-offset-4"
                         >
@@ -344,13 +471,13 @@ export const Navbar = () => {
               asChild
               className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium px-2 xl:px-6"
             >
-              <Link to="/all-courses">Explore All Courses</Link>
+              <Link to="/training-programs">Our Training Programs</Link>
             </Button>
             <Button
               asChild
               className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium px-2 xl:px-6"
             >
-              <Link to="/about">About Us</Link>
+              <Link to="/about-us">About Us</Link>
             </Button>
             <Button asChild className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium px-2 xl:px-6">
               <Link to="/blogs">Blogs</Link>
@@ -360,7 +487,7 @@ export const Navbar = () => {
               asChild
               className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium px-2 xl:px-6"
             >
-              <Link to="/contact">Contact Us</Link>
+              <Link to="/contact-us">Contact Us</Link>
             </Button>
             {localStorage.getItem("username") ? (
               <>
@@ -385,19 +512,6 @@ export const Navbar = () => {
               </>
             ) : null}
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden absolute top-4 right-4 p-2 text-gray-700"
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
         </div>
 
         {/* Mobile Menu */}
@@ -421,20 +535,20 @@ export const Navbar = () => {
                   {[
                     {
                       name: "SAP",
-                      link: "/sap-courses",
+                      link: "/courses/sap-courses",
                       items: [
-                        { title: "SAP ABAP on HANA", link: "/courses/sap-abap-on-hana-course-online" },
-                        { title: "SAP ABAP on HANA (CDS & OData)", link: "/courses/sap-abap-rap" },
-                        { title: "SAP Fiori & UI5", link: "/courses/sap-ui5-fiori-training" },
+                        { title: "SAP ABAP on HANA", link: "/courses/sap-abap-course-training" },
+                        { title: "SAP ABAP on HANA (CDS & OData)", link: "/courses/sap-abap-cds-course-training" },
+                        { title: "SAP Fiori & UI5", link: "/courses/sap-fiori-course-training" },
                         { title: "SAP SD", link: "/courses/sap-sd-course-training" },
-                        { title: "SAP MM", link: "/courses/sap-mm-course" },
+                        { title: "SAP MM", link: "/courses/sap-mm-course-training" },
                         { title: "SAP FICO", link: "/courses/sap-fico-course-training" },
-                        { title: "SAP PP", link: "/courses/sap-pp-course" },
-                        { title: "SAP BTP For Working Professionals", link: "/courses/sap-btp-working-professionals" },
-                        { title: "SAP BTP For Freshers", link: "/courses/sap-btp-freshers" },
-                        { title: "SAP CPI Training", link: "/courses/sap-cpi-training" },
-                        { title: "SAP QM", link: "/courses/sap-qm-course" },
-                        { title: "SAP BASIS S/4HANA", link: "/courses/sap-basis-s4hana-training" },
+                        { title: "SAP PP", link: "/courses/sap-pp-course-training" },
+                        { title: "SAP BTP For Working Professionals", link: "/courses/sap-btp-professionals-course-training" },
+                        { title: "SAP BTP For Freshers", link: "/courses/sap-btp-freshers-course-training" },
+                        { title: "SAP CPI Training", link: "/courses/sap-cpi-course-training" },
+                        { title: "SAP QM", link: "/courses/sap-qm-course-training" },
+                        { title: "SAP BASIS S/4HANA", link: "/courses/sap-basis-course-training" },
                       ]
                     },
                     {
@@ -507,13 +621,13 @@ export const Navbar = () => {
             </div>
 
             <Button asChild className="w-full bg-[#000080] text-white">
-              <Link to="/all-courses" onClick={() => setIsMobileMenuOpen(false)}>
-                Explore All Courses
+              <Link to="/training-programs" onClick={() => setIsMobileMenuOpen(false)}>
+                Our Training Programs
               </Link>
             </Button>
 
             <Button asChild className="w-full bg-[#000080] text-white">
-              <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link to="/about-us" onClick={() => setIsMobileMenuOpen(false)}>
                 About Us
               </Link>
             </Button>
@@ -523,7 +637,7 @@ export const Navbar = () => {
               </Link>
             </Button>
             <Button asChild className="w-full bg-[#000080] text-white">
-              <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link to="/contact-us" onClick={() => setIsMobileMenuOpen(false)}>
                 Contact Us
               </Link>
             </Button>

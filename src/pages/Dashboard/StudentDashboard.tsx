@@ -151,7 +151,7 @@ const StudentDashboard = () => {
                         <h3 className="text-2xl font-bold text-gray-800 mb-2">No Courses Enrolled</h3>
                         <p className="text-gray-500 mb-8 max-w-md mx-auto">It looks like you haven't been assigned any courses yet. Once you enroll, they will appear here.</p>
                         <Button asChild className="bg-[#000080] hover:bg-secondary px-8 h-12 text-lg">
-                            <Link to="/all-courses">Explore All Courses</Link>
+                            <Link to="/training-programs">Our Training Programs</Link>
                         </Button>
                     </div>
                 )}

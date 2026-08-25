@@ -47,7 +47,7 @@ const ContactPage = () => {
         title="Contact Us - NxGen Tech Academy"
         description="Get in touch with NxGen Tech Academy. Visit our offices in Hyderabad and Bangalore or send us a message."
         type="website"
-        path="/contact"
+        path="/contact-us"
       />
 
       <PageHero

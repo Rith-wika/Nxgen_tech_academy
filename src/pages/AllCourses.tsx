@@ -54,15 +54,15 @@ const AllCourses = () => {
     return (
         <div className="min-h-screen bg-white font-sans text-gray-700">
             <SEO
-                title="Our Course Basket - All Courses"
-                description="Explore our comprehensive course basket including SAP, Full Stack, Data Science, and more."
+                title="Our Training Programs | NxGen Tech Academy"
+                description="Discover industry-leading courses designed to build practical, job-ready skills."
                 type="website"
-                path="/all-courses"
+                path="/training-programs"
             />
 
             <PageHero
-                title={selectedSubCategoryId ? categoryConfig[selectedSubCategoryId]?.title : "Our Course Basket"}
-                description={selectedSubCategoryId ? categoryConfig[selectedSubCategoryId]?.description : "Explore our wide range of industry-leading courses."}
+                title={selectedSubCategoryId ? categoryConfig[selectedSubCategoryId]?.title : "Explore Our Courses"}
+                description={selectedSubCategoryId ? categoryConfig[selectedSubCategoryId]?.description : "Discover industry-leading courses designed to build practical, job-ready skills."}
             >
                 {selectedSubCategoryId && (
                     <button
@@ -199,7 +199,7 @@ const AllCourses = () => {
                                         <div className="col-span-full text-center py-20 text-gray-500 bg-gray-50 rounded-2xl">
                                             <p className="text-xl">No courses found matching your criteria.</p>
                                             <Button asChild variant="link" className="mt-2 text-[#000080] text-lg">
-                                                <Link to="/contact">Contact us for custom requirements</Link>
+                                                <Link to="/contact-us">Contact us for custom requirements</Link>
                                             </Button>
                                         </div>
                                     );
