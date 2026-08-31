@@ -11,6 +11,7 @@ import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { TopBar } from "./components/TopBar"; // New Import
+import { WhatsAppButton } from "./components/WhatsAppButton";
 // Home stays eagerly bundled - it's the landing page for most visitors,
 // so lazy-loading it would add a network round trip to the LCP path.
 import Home from "./pages/Home";
@@ -121,8 +122,12 @@ const AppContent = () => {
           <Route path="courses/python" element={<CategoryListing categorySlug="python" />} />
           <Route path="courses/ai" element={<CategoryListing categorySlug="ai" />} />
           <Route path="courses/aiml" element={<CategoryListing categorySlug="aiml" />} />
+          {/* Commented out per request - Data Analytics category route
           <Route path="courses/data-analytics" element={<CategoryListing categorySlug="data-analytics" />} />
+          */}
+          {/* Commented out per request - Digital Marketing category route
           <Route path="courses/digital-marketing" element={<CategoryListing categorySlug="digital-marketing" />} />
+          */}
           <Route path="courses/sap-btp" element={<CategoryListing categorySlug="sap-btp" />} />
           <Route path="courses/:id" element={<CourseDetail />} />
 
@@ -144,9 +149,13 @@ const AppContent = () => {
           <Route path="courses/python-course-training-hyderabad" element={<Navigate to="/courses/python-course-training" replace />} />
           <Route path="courses/artificial-intelligence-training-hyderabad" element={<Navigate to="/courses/ai-course-training" replace />} />
           <Route path="courses/aiml-training-hyderabad" element={<Navigate to="/courses/aiml-course-training" replace />} />
+          {/* Commented out per request - Digital Marketing redirects
           <Route path="courses/job-guarantee-digital-marketing-course" element={<Navigate to="/courses/digital-marketing-job-guarantee-course-training" replace />} />
           <Route path="courses/digital-marketing-course-hyderabad" element={<Navigate to="/courses/digital-marketing-course-training" replace />} />
+          */}
+          {/* Commented out per request - Data Analytics redirect
           <Route path="courses/data-analytics-online-training" element={<Navigate to="/courses/data-analytics-course-training" replace />} />
+          */}
           <Route path="mentors" element={<Mentors />} />
           <Route path="contact-us" element={<ContactPage />} />
           <Route path="why-choose-us" element={<WhyChooseUs />} />
@@ -239,6 +248,8 @@ const AppContent = () => {
         </Suspense>
       </main>
       {!hideComponents && <Footer />}
+      {/* Shown on every page - before login, after login, and on every dashboard */}
+      <WhatsAppButton />
     </>
   );
 };

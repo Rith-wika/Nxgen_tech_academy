@@ -349,6 +349,7 @@ export const Navbar = () => {
                       link: "/courses/aiml",
                       items: courseCategories.find((c) => c.category === "AIML")?.items || []
                     },
+                    /* Commented out per request - Data Analytics / Digital Marketing nav categories
                     {
                       name: "Data Analytics",
                       link: "/courses/data-analytics",
@@ -359,6 +360,7 @@ export const Navbar = () => {
                       link: "/courses/digital-marketing",
                       items: courseCategories.find((c) => c.category === "Digital Marketing")?.items || []
                     }
+                    */
                   ].map((category) => (
                     <li key={category.name} className="relative group/category px-4 py-2 hover:bg-gray-100 flex justify-between items-center cursor-pointer">
                       <Link to={category.link} className="w-full text-left font-medium text-gray-800">
@@ -566,6 +568,7 @@ export const Navbar = () => {
                       link: "/courses/aiml",
                       items: courseCategories.find((c) => c.category === "AIML")?.items || []
                     },
+                    /* Commented out per request - Data Analytics / Digital Marketing nav categories
                     {
                       name: "Data Analytics",
                       link: "/courses/data-analytics",
@@ -576,6 +579,7 @@ export const Navbar = () => {
                       link: "/courses/digital-marketing",
                       items: courseCategories.find((c) => c.category === "Digital Marketing")?.items || []
                     }
+                    */
                   ].map((category) => (
                     <div key={category.name} className="border-b border-gray-100 last:border-0">
                       <button

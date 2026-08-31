@@ -86,6 +86,7 @@ export const categoryConfig: Record<string, { title: string; description: string
             "Implement security, DevOps, and automation on the platform"
         ]
     },
+    /* Commented out per request - Digital Marketing category
     "digital-marketing": {
         title: "Digital Marketing",
         description: "Master online marketing strategies to grow brands and drive business results.",
@@ -99,6 +100,8 @@ export const categoryConfig: Record<string, { title: string; description: string
             "Analyze marketing data to optimize campaign performance"
         ]
     },
+    */
+    /* Commented out per request - Data Analytics category
     "data-analytics": {
         title: "Data Analytics programing",
         description: "Master Data Analytics with Excel, SQL, Python, Power BI, and Tableau.",
@@ -110,6 +113,7 @@ export const categoryConfig: Record<string, { title: string; description: string
             "Build analytical dashboards"
         ]
     },
+    */
 };
 
 export const coursesData: CourseData[] = [
@@ -285,6 +289,7 @@ export const coursesData: CourseData[] = [
     },
 
 
+    /* Commented out per request - Digital Marketing courses
     // Digital Marketing Courses
     {
         id: "digital-marketing-job-guarantee-course-training",
@@ -310,6 +315,8 @@ export const coursesData: CourseData[] = [
         enrolled: "1200+",
         mode: "Online / Offline"
     },
+    */
+    /* Commented out per request - Data Analytics course
     {
         id: "data-analytics-course-training",
         title: "Data Analytics programing",
@@ -322,4 +329,5 @@ export const coursesData: CourseData[] = [
         enrolled: "1500+",
         mode: "Online / Offline"
     }
+    */
 ];

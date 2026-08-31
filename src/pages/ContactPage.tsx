@@ -83,13 +83,13 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <p className="font-bold text-lg mb-2 text-gray-800">Hyderabad (Kothaguda)</p>
-                    <a 
-                      href="https://maps.google.com/?q=Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Hyderabad,+Telangana+500084" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
+                    <a
+                      href="https://maps.google.com/?q=303,+3rd+Floor,+Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Kondapur,+Hyderabad,+Telangana+500084"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-gray-600 text-sm mb-2 block hover:text-[#000080] transition-colors"
                     >
-                      Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Hyderabad, Telangana 500084
+                      303, 3ʳᵈ Floor, Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Kondapur, Hyderabad, Telangana 500084
                     </a>
                     <p className="font-bold text-[#000080]">+91 9701314138</p>
                   </div>
@@ -184,7 +184,7 @@ const ContactPage = () => {
       {/* Map Section - Focused on Hyderabad Kothaguda */}
       <section className="h-[400px] w-full">
         <iframe
-          src="https://maps.google.com/maps?q=Udaya%20Vensar%20Apartments,%20Rd%20Number%201,%20Hanuman%20Nagar,%20Kothaguda,%20Hyderabad,%20Telangana%20500084&t=&z=15&ie=UTF8&iwloc=&output=embed"
+          src="https://maps.google.com/maps?q=303,%203rd%20Floor,%20Udaya%20Vensar%20Apartments,%20Rd%20Number%201,%20Hanuman%20Nagar,%20Kothaguda,%20Kondapur,%20Hyderabad,%20Telangana%20500084&t=&z=15&ie=UTF8&iwloc=&output=embed"
           width="100%"
           height="100%"
           style={{ border: 0 }}

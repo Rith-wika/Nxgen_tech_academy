@@ -22,9 +22,9 @@ const COURSES = [
     "SAP Functional Modules",
     "SAP Business Technology Platform (BTP)",
     "SAP Specialized / Sub Courses",
-    "Data Analytics",
+    // "Data Analytics", // Commented out per request
     "Python",
-    "Digital Marketing",
+    // "Digital Marketing", // Commented out per request
     "AI",
     "AIML",
     "Power BI"

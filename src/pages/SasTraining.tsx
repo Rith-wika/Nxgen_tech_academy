@@ -137,7 +137,7 @@ const SasTraining = () => {
                         <div className="bg-gray-50 p-6 rounded-xl">
                             <h3 className="text-xl font-bold mb-4 text-primary">Related Courses</h3>
                             <div className="space-y-3">
-                                {["Data Analytics", "Python Data Science", "Power BI Training", "Clinical Data Management"].map((course, i) => (
+                                {[/* "Data Analytics", */ "Python Data Science", "Power BI Training", "Clinical Data Management"].map((course, i) => (
                                     <div key={i} className="flex items-center gap-2 text-gray-700 hover:text-secondary cursor-pointer border-b border-gray-200 pb-2 last:border-0 last:pb-0">
                                         <BookOpen className="w-4 h-4" />
                                         <span>{course}</span>

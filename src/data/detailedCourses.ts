@@ -268,6 +268,7 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "What job roles are available after AI training?", answer: "Learners can become AI engineers, data analysts, automation specialists, or AI developers after completing artificial intelligence training in Hyderabad." }
         ]
     },
+    /* Commented out per request - Digital Marketing course
     "digital-marketing-job-guarantee-course-training": {
         id: "digital-marketing-job-guarantee-course-training",
         title: "Job Guarantee Digital Marketing Course",
@@ -388,6 +389,8 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "Is prior experience required?", answer: "No, beginners can start easily." }
         ]
     },
+    */
+    /* Commented out per request - Digital Marketing course
     "digital-marketing-course-training": {
         id: "digital-marketing-course-training",
         title: "Digital Marketing Course",
@@ -476,6 +479,7 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "Will I get practical experience?", answer: "Yes, live projects and assignments are included." }
         ]
     },
+    */
     "python-course-training": {
         id: "python-course-training",
         title: "Python Programming",
@@ -540,6 +544,7 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "Does the Python course include practical projects?", answer: "Yes. The training includes assignments, coding practice, and real-time projects." }
         ]
     },
+    /* Commented out per request - Data Analytics course
     "data-analytics-course-training": {
         id: "data-analytics-course-training",
         title: "Data Analytics programing",
@@ -693,4 +698,5 @@ export const detailedCourses: Record<string, DetailedCourse> = {
             { question: "What career options are available after training?", answer: "You can become a data analyst, business analyst, or reporting analyst." }
         ]
     }
+    */
 };

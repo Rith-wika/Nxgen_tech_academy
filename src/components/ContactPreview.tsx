@@ -30,8 +30,8 @@ export const ContactPreview = () => {
             { 
               icon: MapPin, 
               title: "Visit Us", 
-              info: "Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Hyderabad, Telangana 500084",
-              link: "https://maps.google.com/?q=Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Hyderabad,+Telangana+500084"
+              info: "303, 3ʳᵈ Floor, Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Kondapur, Hyderabad, Telangana 500084",
+              link: "https://maps.google.com/?q=303,+3rd+Floor,+Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Kondapur,+Hyderabad,+Telangana+500084"
             },
           ].map((contact, index) => (
             <div

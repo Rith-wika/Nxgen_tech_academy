@@ -25,12 +25,12 @@ export const Footer = () => {
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-[#000080] mt-1 shrink-0" />
                 <a
-                  href="https://maps.google.com/?q=Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Hyderabad,+Telangana+500084"
+                  href="https://maps.google.com/?q=303,+3rd+Floor,+Udaya+Vensar+Apartments,+Rd+Number+1,+Hanuman+Nagar,+Kothaguda,+Kondapur,+Hyderabad,+Telangana+500084"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
                 >
-                  Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Hyderabad, Telangana 500084
+                  303, 3ʳᵈ Floor, Udaya Vensar Apartments, Rd Number 1, Hanuman Nagar, Kothaguda, Kondapur, Hyderabad, Telangana 500084
                 </a>
               </div>
               <div className="flex items-center gap-3">
@@ -91,6 +91,7 @@ export const Footer = () => {
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> AIML
                 </Link>
               </li>
+              {/* Commented out per request - Data Analytics / Digital Marketing footer links
               <li>
                 <Link to="/training-programs?category=Data Analytics" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Data Analytics
@@ -101,6 +102,7 @@ export const Footer = () => {
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Digital Marketing
                 </Link>
               </li>
+              */}
             </ul>
           </div>
 

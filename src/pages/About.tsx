@@ -55,9 +55,11 @@ const About = () => {
     { title: "Python Programming", path: "/courses/python" },
     { title: "Artificial Intelligence & Machine Learning (AI/ML)", path: "/courses/aiml" },
     { title: "AI", path: "/courses/ai" },
-    { title: "Data Analytics", path: "/courses/data-analytics" },
+    // Commented out per request - Data Analytics
+    // { title: "Data Analytics", path: "/courses/data-analytics" },
     { title: "SAP", path: "/courses/sap-courses" },
-    { title: "Digital Marketing", path: "/courses/digital-marketing" }
+    // Commented out per request - Digital Marketing
+    // { title: "Digital Marketing", path: "/courses/digital-marketing" }
   ];
 
   const faqs = [

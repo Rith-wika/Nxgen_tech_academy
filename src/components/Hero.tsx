@@ -1,7 +1,6 @@
 import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
 import { motion } from 'framer-motion';
-import { FaWhatsapp } from "react-icons/fa";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -147,16 +146,7 @@ export const Hero = () => {
               </div>
             </motion.div>
           </div>
-          {/* WhatsApp quick chat button */}
-          <a
-            aria-label="Chat on WhatsApp"
-            href={`https://wa.me/916309782855?text=${encodeURIComponent("Hi, I'm interested in courses at NxGen Tech Academy")}`}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="fixed right-6 bottom-28 z-10 bg-green-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:h-16 hover:w-16 hover:shadow-2xl"
-          >
-            <FaWhatsapp className="w-8 h-8" />
-          </a>
+          {/* WhatsApp quick chat button now rendered globally in App.tsx */}
         </div>
       </section>
     </>
