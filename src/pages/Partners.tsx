@@ -120,7 +120,7 @@ const Partners = () => {
         description="Empowering Future Professionals Through Industry-Oriented Skill Development"
       >
         <Button size="lg" className="bg-[#22c55e] hover:bg-[#22c55e]/90 text-white font-semibold" asChild>
-          <Link to="/training-programs">Start Your Learning Journey Today</Link>
+          <Link to="/our-training-programs">Start Your Learning Journey Today</Link>
         </Button>
       </PageHero>
 

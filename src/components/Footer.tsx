@@ -72,33 +72,33 @@ export const Footer = () => {
             <h3 className="text-white text-xl mb-6 font-semibold">Our Services</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/training-programs?category=SAP Courses" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/our-training-programs?category=SAP Courses" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> SAP Courses
                 </Link>
               </li>
               <li>
-                <Link to="/training-programs?category=Python" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/our-training-programs?category=Python" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Python
                 </Link>
               </li>
               <li>
-                <Link to="/training-programs?category=AI" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/our-training-programs?category=AI" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> AI
                 </Link>
               </li>
               <li>
-                <Link to="/training-programs?category=AIML" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/our-training-programs?category=AIML" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> AIML
                 </Link>
               </li>
               {/* Commented out per request - Data Analytics / Digital Marketing footer links
               <li>
-                <Link to="/training-programs?category=Data Analytics" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/our-training-programs?category=Data Analytics" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Data Analytics
                 </Link>
               </li>
               <li>
-                <Link to="/training-programs?category=Digital Marketing" className="hover:text-white transition-colors flex items-center gap-2">
+                <Link to="/our-training-programs?category=Digital Marketing" className="hover:text-white transition-colors flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#000080] rounded-full"></span> Digital Marketing
                 </Link>
               </li>

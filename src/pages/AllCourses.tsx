@@ -57,7 +57,7 @@ const AllCourses = () => {
                 title="Our Training Programs | NxGen Tech Academy"
                 description="Discover industry-leading courses designed to build practical, job-ready skills."
                 type="website"
-                path="/training-programs"
+                path="/our-training-programs"
             />
 
             <PageHero

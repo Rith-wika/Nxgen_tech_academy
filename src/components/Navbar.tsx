@@ -253,7 +253,7 @@ export const Navbar = () => {
                     </div>
                     <div className="bg-gray-50 p-3 text-center border-t border-gray-100">
                       <Link
-                        to="/training-programs"
+                        to="/our-training-programs"
                         onClick={() => {
                           setIsSearchFocused(false);
                           setIsMobileSearchOpen(false);
@@ -446,7 +446,7 @@ export const Navbar = () => {
                       </div>
                       <div className="bg-gray-50 p-3 text-center border-t border-gray-100">
                         <Link
-                          to="/training-programs"
+                          to="/our-training-programs"
                           onClick={() => setIsSearchFocused(false)}
                           className="text-sm font-bold text-[#000080] hover:underline underline-offset-4"
                         >
@@ -473,7 +473,7 @@ export const Navbar = () => {
               asChild
               className="bg-[#000080] hover:bg-[#000080]/90 text-white font-medium px-2 xl:px-6"
             >
-              <Link to="/training-programs">Our Training Programs</Link>
+              <Link to="/our-training-programs">Our Training Programs</Link>
             </Button>
             <Button
               asChild
@@ -625,7 +625,7 @@ export const Navbar = () => {
             </div>
 
             <Button asChild className="w-full bg-[#000080] text-white">
-              <Link to="/training-programs" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link to="/our-training-programs" onClick={() => setIsMobileMenuOpen(false)}>
                 Our Training Programs
               </Link>
             </Button>

@@ -206,7 +206,7 @@ const Home = () => {
 
             <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-2 w-full">
               <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-white font-medium text-lg px-8 rounded-md w-full sm:w-auto">
-                <Link to="/training-programs">Explore Courses</Link>
+                <Link to="/our-training-programs">Explore Courses</Link>
               </Button>
               <Button
                 size="lg"
@@ -441,7 +441,7 @@ const Home = () => {
                 </li>
               </ul>
               <Button className="bg-secondary hover:bg-secondary/90 text-white mt-4" asChild>
-                <Link to="/training-programs">Explore More <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                <Link to="/our-training-programs">Explore More <ArrowRight className="ml-2 w-4 h-4" /></Link>
               </Button>
             </div>
           </div>
